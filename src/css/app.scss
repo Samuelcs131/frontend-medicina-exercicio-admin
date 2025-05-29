@@ -1,0 +1,70 @@
+// app global css in SCSS form
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: $stretch-max-width;
+}
+
+.body--light {
+  background-color: #fafafa;
+}
+
+/* GAP */
+
+.gap-xs {
+  gap: 0.25rem;
+}
+
+.gap-sm {
+  gap: 0.5rem;
+}
+
+.gap-md {
+  gap: 1rem;
+}
+
+.gap-lg {
+  gap: 1.5rem;
+}
+
+.gap-xl {
+  gap: 3rem;
+}
+
+/* --- */
+
+.active-item-menu {
+  background-color: rgba($color: $primary, $alpha: 0.2);
+  color: $primary;
+}
+
+.bg-theme-paper {
+  background-color: $dark;
+}
+
+.tiptap {
+  &:focus {
+    outline: none;
+  }
+
+  :first-child {
+    margin-top: 0;
+  }
+
+  p {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+}
+
+/* SCROLL */
+
+body {
+  scrollbar-color: rgba(rgb(255, 255, 255), 0.2) transparent;
+  scrollbar-width: thin;
+}
