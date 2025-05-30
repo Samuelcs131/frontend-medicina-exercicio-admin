@@ -1,6 +1,6 @@
 <template>
   <q-page class="container q-layout-padding">
-    <h1 class="text-h5">Profissionais</h1>
+    <h1 class="text-h5">Apoiadores</h1>
 
     <div class="flex justify-between gap-md q-mb-lg">
       <q-input
@@ -22,25 +22,25 @@
       selection="multiple"
       v-model:selected="state.actionsData"
       :rows="state.list"
-      :columns="professionalTableColumns"
+      :columns="supporterTableColumns"
       :filter="state.filter"
       :loading="loaderStatus(loader.list)"
       :rows-per-page-options="[20]"
     >
       <template #top-right>
         <action-header
-          label-new-entity="Novo profissional"
+          label-new-entity="Novo apoiador"
           :has-active="!state.actionsData.length"
           :loader-id="loader.list"
           @open-action-dialog="openActionDialog"
           @open-edit-dialog="openEditDialog"
         />
       </template>
+      <template #body-cell-imageURL="props">
+        <image-row :props="props" label="imageURL" />
+      </template>
       <template #body-cell-status="props">
         <status-row :props="props" />
-      </template>
-      <template #body-cell-imageURL="props">
-        <image-row label="imageURL" :props="props" />
       </template>
       <template #body-cell-actions="props">
         <q-td :props="props">
@@ -57,7 +57,7 @@
       :loader-action-id="loader.action"
       :name-items="state.actionsData.map((item) => item.name)"
       prefix="os"
-      title="profissionais"
+      title="apoiadores"
       @confirm-action="confirmAction"
     />
 
@@ -66,7 +66,7 @@
         <q-form @submit="save">
           <q-card-section class="q-py-none q-pt-sm">
             <h6 class="text-h6 q-my-none">
-              {{ state.form.id ? 'Editar' : 'Criar' }} profissional
+              {{ state.form.id ? 'Editar' : 'Criar' }} apoiador
             </h6>
           </q-card-section>
           <q-card-section class="row q-col-gutter-md">
@@ -78,87 +78,6 @@
                 v-bind="$vInput"
               />
             </div>
-            <div class="col-12">
-              <q-input
-                label="Sobre mim"
-                :rules="[requiredRule]"
-                v-model="state.form.aboutMy"
-                v-bind="$vInput"
-                type="textarea"
-              />
-            </div>
-            <div class="col-12">
-              <q-input
-                label="Instragram"
-                :rules="[requiredRule]"
-                v-model="state.form.instagram"
-                v-bind="$vInput"
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <q-input
-                label="RQN"
-                :rules="[requiredRule]"
-                v-model="state.form.RQN"
-                v-bind="$vInput"
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <q-input
-                label="CRM"
-                :rules="[requiredRule]"
-                v-model="state.form.RQN"
-                v-bind="$vInput"
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <q-select
-                label="Especialidades"
-                :rules="[requiredRule]"
-                v-bind="$vSelect"
-                v-model="state.form.specialtyIds"
-                multiple
-                :options="state.options.specialty"
-                option-value="id"
-                use-chips
-              >
-                <template v-slot:selected-item="scope">
-                  <chip-select :scope="scope" />
-                </template>
-              </q-select>
-            </div>
-            <div class="col-12 col-md-6">
-              <q-select
-                label="Subespecialidades"
-                :rules="[requiredRule]"
-                v-bind="$vSelect"
-                v-model="state.form.subspecialtyIds"
-                multiple
-                :options="state.options.subspecialty"
-                option-value="id"
-                use-chips
-              >
-                <template v-slot:selected-item="scope">
-                  <chip-select :scope="scope" />
-                </template>
-              </q-select>
-            </div>
-            <div class="col-12">
-              <q-select
-                label="Locais de atendimento"
-                :rules="[requiredRule]"
-                v-bind="$vSelect"
-                v-model="state.form.localServiceIds"
-                multiple
-                :options="state.options.localsService"
-                option-value="id"
-                use-chips
-              >
-                <template v-slot:selected-item="scope">
-                  <chip-select :scope="scope" />
-                </template>
-              </q-select>
-            </div>
             <div class="col-12" v-if="state.form.id">
               <q-select
                 label="Status"
@@ -169,39 +88,15 @@
               />
             </div>
             <div class="col-12">
-              <q-toggle
-                v-model="state.form.teleconsultation"
-                label="Realiza teleconsulta?"
-              />
-            </div>
-            <div class="col-12">
-              <q-toggle
-                v-model="state.form.speakEnglish"
-                label="Domina o inglês?"
-              />
-            </div>
-            <div class="col-12 col-md-6">
               <q-uploader
                 class="shadow-0 q-my-md full-width"
                 bordered
-                label="Foto profissional"
+                label="Imagem"
                 max-files="1"
                 hide-upload-btn
                 @added="addFile"
                 @removed="removeFile"
                 accept="image/*"
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <q-uploader
-                class="shadow-0 q-my-md full-width"
-                bordered
-                label="Currículo (PDF)"
-                max-files="1"
-                hide-upload-btn
-                @added="addCurriculumFile"
-                @removed="removeCurriculumFile"
-                accept=".pdf, application/pdf"
               />
             </div>
 
@@ -232,11 +127,7 @@
               label="Salvar"
               unelevated
               type="submit"
-              :disable="
-                !state.form.curriculumFile &&
-                !state.form.imageFile &&
-                !state.form.id
-              "
+              :disable="!state.form.imageFile && !state.form.id"
               :loading="loaderStatus(loader.edit)"
             />
           </q-card-actions>
@@ -250,13 +141,12 @@ import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
 import { onMounted } from 'vue'
-import { useProfessional } from './useProfessional'
-import { professionalTableColumns } from './medicalArea.const'
+import { useSupporter } from './useSupporter'
+import { supporterTableColumns } from './supporter.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import ImageRow from 'src/components/table/ImageRow.vue'
-import ChipSelect from 'src/components/select/ChipSelect.vue'
 
 const {
   state,
@@ -272,9 +162,7 @@ const {
   openEditDialog,
   clearEditDialog,
   openActionDialog,
-  addCurriculumFile,
-  removeCurriculumFile,
-} = useProfessional()
+} = useSupporter()
 
 onMounted(async () => {
   await fetchList()

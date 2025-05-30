@@ -26,7 +26,7 @@ export async function getAll(): Promise<IProfessional[]> {
         },
       ],
       aboutMy: 'Um texto resumido igual o linkedin',
-      localServiceIds: [],
+      localServiceIds: ['1'],
       instagram: 'https://www.instagram.com/paulomuzy',
       curriculumURL: 'string',
       site: 'site.com.br',

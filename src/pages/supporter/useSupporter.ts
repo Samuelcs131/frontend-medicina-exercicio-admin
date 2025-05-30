@@ -4,85 +4,47 @@ import { Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
-import * as ProfessionalService from 'src/services/professional/professional.service'
-import * as SubspecialtyService from 'src/services/speciality/subspecialty.service'
-import * as SpecialtyService from 'src/services/speciality/specialty.service'
-import * as LocalServiceService from 'src/services/local-service/localService.service'
+import * as SupporterService from 'src/services/supporter/supporter.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
-import type { IProfessional } from 'src/types/professional/IProfessional.type'
-import type { IBasicEntity } from 'src/types/IBasicEntity.type'
+import { ISupporter } from 'src/types/supporter/ISupporter.type'
 
 interface IState {
   form: {
     id?: string
     name: string
-    RQN: string
-    CRM: string
     imageURL: string
-    specialtyIds: string[]
-    subspecialtyIds: string[]
-    aboutMy: string
-    localServiceIds: string[]
-    instagram: string
-    curriculumURL: string
-    site: string
-    teleconsultation: boolean
-    speakEnglish: boolean
-    status: Status
     imageFile: File | null
-    curriculumFile: File | null
+    status: Status
   }
-  options: {
-    specialty: IBasicEntity<string>[]
-    subspecialty: IBasicEntity<string>[]
-    localsService: IBasicEntity<string>[]
-  }
-  list: IProfessional[]
+  list: ISupporter[]
   filter: string
   actionType: ActionDialogOptions
-  actionsData: IProfessional[]
+  actionsData: ISupporter[]
 }
 
-export function useProfessional() {
+export function useSupporter() {
   const initState: IState = {
     form: {
       status: Status.active,
       imageURL: '',
       imageFile: null,
-      curriculumFile: null,
       name: '',
-      RQN: '',
-      CRM: '',
-      specialtyIds: [],
-      subspecialtyIds: [],
-      aboutMy: '',
-      localServiceIds: [],
-      instagram: '',
-      curriculumURL: '',
-      site: '',
-      teleconsultation: false,
-      speakEnglish: false,
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
     filter: '',
     list: [],
-    options: {
-      specialty: [],
-      subspecialty: [],
-      localsService: [],
-    },
   }
 
   const dialog = {
-    edit: 'edit-78lk6j5h4g3',
-    action: 'action-5j5623',
+    edit: 'edit-h456hg3qgfc',
+    action: 'action-n756h53gvw4',
   }
 
   const loader = {
-    list: 'list-78lk6j5h4g3',
-    edit: 'edit-6h35g4f2',
-    action: 'action-5j5623',
+    list: 'list-h456hg3qgfc',
+    edit: 'edit-6535gfcx',
+    action: 'action-n756h53gvw4',
   }
 
   const state = ref<IState>(cloneDeep(initState))
@@ -92,12 +54,7 @@ export function useProfessional() {
   async function fetchList() {
     await requester.dispatch({
       callback: async () => {
-        state.value.options = {
-          specialty: await SubspecialtyService.getAll(),
-          subspecialty: await SpecialtyService.getAll(),
-          localsService: await LocalServiceService.getAll(),
-        }
-        state.value.list = await ProfessionalService.getAll()
+        state.value.list = await SupporterService.getAll()
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
@@ -111,37 +68,15 @@ export function useProfessional() {
     await requester.dispatch({
       callback: async () => {
         if (id)
-          await ProfessionalService.save(
+          await SupporterService.save(
             id,
             state.value.form.name,
-            state.value.form.RQN,
-            state.value.form.CRM,
-            state.value.form.specialtyIds,
-            state.value.form.subspecialtyIds,
-            state.value.form.aboutMy,
-            state.value.form.localServiceIds,
-            state.value.form.instagram,
-            state.value.form.site,
-            state.value.form.teleconsultation,
-            state.value.form.speakEnglish,
             state.value.form.imageFile,
-            state.value.form.curriculumFile,
           )
         else
-          await ProfessionalService.create(
+          await SupporterService.create(
             state.value.form.name,
-            state.value.form.RQN,
-            state.value.form.CRM,
-            state.value.form.specialtyIds,
-            state.value.form.subspecialtyIds,
-            state.value.form.aboutMy,
-            state.value.form.localServiceIds,
-            state.value.form.instagram,
-            state.value.form.site,
-            state.value.form.teleconsultation,
-            state.value.form.speakEnglish,
             state.value.form.imageFile!,
-            state.value.form.curriculumFile!,
           )
       },
       successCallback: async () => {
@@ -165,9 +100,9 @@ export function useProfessional() {
         const ids = state.value.actionsData.map((item) => item.id)
 
         if (actionType == ActionDialogOptions.delete)
-          await ProfessionalService.deleteItem(ids)
+          await SupporterService.deleteItem(ids)
         if (actionType == ActionDialogOptions.disable)
-          await ProfessionalService.disable(ids)
+          await SupporterService.disable(ids)
       },
       successCallback: async () => {
         toggleDialog(dialog.action)
@@ -181,14 +116,11 @@ export function useProfessional() {
     })
   }
 
-  function openEditDialog(item?: IProfessional) {
+  function openEditDialog(item?: ISupporter) {
     if (item)
       state.value.form = {
         ...item,
         imageFile: null,
-        curriculumFile: null,
-        specialtyIds: item.specialties.map((item) => item.id),
-        subspecialtyIds: item.subspecialties.map((item) => item.id),
       }
     else clearEditDialog()
 
@@ -213,15 +145,6 @@ export function useProfessional() {
     state.value.form.imageFile = null
   }
 
-  function addCurriculumFile(files: readonly File[]) {
-    const [file] = files
-    state.value.form.curriculumFile = file as File
-  }
-
-  function removeCurriculumFile() {
-    state.value.form.curriculumFile = null
-  }
-
   return {
     state,
     dialog,
@@ -238,7 +161,5 @@ export function useProfessional() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
-    addCurriculumFile,
-    removeCurriculumFile,
   }
 }

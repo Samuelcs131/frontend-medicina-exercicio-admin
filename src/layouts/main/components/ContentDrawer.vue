@@ -1,5 +1,5 @@
 <template>
-  <q-scroll-area class="fit">
+  <q-scroll-area class="fit" id="menu-content-drawer">
     <q-item style="height: 60px" :active="false" to="/">
       <q-img :src="logo" width="130px" fit="contain" v-if="!mini" />
       <q-img :src="logoSimple" fit="contain" v-else />
@@ -68,26 +68,27 @@ function handleRoles(roles: Roles[]) {
     JSON.parse(getLocalStorage(LocalStorageKey.user)).roles || []
 
   if (userRoles.includes(Roles.admin)) return true
-
   return roles.some((role) => userRoles.includes(role))
 }
 </script>
 <style lang="scss">
-// ACTIVE EXPANDED
-.q-item[aria-expanded='true'] {
-  .q-item__section,
-  .icon-point {
-    color: $primary !important;
+#menu-content-drawer {
+  // ACTIVE EXPANDED
+  .q-item[aria-expanded='true'] {
+    .q-item__section,
+    .icon-point {
+      color: $primary !important;
+    }
   }
-}
 
-// COLLAPSE
-.q-expansion-item__content {
-  margin-left: 27px;
-  border-left: 1px solid $separator-color;
-
+  // COLLAPSE
   .q-expansion-item__content {
-    margin-left: 19px;
+    margin-left: 27px;
+    border-left: 1px solid $separator-color;
+
+    .q-expansion-item__content {
+      margin-left: 19px;
+    }
   }
 }
 </style>

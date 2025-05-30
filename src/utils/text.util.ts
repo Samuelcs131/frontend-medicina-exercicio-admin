@@ -65,3 +65,7 @@ export function slugify(text: string): string {
     .replace(/-+$/, '') // Trim - from end of text
 }
 
+export function truncateText(text: string, limit: number) {
+  if (text.length > limit) return text.substring(0, limit) + '...'
+  return text
+}

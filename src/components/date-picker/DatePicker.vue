@@ -5,12 +5,19 @@
     @update:model-value="emitDateValue"
     :mask="propsCurrent.maskInput"
     :rules="
-      ruleActive ? [(v: string) => requiredDate(handleValueDate(v) as string)] : []
+      ruleActive
+        ? [(v: string) => requiredDate(handleValueDate(v) as string)]
+        : []
     "
   >
     <template #append>
       <q-icon name="event" class="cursor-pointer q-ml-sm">
-        <q-popup-proxy cover transition-show="scale" transition-hide="scale" class="shadow-0">
+        <q-popup-proxy
+          cover
+          transition-show="scale"
+          transition-hide="scale"
+          class="shadow-0"
+        >
           <q-date
             bordered
             v-model="dateValue"
@@ -27,7 +34,12 @@
         </q-popup-proxy>
       </q-icon>
       <q-icon name="access_time" class="cursor-pointer q-ml-sm">
-        <q-popup-proxy cover transition-show="scale" transition-hide="scale" class="shadow-0">
+        <q-popup-proxy
+          cover
+          transition-show="scale"
+          transition-hide="scale"
+          class="shadow-0"
+        >
           <q-time
             v-model="dateValue"
             format24h
@@ -78,7 +90,8 @@ const emitDateValue = (newDate: string | number | null) => {
 }
 
 function handleValueDate(date?: string) {
-  return date?.length === 16 ? parsePtBrToISO(date) : null
+  if (!date) return null
+  return date.length >= 16 ? parsePtBrToISO(date.replace(',', '')) : null
 }
 
 onMounted(() => {

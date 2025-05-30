@@ -77,6 +77,24 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/video/VideoPage.vue'),
         meta: { requiresAuth: true, roles: [] },
       },
+      {
+        path: 'post',
+        name: 'post',
+        component: () => import('pages/post-page/PostPage.vue'),
+        meta: { requiresAuth: true, roles: [] },
+      },
+      {
+        path: 'postEdit/:postId?',
+        name: 'postEdit',
+        component: () => import('pages/post-edit/PostEditPage.vue'),
+        meta: { requiresAuth: true, roles: [] },
+      },
+      {
+        path: 'supporter',
+        name: 'supporter',
+        component: () => import('pages/supporter/SupporterPage.vue'),
+        meta: { requiresAuth: true, roles: [] },
+      },
     ],
   },
 
