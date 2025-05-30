@@ -73,7 +73,7 @@
         <q-form @submit="save">
           <q-card-section class="q-py-none q-pt-sm">
             <h6 class="text-h6 q-my-none">
-              {{ state.form.id ? 'Editar' : 'Criar' }} vídeos
+              {{ state.form.id ? 'Editar' : 'Criar' }} vídeo
             </h6>
           </q-card-section>
           <q-card-section class="row q-col-gutter-md">
@@ -119,7 +119,7 @@
                 </template>
               </q-select>
             </div>
-            <div class="col-12">
+            <div class="col-12 col-md-6">
               <q-select
                 label="Especialidade"
                 :rules="[requiredRule]"
@@ -127,6 +127,22 @@
                 v-model="state.form.specialtyIds"
                 multiple
                 :options="state.options.specialties"
+                option-value="id"
+                use-chips
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" />
+                </template>
+              </q-select>
+            </div>
+            <div class="col-12 col-md-6">
+              <q-select
+                label="Subespecialidade"
+                :rules="[requiredRule]"
+                v-bind="$vSelect"
+                v-model="state.form.subspecialtyIds"
+                multiple
+                :options="state.options.subspecialties"
                 option-value="id"
                 use-chips
               >

@@ -15,6 +15,7 @@ export async function getAll(): Promise<IVideo[]> {
       status: Status.active,
       professionalIds: ['1'],
       specialtyIds: ['1'],
+      subspecialtyIds: ['1'],
       url: 'https://youtu.be/GkYcFV7qkyk',
     },
   ]

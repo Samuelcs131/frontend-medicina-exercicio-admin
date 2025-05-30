@@ -7,6 +7,7 @@ import requester from 'src/helpers/requester/Requester.helper'
 import * as VideoService from 'src/services/video/video.service'
 import * as ProfessionalService from 'src/services/professional/professional.service'
 import * as SpecialtyService from 'src/services/speciality/specialty.service'
+import * as SubspecialtyService from 'src/services/speciality/subspecialty.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import type { IVideo } from 'src/types/video/IVideo.type'
@@ -19,11 +20,13 @@ interface IState {
     description: string
     professionalIds: string[]
     specialtyIds: string[]
+    subspecialtyIds: string[]
     status: Status
   }
   options: {
     professionals: IBasicEntity<string>[]
     specialties: IBasicEntity<string>[]
+    subspecialties: IBasicEntity<string>[]
   }
   list: IVideo[]
   filter: string
@@ -40,10 +43,12 @@ export function useVideoPage() {
       description: '',
       professionalIds: [],
       specialtyIds: [],
+      subspecialtyIds: [],
     },
     options: {
       professionals: [],
       specialties: [],
+      subspecialties: [],
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
@@ -72,6 +77,7 @@ export function useVideoPage() {
         state.value.options = {
           specialties: await SpecialtyService.getAll(),
           professionals: await ProfessionalService.getAll(),
+          subspecialties: await SubspecialtyService.getAll(),
         }
 
         state.value.list = await VideoService.getAll()
