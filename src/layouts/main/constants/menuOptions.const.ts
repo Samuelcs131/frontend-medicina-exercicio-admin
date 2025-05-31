@@ -20,7 +20,7 @@ export const menuOptions: IMenuOptions[] = [
     children: [
       {
         icon: '',
-        name: 'Áreas médica',
+        name: 'Áreas médicas',
         separator: false,
         to: { name: 'medicalArea' },
         roles: [],

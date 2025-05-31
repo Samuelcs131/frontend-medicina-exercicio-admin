@@ -87,6 +87,14 @@
             </div>
             <div class="col-12">
               <q-input
+                label="Descrição"
+                :rules="[requiredRule]"
+                v-model="state.form.description"
+                v-bind="$vInput"
+              />
+            </div>
+            <div class="col-12">
+              <q-input
                 label="URL Youtube"
                 :rules="[requiredRule]"
                 v-model="state.form.url"

@@ -13,6 +13,8 @@ export async function getAll(): Promise<IProfessional[]> {
       name: 'Paulo Muzy',
       RQN: '1258678456',
       CRM: '122334',
+      city: { id: '1', name: 'Rio de Janeiro' },
+      state: { id: '1', name: 'Rio de Janeiro' },
       specialties: [
         {
           id: '1',
@@ -28,8 +30,8 @@ export async function getAll(): Promise<IProfessional[]> {
       aboutMy: 'Um texto resumido igual o linkedin',
       localServiceIds: ['1'],
       instagram: 'https://www.instagram.com/paulomuzy',
-      curriculumURL: 'string',
       site: 'site.com.br',
+      curriculumLattes: 'curriculoLattes.com.br',
       teleconsultation: false,
       speakEnglish: false,
       imageURL:
@@ -52,7 +54,7 @@ export async function create(
   teleconsultation: boolean,
   speakEnglish: boolean,
   image: File,
-  curriculum: File,
+  curriculumLattes: string,
 ) {
   const formData = new FormData()
 
@@ -65,7 +67,7 @@ export async function create(
   formData.append('teleconsultation', `${teleconsultation}`)
   formData.append('speakEnglish', `${speakEnglish}`)
   formData.append('image', image)
-  formData.append('curriculum', curriculum)
+  formData.append('curriculumLattes', curriculumLattes)
 
   specialtyIds.forEach((id) => formData.append('specialtyId', id))
   subspecialtyIds.forEach((id) => formData.append('subspecialtyId', id))
@@ -92,7 +94,7 @@ export async function save(
   teleconsultation: boolean,
   speakEnglish: boolean,
   image: File | null,
-  curriculum: File | null,
+  curriculumLattes: string,
 ) {
   const formData = new FormData()
 
@@ -102,6 +104,7 @@ export async function save(
   formData.append('aboutMy', aboutMy)
   formData.append('instagram', instagram)
   formData.append('site', site)
+  formData.append('curriculumLattes', curriculumLattes)
   formData.append('teleconsultation', `${teleconsultation}`)
   formData.append('speakEnglish', `${speakEnglish}`)
 
@@ -110,7 +113,6 @@ export async function save(
   localServiceIds.forEach((id) => formData.append('localServiceIds', id))
 
   if (image) formData.append('image', image)
-  if (curriculum) formData.append('curriculum', curriculum)
 
   await api.put(`/professional/${id}`, formData, {
     headers: {

@@ -16,7 +16,7 @@ export const videoPageTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
-    label: 'URL',
+    label: 'Imagem',
     field: 'url',
     name: 'url',
     sortable: true,

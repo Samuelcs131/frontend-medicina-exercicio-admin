@@ -70,6 +70,16 @@
             </h6>
           </q-card-section>
           <q-card-section class="row q-col-gutter-md">
+            <div class="col-12" v-if="state.form.id">
+              <q-select
+                label="Status"
+                :rules="[requiredRule]"
+                v-bind="$vSelect"
+                v-model="state.form.status"
+                :options="statusOptions"
+              />
+            </div>
+
             <div class="col-12">
               <q-input
                 label="Nome"
@@ -78,39 +88,7 @@
                 v-bind="$vInput"
               />
             </div>
-            <div class="col-12">
-              <q-input
-                label="Sobre mim"
-                :rules="[requiredRule]"
-                v-model="state.form.aboutMy"
-                v-bind="$vInput"
-                type="textarea"
-              />
-            </div>
-            <div class="col-12">
-              <q-input
-                label="Instragram"
-                :rules="[requiredRule]"
-                v-model="state.form.instagram"
-                v-bind="$vInput"
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <q-input
-                label="RQN"
-                :rules="[requiredRule]"
-                v-model="state.form.RQN"
-                v-bind="$vInput"
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <q-input
-                label="CRM"
-                :rules="[requiredRule]"
-                v-model="state.form.RQN"
-                v-bind="$vInput"
-              />
-            </div>
+
             <div class="col-12 col-md-6">
               <q-select
                 label="Especialidades"
@@ -143,6 +121,56 @@
                 </template>
               </q-select>
             </div>
+
+            <div class="col-12 col-md-6">
+              <q-input
+                label="CRM"
+                :rules="[requiredRule]"
+                v-model="state.form.CRM"
+                v-bind="$vInput"
+              />
+            </div>
+
+            <div class="col-12 col-md-6">
+              <q-input
+                label="RQN"
+                v-model="state.form.RQN"
+                v-bind="$vInput"
+                class="q-mb-md"
+              />
+            </div>
+
+            <div class="col-12">
+              <q-input
+                label="Sobre mim"
+                :rules="[requiredRule]"
+                v-model="state.form.aboutMy"
+                v-bind="$vInput"
+                type="textarea"
+              />
+            </div>
+
+            <div class="col-12 col-md-6">
+              <q-select
+                label="Estado"
+                :rules="[requiredRule]"
+                v-bind="$vSelect"
+                v-model="state.form.stateId"
+                :options="state.options.states"
+                option-value="id"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-select
+                label="Cidade"
+                :rules="[requiredRule]"
+                v-bind="$vSelect"
+                v-model="state.form.cityId"
+                :options="state.options.cities"
+                option-value="id"
+              />
+            </div>
+
             <div class="col-12">
               <q-select
                 label="Locais de atendimento"
@@ -159,15 +187,7 @@
                 </template>
               </q-select>
             </div>
-            <div class="col-12" v-if="state.form.id">
-              <q-select
-                label="Status"
-                :rules="[requiredRule]"
-                v-bind="$vSelect"
-                v-model="state.form.status"
-                :options="statusOptions"
-              />
-            </div>
+
             <div class="col-12">
               <q-toggle
                 v-model="state.form.teleconsultation"
@@ -177,31 +197,47 @@
             <div class="col-12">
               <q-toggle
                 v-model="state.form.speakEnglish"
-                label="Domina o inglês?"
+                label="Realiza atendimento em inglês?"
               />
             </div>
-            <div class="col-12 col-md-6">
+
+            <div class="col-12">
+              <q-input
+                label="Instagram"
+                v-model="state.form.instagram"
+                v-bind="$vInput"
+                class="q-mb-md"
+              />
+            </div>
+
+            <div class="col-12">
+              <q-input
+                label="Currículo Lattes"
+                v-model="state.form.curriculumLattes"
+                v-bind="$vInput"
+                class="q-mb-md"
+              />
+            </div>
+
+            <div class="col-12">
+              <q-input
+                label="Site"
+                v-model="state.form.site"
+                v-bind="$vInput"
+                class="q-mb-md"
+              />
+            </div>
+
+            <div class="col-12">
               <q-uploader
                 class="shadow-0 q-my-md full-width"
                 bordered
-                label="Foto profissional"
+                label="Foto do profissional"
                 max-files="1"
                 hide-upload-btn
                 @added="addFile"
                 @removed="removeFile"
                 accept="image/*"
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <q-uploader
-                class="shadow-0 q-my-md full-width"
-                bordered
-                label="Currículo (PDF)"
-                max-files="1"
-                hide-upload-btn
-                @added="addCurriculumFile"
-                @removed="removeCurriculumFile"
-                accept=".pdf, application/pdf"
               />
             </div>
 
@@ -232,11 +268,7 @@
               label="Salvar"
               unelevated
               type="submit"
-              :disable="
-                !state.form.curriculumFile &&
-                !state.form.imageFile &&
-                !state.form.id
-              "
+              :disable="!state.form.imageFile && !state.form.id"
               :loading="loaderStatus(loader.edit)"
             />
           </q-card-actions>
@@ -272,8 +304,6 @@ const {
   openEditDialog,
   clearEditDialog,
   openActionDialog,
-  addCurriculumFile,
-  removeCurriculumFile,
 } = useProfessional()
 
 onMounted(async () => {

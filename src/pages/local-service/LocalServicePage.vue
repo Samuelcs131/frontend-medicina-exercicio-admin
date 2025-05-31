@@ -88,7 +88,7 @@
           <q-card-section class="row q-col-gutter-md">
             <div class="col-12 col-md-6">
               <q-input
-                label="Nome"
+                label="Nome da clínica ou hospital"
                 :rules="[requiredRule]"
                 v-model="state.form.name"
                 v-bind="$vInput"
@@ -147,10 +147,23 @@
               />
             </div>
             <div class="col-12">
-              <coordinates-input
-                v-model="state.form.coordinates"
-                :street="state.form.street"
-              />
+              <div class="flex gap-md no-wrap items-start">
+                <q-input
+                  label="Coordenadas (Latitude e Longitude)"
+                  v-model="state.form.coordinates"
+                  v-bind="$vInput"
+                  class="full-width"
+                  :rules="[requiredRule]"
+                />
+                <q-btn
+                  style="flex-shrink: 0"
+                  icon="map"
+                  flat
+                  @click="openGoogleMaps(state.form.street)"
+                >
+                  <q-tooltip>Google Maps</q-tooltip>
+                </q-btn>
+              </div>
             </div>
 
             <p @click="toggleDialog(dialog.example)" class="cursor-pointer">
@@ -191,7 +204,6 @@ import { localServiceTableColumns } from './localService.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
-import CoordinatesInput from './components/CoordinatesInput.vue'
 import exampleCoordinates from 'src/assets/placeholder/example-coordinates.png'
 
 const {
@@ -204,6 +216,7 @@ const {
   toggleDialog,
   confirmAction,
   openEditDialog,
+  openGoogleMaps,
   clearEditDialog,
   openActionDialog,
 } = useLocalService()

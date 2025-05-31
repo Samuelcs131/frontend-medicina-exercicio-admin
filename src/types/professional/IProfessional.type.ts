@@ -9,11 +9,13 @@ export interface IProfessional {
   imageURL: string
   specialties: IBasicEntity<string>[]
   subspecialties: IBasicEntity<string>[]
+  city: IBasicEntity<string>
+  state: IBasicEntity<string>
   aboutMy: string
   localServiceIds: string[]
   instagram: string
-  curriculumURL: string
   site: string
+  curriculumLattes: string
   teleconsultation: boolean
   speakEnglish: boolean
   status: Status

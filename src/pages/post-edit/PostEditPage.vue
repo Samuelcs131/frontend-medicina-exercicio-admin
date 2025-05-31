@@ -14,6 +14,28 @@
         <q-card class="shadow-0" bordered>
           <q-card-section>
             <div class="row q-col-gutter-md">
+              <div class="col-12 col-md-6">
+                <q-select
+                  v-bind="$vSelect"
+                  v-model="state.form.specialtyId"
+                  :options="state.options.specialties"
+                  option-value="id"
+                  label="Especialidade"
+                  :rules="[requiredRule]"
+                />
+              </div>
+
+              <div class="col-12 col-md-6">
+                <q-select
+                  v-bind="$vSelect"
+                  v-model="state.form.subspecialtyId"
+                  :options="state.options.subspecialties"
+                  option-value="id"
+                  label="Subespecialidade"
+                  :rules="[requiredRule]"
+                />
+              </div>
+
               <div class="col-12">
                 <q-input
                   v-model="state.form.title"
@@ -122,33 +144,6 @@
                   label="Descrição do autor"
                   outlined
                   dense
-                  :rules="[requiredRule]"
-                />
-              </div>
-
-              <div class="col-12">
-                <p class="text-caption q-mb-sm">Categorização</p>
-                <q-separator />
-              </div>
-
-              <div class="col-12 col-md-6">
-                <q-select
-                  v-bind="$vSelect"
-                  v-model="state.form.specialtyId"
-                  :options="state.options.specialties"
-                  option-value="id"
-                  label="Especialidade"
-                  :rules="[requiredRule]"
-                />
-              </div>
-
-              <div class="col-12 col-md-6">
-                <q-select
-                  v-bind="$vSelect"
-                  v-model="state.form.subspecialtyId"
-                  :options="state.options.subspecialties"
-                  option-value="id"
-                  label="Subespecialidade"
                   :rules="[requiredRule]"
                 />
               </div>

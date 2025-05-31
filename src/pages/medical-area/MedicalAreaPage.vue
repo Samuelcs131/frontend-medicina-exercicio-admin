@@ -1,6 +1,6 @@
 <template>
   <q-page class="container q-layout-padding">
-    <h1 class="text-h5">Áreas médica</h1>
+    <h1 class="text-h5">Áreas médicas</h1>
 
     <div class="flex justify-between gap-md q-mb-lg">
       <q-input

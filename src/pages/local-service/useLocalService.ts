@@ -20,7 +20,7 @@ interface IState {
     stateId: string
     cityId: string
     street: string
-    coordinates: number[]
+    coordinates: string
     status: Status
   }
   options: {
@@ -40,7 +40,7 @@ export function useLocalService() {
       name: '',
       cityId: '',
       contact: '',
-      coordinates: [],
+      coordinates: '',
       hasWhatsapp: false,
       stateId: '',
       street: '',
@@ -172,6 +172,11 @@ export function useLocalService() {
     toggleDialog(dialog.action)
   }
 
+  function openGoogleMaps(street: string) {
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(street)}`
+    window.open(url, '_blank')
+  }
+
   return {
     state,
     dialog,
@@ -183,6 +188,7 @@ export function useLocalService() {
     createDialog,
     loaderStatus,
     confirmAction,
+    openGoogleMaps,
     openEditDialog,
     clearEditDialog,
     openActionDialog,

@@ -9,6 +9,6 @@ export interface ILocalService {
   state: IBasicEntity<string>
   city: IBasicEntity<string>
   street: string
-  coordinates: number[]
+  coordinates: string
   status: Status
 }

@@ -22,7 +22,7 @@ export async function getAll(): Promise<ILocalService[]> {
       hasWhatsapp: false,
       street: 'Rua de souza barros',
       contact: '21916511',
-      coordinates: [-22.912078166162456, -43.23016584727621],
+      coordinates: '-22.865307226398542, -43.21486019013049',
       status: Status.active,
     },
   ]
@@ -35,7 +35,7 @@ export async function create(
   hasWhatsapp: boolean,
   street: string,
   contact: string,
-  coordinates: number[],
+  coordinates: string,
 ) {
   await api.post('/local-service', {
     name,
@@ -56,7 +56,7 @@ export async function save(
   hasWhatsapp: boolean,
   street: string,
   contact: string,
-  coordinates: number[],
+  coordinates: string,
 ) {
   await api.put(`/local-service/${id}`, {
     name,
