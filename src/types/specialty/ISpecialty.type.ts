@@ -1,9 +1,9 @@
 import type { Status } from 'src/enums/Status.enum'
-import type { IMedicalArea } from './IMedicalArea.type'
+import type { IProfissionalArea } from './IProfissionalArea.type'
 
 export interface ISpecialty {
   id: string
   name: string
-  medicalArea: IMedicalArea
+  professionalArea: IProfissionalArea
   status: Status
 }

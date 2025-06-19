@@ -6,12 +6,12 @@ import { fakePromise } from 'src/utils/fakePromise.util'
 export async function getAll(): Promise<ISpecialty[]> {
   /* const { data } = await api.get('/specialty')
   return data.users */
-  await fakePromise(1000)
+  await fakePromise(100)
   return [
     {
       id: '1',
       name: 'Cardiologia',
-      medicalArea: {
+      professionalArea: {
         id: '1',
         name: 'Especialidades Médicas - Adulto',
         imageURL:
@@ -23,7 +23,7 @@ export async function getAll(): Promise<ISpecialty[]> {
     {
       id: '2',
       name: 'Alergologia',
-      medicalArea: {
+      professionalArea: {
         id: '1',
         name: 'Especialidades Médicas - Adulto',
         imageURL:
@@ -35,7 +35,7 @@ export async function getAll(): Promise<ISpecialty[]> {
     {
       id: '3',
       name: 'Acupuntura',
-      medicalArea: {
+      professionalArea: {
         id: '1',
         name: 'Especialidades Médicas - Adulto',
         imageURL:
@@ -47,17 +47,21 @@ export async function getAll(): Promise<ISpecialty[]> {
   ]
 }
 
-export async function create(name: string, medicalAreaId: string) {
+export async function create(name: string, professionalAreaId: string) {
   await api.post('/specialty', {
     name,
-    medicalAreaId,
+    professionalAreaId,
   })
 }
 
-export async function save(id: string, name: string, medicalAreaId: string) {
+export async function save(
+  id: string,
+  name: string,
+  professionalAreaId: string,
+) {
   await api.put(`/specialty/${id}`, {
     name,
-    medicalAreaId,
+    professionalAreaId,
   })
 }
 

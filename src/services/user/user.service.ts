@@ -7,13 +7,13 @@ import { fakePromise } from 'src/utils/fakePromise.util'
 export async function getAll(): Promise<IUser[]> {
   /* const { data } = await api.get('/users')
   return data.users */
-  await fakePromise(1000)
+  await fakePromise(100)
   return [
     {
       id: '1',
       name: 'Nome 1',
       email: 'mail.com',
-      roles: [Roles.professional],
+      roles: [Roles.admin],
       status: Status.active,
     },
     {

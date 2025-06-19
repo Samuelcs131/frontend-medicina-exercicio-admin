@@ -9,4 +9,8 @@ export class ArrayForm {
   static max(max: number): string {
     return `Deve ter no máximo ${max} ${max === 1 ? 'item' : 'itens'}.`
   }
+
+  static range(min: number, max: number): string {
+    return `Deve ter no mínimo ${min} e no máximo ${max} itens`
+  }
 }

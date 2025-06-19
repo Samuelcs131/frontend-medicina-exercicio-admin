@@ -7,7 +7,7 @@ import { fakePromise } from 'src/utils/fakePromise.util'
 export async function getAllPostResume(): Promise<IPostResume[]> {
   // const { data } = await api.get('/posts/resume')
 
-  await fakePromise(2000)
+  await fakePromise(100)
 
   return [
     {
@@ -18,6 +18,30 @@ export async function getAllPostResume(): Promise<IPostResume[]> {
       status: Status.active,
       thumbnailUrlImage:
         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUL_rqUXPVBPWT9455dfbHvQsbRhr_7X0lFA&s',
+      clicks: 30,
+      specialtyIds: ['1'],
+    },
+    {
+      id: '2',
+      title: 'Outro conteudo',
+      author: 'Desconhecido',
+      schedulingDate: new Date().toISOString(),
+      status: Status.active,
+      thumbnailUrlImage:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUL_rqUXPVBPWT9455dfbHvQsbRhr_7X0lFA&s',
+      clicks: 341,
+      specialtyIds: ['2'],
+    },
+    {
+      id: '3',
+      title: 'Outro conteudo 2',
+      author: 'Desconhecido',
+      schedulingDate: new Date().toISOString(),
+      status: Status.active,
+      thumbnailUrlImage:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUL_rqUXPVBPWT9455dfbHvQsbRhr_7X0lFA&s',
+      clicks: 564,
+      specialtyIds: ['3'],
     },
   ]
 }
@@ -25,7 +49,7 @@ export async function getAllPostResume(): Promise<IPostResume[]> {
 export async function getPostById(id: string): Promise<IPost> {
   // const { data } = await api.get(`/posts/${id}`)
 
-  await fakePromise(2000)
+  await fakePromise(100)
 
   console.log(id)
 
@@ -36,13 +60,18 @@ export async function getPostById(id: string): Promise<IPost> {
     url: 'hemodinamica',
     professionalId: '1',
     schedulingDate: new Date().toISOString(),
-    specialtyId: '1',
+    specialtyIds: ['1'],
     authorDescription: 'Médico Cardiologista',
     status: Status.active,
-    subspecialtyId: '1',
+    subspecialtyIds: ['1'],
     tagDescription: 'A Hemodinâmica e cardiologia Intervencionista.',
     tagKeywords: 'Hemodinâmica, Cardiologia',
     tagTitle: 'Hemodinâmica',
+    recomendations: {
+      specialtyIds: ['1'],
+      readMorePostIds: ['2'],
+      outherContentPostIds: ['2'],
+    },
     thumbnailAlt: 'Imagem médica',
     thumbnailUrlImage:
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUL_rqUXPVBPWT9455dfbHvQsbRhr_7X0lFA&s',
@@ -58,7 +87,7 @@ export async function getPostById(id: string): Promise<IPost> {
 }
 
 export async function create(post: IPost, thumbnailFile: File | null) {
-  await fakePromise(2000)
+  await fakePromise(100)
 
   const formData = new FormData()
 
@@ -72,6 +101,9 @@ export async function create(post: IPost, thumbnailFile: File | null) {
   formData.append('tagKeywords', post.tagKeywords || '')
   formData.append('tagTitle', post.tagTitle || '')
   formData.append('status', post.status)
+
+  post.subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
+  post.specialtyIds.forEach((id) => formData.append('specialtyIds', id))
 
   post.postItems.forEach((item, idx) => {
     formData.append(`${idx}-contentHTML`, item.contentHTML)
@@ -94,7 +126,7 @@ export async function save(
   post: IPost,
   thumbnailFile: File | null,
 ) {
-  await fakePromise(2000)
+  await fakePromise(100)
 
   const formData = new FormData()
 
@@ -108,6 +140,9 @@ export async function save(
   formData.append('tagKeywords', post.tagKeywords || '')
   formData.append('tagTitle', post.tagTitle || '')
   formData.append('status', post.status)
+
+  post.subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
+  post.specialtyIds.forEach((id) => formData.append('specialtyIds', id))
 
   post.postItems.forEach((item, idx) => {
     formData.append(`${idx}-contentHTML`, item.contentHTML)
@@ -126,7 +161,7 @@ export async function save(
 }
 
 export async function deleteItem(ids: string[]) {
-  await fakePromise(2000)
+  await fakePromise(100)
 
   await api.delete(`/video/`, {
     data: { ids },
@@ -134,7 +169,7 @@ export async function deleteItem(ids: string[]) {
 }
 
 export async function disable(ids: string[]) {
-  await fakePromise(2000)
+  await fakePromise(100)
 
   await api.patch('/video/disable', {
     ids,

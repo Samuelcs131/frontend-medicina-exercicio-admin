@@ -346,6 +346,16 @@
             <q-tooltip>Divisor</q-tooltip>
           </q-btn>
 
+          <q-btn
+            size="sm"
+            dense
+            flat
+            @click="editorInstance?.chain().focus().insertAccordion().run()"
+            icon="horizontal_rule"
+          >
+            <q-tooltip>Acoordion</q-tooltip>
+          </q-btn>
+
           <template v-if="editorInstance?.isActive('table')">
             <q-separator vertical />
             <q-btn

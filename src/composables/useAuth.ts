@@ -22,7 +22,7 @@ export function useAuth() {
       name: 'Andre',
       email,
       balance: 1232.45,
-      roles: [Roles.admin, Roles.professional],
+      roles: [Roles.admin],
       token: 'doem09vg49vgm430g',
     }
 

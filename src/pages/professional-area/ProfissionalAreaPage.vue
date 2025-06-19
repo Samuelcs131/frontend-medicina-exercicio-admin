@@ -1,6 +1,6 @@
 <template>
   <q-page class="container q-layout-padding">
-    <h1 class="text-h5">Especialidades</h1>
+    <h1 class="text-h5">Áreas profissionais</h1>
 
     <div class="flex justify-between gap-md q-mb-lg">
       <q-input
@@ -22,14 +22,14 @@
       selection="multiple"
       v-model:selected="state.actionsData"
       :rows="state.list"
-      :columns="subspecialtyGroupTableColumns"
+      :columns="profissionalAreaTableColumns"
       :filter="state.filter"
       :loading="loaderStatus(loader.list)"
       :rows-per-page-options="[20]"
     >
       <template #top-right>
         <action-header
-          label-new-entity="Nova especialidade"
+          label-new-entity="Nova área profissional"
           :has-active="!state.actionsData.length"
           :loader-id="loader.list"
           @open-action-dialog="openActionDialog"
@@ -38,6 +38,9 @@
       </template>
       <template #body-cell-status="props">
         <status-row :props="props" />
+      </template>
+      <template #body-cell-imageURL="props">
+        <image-row :props="props" label="imageURL" />
       </template>
       <template #body-cell-actions="props">
         <q-td :props="props">
@@ -54,7 +57,7 @@
       :loader-action-id="loader.action"
       :name-items="state.actionsData.map((item) => item.name)"
       prefix="as"
-      title="especialidades"
+      title="áreas profissionais"
       @confirm-action="confirmAction"
     />
 
@@ -63,7 +66,7 @@
         <q-form @submit="save">
           <q-card-section class="q-py-none q-pt-sm">
             <h6 class="text-h6 q-my-none">
-              {{ state.form.id ? 'Editar' : 'Criar' }} especialidade
+              {{ state.form.id ? 'Editar' : 'Criar' }} área profissional
             </h6>
           </q-card-section>
           <q-card-section class="row q-col-gutter-md">
@@ -75,6 +78,7 @@
                 v-bind="$vInput"
               />
             </div>
+
             <div class="col-12" v-if="state.form.id">
               <q-select
                 label="Status"
@@ -84,16 +88,28 @@
                 :options="statusOptions"
               />
             </div>
+            <div class="col-12">
+              <q-uploader
+                class="shadow-0 q-my-md full-width"
+                bordered
+                label="Imagem"
+                max-files="1"
+                hide-upload-btn
+                @added="addFile"
+                @removed="removeFile"
+                accept="image/*"
+              />
+            </div>
 
             <div class="col-12">
-              <q-select
-                label="Área médica"
-                :rules="[requiredRule]"
-                v-bind="$vSelect"
-                v-model="state.form.professionalAreaId"
-                :options="state.options.professionalAreas"
-                option-value="id"
-              />
+              <div class="bg-black rounded-borders">
+                <q-img
+                  v-if="state.form.imageURL"
+                  :src="state.form.imageURL"
+                  fit="contain"
+                  height="200px"
+                />
+              </div>
             </div>
           </q-card-section>
 
@@ -112,6 +128,7 @@
               label="Salvar"
               unelevated
               type="submit"
+              :disable="!state.form.imageFile && !state.form.id"
               :loading="loaderStatus(loader.edit)"
             />
           </q-card-actions>
@@ -125,25 +142,28 @@ import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
 import { onMounted } from 'vue'
-import { useSpecialty } from './useSpecialty'
-import { subspecialtyGroupTableColumns } from './specialty.const'
+import { useProfissionalArea } from './useProfissionalArea'
+import { profissionalAreaTableColumns } from './profissionalArea.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
+import ImageRow from 'src/components/table/ImageRow.vue'
 
 const {
   state,
   dialog,
   loader,
   save,
+  addFile,
   fetchList,
+  removeFile,
   loaderStatus,
   toggleDialog,
   confirmAction,
   openEditDialog,
   clearEditDialog,
   openActionDialog,
-} = useSpecialty()
+} = useProfissionalArea()
 
 onMounted(async () => {
   await fetchList()

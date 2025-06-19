@@ -23,6 +23,13 @@ export const videoPageTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
+    label: 'Clicks',
+    field: 'clicks',
+    name: 'clicks',
+    sortable: true,
+    align: 'left',
+  },
+  {
     label: 'Status',
     field: 'status',
     name: 'status',

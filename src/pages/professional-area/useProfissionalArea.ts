@@ -1,40 +1,34 @@
 import { useDialog } from 'src/composables/useDialog'
 import { useLoader } from 'src/composables/useLoader'
 import { Status } from 'src/enums/Status.enum'
+import type { IProfissionalArea } from 'src/types/specialty/IProfissionalArea.type'
 import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
-import * as SpecialtyService from 'src/services/speciality/specialty.service'
 import * as ProfessionalAreaService from 'src/services/speciality/professionalArea.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
-import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
-import type { IProfissionalArea } from 'src/types/specialty/IProfissionalArea.type'
 
 interface IState {
   form: {
     id?: string
     name: string
-    professionalAreaId: string
+    imageURL: string
+    imageFile: File | null
     status: Status
   }
-  options: {
-    professionalAreas: IProfissionalArea[]
-  }
-  list: ISpecialty[]
+  list: IProfissionalArea[]
   filter: string
   actionType: ActionDialogOptions
-  actionsData: ISpecialty[]
+  actionsData: IProfissionalArea[]
 }
 
-export function useSpecialty() {
+export function useProfissionalArea() {
   const initState: IState = {
     form: {
       status: Status.active,
+      imageURL: '',
+      imageFile: null,
       name: '',
-      professionalAreaId: '',
-    },
-    options: {
-      professionalAreas: [],
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
@@ -43,14 +37,14 @@ export function useSpecialty() {
   }
 
   const dialog = {
-    edit: 'edit-sdfghhdfa',
-    action: 'action-dasgh5623',
+    edit: 'edit-h54j4f14j5',
+    action: 'action-h54hgf326h45',
   }
 
   const loader = {
-    list: 'list-sdfghhdfa',
-    edit: 'edit-h561e2fvg45r',
-    action: 'action-dasgh5623',
+    list: 'list-h54j4f14j5',
+    edit: 'edit-5hg2q3fh43',
+    action: 'action-h54hgf326h45',
   }
 
   const state = ref<IState>(cloneDeep(initState))
@@ -60,8 +54,7 @@ export function useSpecialty() {
   async function fetchList() {
     await requester.dispatch({
       callback: async () => {
-        state.value.options.professionalAreas = await ProfessionalAreaService.getAll()
-        state.value.list = await SpecialtyService.getAll()
+        state.value.list = await ProfessionalAreaService.getAll()
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
@@ -75,15 +68,15 @@ export function useSpecialty() {
     await requester.dispatch({
       callback: async () => {
         if (id)
-          await SpecialtyService.save(
+          await ProfessionalAreaService.save(
             id,
             state.value.form.name,
-            state.value.form.professionalAreaId,
+            state.value.form.imageFile,
           )
         else
-          await SpecialtyService.create(
+          await ProfessionalAreaService.create(
             state.value.form.name,
-            state.value.form.professionalAreaId,
+            state.value.form.imageFile!,
           )
       },
       successCallback: async () => {
@@ -107,9 +100,9 @@ export function useSpecialty() {
         const ids = state.value.actionsData.map((item) => item.id)
 
         if (actionType == ActionDialogOptions.delete)
-          await SpecialtyService.deleteItem(ids)
+          await ProfessionalAreaService.deleteItem(ids)
         if (actionType == ActionDialogOptions.disable)
-          await SpecialtyService.disable(ids)
+          await ProfessionalAreaService.disable(ids)
       },
       successCallback: async () => {
         toggleDialog(dialog.action)
@@ -123,11 +116,11 @@ export function useSpecialty() {
     })
   }
 
-  function openEditDialog(item?: ISpecialty) {
+  function openEditDialog(item?: IProfissionalArea) {
     if (item)
       state.value.form = {
         ...item,
-        professionalAreaId: item.professionalArea.id,
+        imageFile: null,
       }
     else clearEditDialog()
 
@@ -143,12 +136,23 @@ export function useSpecialty() {
     toggleDialog(dialog.action)
   }
 
+  function addFile(files: readonly File[]) {
+    const [file] = files
+    state.value.form.imageFile = file as File
+  }
+
+  function removeFile() {
+    state.value.form.imageFile = null
+  }
+
   return {
     state,
     dialog,
     loader,
     save,
+    addFile,
     fetchList,
+    removeFile,
     toggleDialog,
     dialogIsOpen,
     createDialog,

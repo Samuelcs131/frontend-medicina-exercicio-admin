@@ -6,24 +6,23 @@ export interface IPost {
   title: string
   schedulingDate: string
   url: string
-
   author: string
   authorDescription: string
   professionalId: string
-
-  subspecialtyId: string
-  specialtyId: string
-
+  subspecialtyIds: string[]
+  specialtyIds: string[]
   tagTitle: string
   tagDescription: string
   tagKeywords: string
-
   thumbnailUrlImage: string
   thumbnailAlt: string
-
   status: Status
-
   postItems: IPostItem[]
+  recomendations: {
+    specialtyIds: string[]
+    readMorePostIds: string[]
+    outherContentPostIds: string[]
+  }
 }
 
 export interface IPostResume {
@@ -33,6 +32,8 @@ export interface IPostResume {
   schedulingDate: string
   status: Status
   thumbnailUrlImage: string
+  specialtyIds: string[]
+  clicks: number
 }
 
 export interface IImageFile {

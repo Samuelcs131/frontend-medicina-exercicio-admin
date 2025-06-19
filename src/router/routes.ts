@@ -35,9 +35,9 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true, roles: [] },
       },
       {
-        path: 'medicalArea',
-        name: 'medicalArea',
-        component: () => import('pages/medical-area/MedicalAreaPage.vue'),
+        path: 'profissionalArea',
+        name: 'profissionalArea',
+        component: () => import('src/pages/professional-area/ProfissionalAreaPage.vue'),
         meta: { requiresAuth: true, roles: [] },
       },
       {

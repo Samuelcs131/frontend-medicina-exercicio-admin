@@ -5,7 +5,7 @@ import { fakePromise } from 'src/utils/fakePromise.util'
 export async function getAll(): Promise<IBasicEntity<string>[]> {
   /* const { data } = await api.get('/city')
   return data.users */
-  await fakePromise(1000)
+  await fakePromise(100)
   return [
     {
       id: '1',

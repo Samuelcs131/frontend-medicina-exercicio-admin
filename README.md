@@ -1,3 +1,10 @@
+# Projetos
+
+https://frontend-medicina-exercicio-admin.vercel.app/
+https://me.med.br/
+https://me-med.vercel.app/
+
+
 # Quasar App (medicina-excelente)
 
 A Quasar Project

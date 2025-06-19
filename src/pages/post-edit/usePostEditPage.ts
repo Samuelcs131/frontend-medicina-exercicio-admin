@@ -38,6 +38,7 @@ interface IState {
     specialties: IBasicEntity<string>[]
     subspecialties: IBasicEntity<string>[]
     professional: IBasicEntity<string>[]
+    posts: IBasicEntity<string>[]
   }
 }
 
@@ -49,8 +50,8 @@ const initializeState: IState = {
     url: '',
     professionalId: '',
     schedulingDate: new Date().toISOString(),
-    specialtyId: '',
-    subspecialtyId: '',
+    specialtyIds: [],
+    subspecialtyIds: [],
     tagDescription: '',
     tagKeywords: '',
     tagTitle: '',
@@ -60,6 +61,11 @@ const initializeState: IState = {
     postItems: [],
     thumbnailFile: null,
     authorDescription: '',
+    recomendations: {
+      specialtyIds: [],
+      readMorePostIds: [],
+      outherContentPostIds: [],
+    },
   },
   postOrder: null,
   imagePostDialog: {
@@ -80,6 +86,7 @@ const initializeState: IState = {
     specialties: [],
     subspecialties: [],
     professional: [],
+    posts: [],
   },
 }
 
@@ -168,17 +175,46 @@ export function usePostEditPage() {
   async function fetchPost(id: string) {
     await requester.dispatch({
       callback: async () => {
-        const [specialties, subspecialties, professional] = await Promise.all([
-          await SpecialityService.getAll(),
-          await SubspecialityService.getAll(),
-          await ProfessionalService.getAll(),
-        ])
-
-        state.value.options = { specialties, subspecialties, professional }
-
         const post = await PostService.getPostById(id)
 
         state.value.form = { ...post, thumbnailFile: null }
+      },
+      errorMessageTitle: 'Houve um erro!',
+      errorMessage: 'Não foi possível carregar a postagem',
+      loaders: [Loader.fetch],
+    })
+  }
+
+  async function fetchOptions() {
+    await requester.dispatch({
+      callback: async () => {
+        if (state.value.options.professional.length > 0) return
+
+        const [specialties, subspecialties, professional, posts] =
+          await Promise.all([
+            await SpecialityService.getAll(),
+            await SubspecialityService.getAll(),
+            await ProfessionalService.getAll(),
+            await PostService.getAllPostResume(),
+          ])
+        const postsFilter: IBasicEntity<string>[] = []
+
+        posts.forEach((post) => {
+          if (post.id != state.value.form.id)
+            postsFilter.push({
+              id: post.id,
+              name: post.title,
+            })
+        })
+
+        console.log(postsFilter)
+
+        state.value.options = {
+          specialties,
+          subspecialties,
+          professional,
+          posts: postsFilter,
+        }
       },
       errorMessageTitle: 'Houve um erro!',
       errorMessage: 'Não foi possível carregar a postagem',
@@ -228,6 +264,7 @@ export function usePostEditPage() {
     openEditPost,
     createDialog,
     toggleDialog,
+    fetchOptions,
     handleSlugURL,
     removeSection,
     openImageDialog,

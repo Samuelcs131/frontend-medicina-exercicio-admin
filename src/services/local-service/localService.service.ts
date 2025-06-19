@@ -6,7 +6,7 @@ import { fakePromise } from 'src/utils/fakePromise.util'
 export async function getAll(): Promise<ILocalService[]> {
   /* const { data } = await api.get('/local-service')
   return data.users */
-  await fakePromise(1000)
+  await fakePromise(100)
   return [
     {
       id: '1',

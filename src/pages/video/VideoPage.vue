@@ -1,6 +1,6 @@
 <template>
   <q-page class="container q-layout-padding">
-    <h1 class="text-h5">VÍdeos</h1>
+    <h1 class="text-h5">Vídeos</h1>
 
     <div class="flex justify-between gap-md q-mb-lg">
       <q-input
@@ -169,6 +169,91 @@
                 />
               </div>
             </div>
+
+            <div class="col-12">
+              <p class="text-caption q-mb-sm">Conteúdos recomendados</p>
+              <q-separator />
+            </div>
+
+            <div class="col-12">
+              <q-select
+                label="Encontre especialista"
+                :rules="[(v) => maxArrayRule(v, 2)]"
+                v-bind="$vSelect"
+                v-model="state.form.recomendations.specialtyIds"
+                multiple
+                :options="state.options.specialties"
+                option-value="id"
+                use-chips
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" />
+                </template>
+              </q-select>
+            </div>
+
+            <div class="col-12">
+              <q-select
+                label="Mais vídeos"
+                :rules="[(v) => maxArrayRule(v, 2)]"
+                v-bind="$vSelect"
+                v-model="state.form.recomendations.moreVideosIds"
+                multiple
+                :options="state.options.videos"
+                option-value="id"
+                use-chips
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" />
+                </template>
+              </q-select>
+            </div>
+
+            <div class="col-12">
+              <q-select
+                label="Outros vídeos com os profissionais"
+                :rules="[(v) => maxArrayRule(v, 2)]"
+                v-bind="$vSelect"
+                v-model="state.form.recomendations.outherVideosIds"
+                multiple
+                :options="
+                  state.options.videos.filter((v) =>
+                    state.form.professionalIds.some((p) =>
+                      v.professionalIds.includes(p),
+                    ),
+                  )
+                "
+                option-value="id"
+                use-chips
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" />
+                </template>
+              </q-select>
+            </div>
+            <div class="col-12">
+              <q-select
+                label="Conteúdos informativos"
+                :rules="[(v) => maxArrayRule(v, 4)]"
+                v-bind="$vSelect"
+                v-model="state.form.recomendations.postIds"
+                multiple
+                :options="
+                  state.options.posts.filter((p) =>
+                    state.form.specialtyIds.some((id) =>
+                      p.specialtyIds.includes(id),
+                    ),
+                  )
+                "
+                option-value="id"
+                option-label="title"
+                use-chips
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" label="title" />
+                </template>
+              </q-select>
+            </div>
           </q-card-section>
 
           <q-separator />
@@ -206,6 +291,7 @@ import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import { thumbnailYoutube } from 'src/utils/youtube.util'
 import ChipSelect from 'src/components/select/ChipSelect.vue'
+import { maxArrayRule } from 'src/validations/form-rules/arrayRules.util'
 
 const {
   state,

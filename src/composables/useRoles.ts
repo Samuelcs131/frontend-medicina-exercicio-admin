@@ -18,6 +18,5 @@ export function useRoles() {
   return {
     hasRoles,
     isAdmin: () => hasRoles([Roles.admin]),
-    isProfessional: () => hasRoles([Roles.professional]),
   }
 }

@@ -17,23 +17,35 @@
               <div class="col-12 col-md-6">
                 <q-select
                   v-bind="$vSelect"
-                  v-model="state.form.specialtyId"
+                  v-model="state.form.specialtyIds"
                   :options="state.options.specialties"
                   option-value="id"
-                  label="Especialidade"
+                  label="Especialidades"
                   :rules="[requiredRule]"
-                />
+                  use-chips
+                  multiple
+                >
+                  <template v-slot:selected-item="scope">
+                    <chip-select :scope="scope" />
+                  </template>
+                </q-select>
               </div>
 
               <div class="col-12 col-md-6">
                 <q-select
                   v-bind="$vSelect"
-                  v-model="state.form.subspecialtyId"
+                  v-model="state.form.subspecialtyIds"
                   :options="state.options.subspecialties"
                   option-value="id"
-                  label="Subespecialidade"
+                  label="Subespecialidades"
                   :rules="[requiredRule]"
-                />
+                  use-chips
+                  multiple
+                >
+                  <template v-slot:selected-item="scope">
+                    <chip-select :scope="scope" />
+                  </template>
+                </q-select>
               </div>
 
               <div class="col-12">
@@ -134,7 +146,6 @@
                   label="Autor"
                   outlined
                   dense
-                  :rules="[requiredRule]"
                 />
               </div>
 
@@ -144,7 +155,6 @@
                   label="Descrição do autor"
                   outlined
                   dense
-                  :rules="[requiredRule]"
                 />
               </div>
 
@@ -186,6 +196,64 @@
                   hint="Separe as palavras por vírgula"
                   :rules="[(v) => rangeRule(v, 0, 300)]"
                 />
+              </div>
+              <div class="col-12">
+                <p class="text-caption q-mb-sm">Conteúdos recomendados</p>
+                <q-separator />
+              </div>
+
+              <div class="col-12">
+                <q-select
+                  v-bind="$vSelect"
+                  v-model="state.form.recomendations.specialtyIds"
+                  :options="state.options.specialties"
+                  option-value="id"
+                  label="Encontre um especialista"
+                  clearable
+                  @update:model-value="handleProfessional"
+                  multiple
+                  :rules="[(v) => maxArrayRule(v, 4)]"
+                >
+                  <template v-slot:selected-item="scope">
+                    <chip-select :scope="scope" />
+                  </template>
+                </q-select>
+              </div>
+
+              <div class="col-12">
+                <q-select
+                  v-bind="$vSelect"
+                  v-model="state.form.recomendations.readMorePostIds"
+                  :options="state.options.posts"
+                  option-value="id"
+                  label="Leia também"
+                  clearable
+                  @update:model-value="handleProfessional"
+                  multiple
+                  :rules="[(v) => maxArrayRule(v, 4)]"
+                >
+                  <template v-slot:selected-item="scope">
+                    <chip-select :scope="scope" />
+                  </template>
+                </q-select>
+              </div>
+
+              <div class="col-12">
+                <q-select
+                  v-bind="$vSelect"
+                  v-model="state.form.recomendations.outherContentPostIds"
+                  :options="state.options.posts"
+                  option-value="id"
+                  label="Outros conteúdos"
+                  clearable
+                  @update:model-value="handleProfessional"
+                  multiple
+                  :rules="[(v) => maxArrayRule(v, 4)]"
+                >
+                  <template v-slot:selected-item="scope">
+                    <chip-select :scope="scope" />
+                  </template>
+                </q-select>
               </div>
             </div>
           </q-card-section>
@@ -299,6 +367,8 @@ import { PostTypeContent } from 'src/enums/post/PostTypeContent.enum'
 import { IPostItem } from 'src/types/post/IPost.type'
 import { QUploader } from 'quasar'
 import { statusOptions } from 'src/constants/status.const'
+import ChipSelect from 'src/components/select/ChipSelect.vue'
+import { maxArrayRule } from 'src/validations/form-rules/arrayRules.util'
 
 const router = useRouter()
 const route = useRoute()
@@ -311,9 +381,10 @@ const {
   initState,
   fetchPost,
   openNewPost,
-  createDialog,
+  fetchOptions,
   openEditPost,
   toggleDialog,
+  createDialog,
   handleSlugURL,
   removeSection,
   handleProfessional,
@@ -353,6 +424,7 @@ onMounted(async () => {
   const postId = route.params?.postId
 
   if (postId && !Array.isArray(postId)) await fetchPost(postId)
+  await fetchOptions()
 
   createDialog([
     Dialog.editPost,

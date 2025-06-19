@@ -6,7 +6,7 @@ import { fakePromise } from 'src/utils/fakePromise.util'
 export async function getAll(): Promise<ISupporter[]> {
   /* const { data } = await api.get('/supporter')
   return data.users */
-  await fakePromise(1000)
+  await fakePromise(100)
   return [
     {
       id: '1',

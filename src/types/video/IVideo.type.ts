@@ -9,4 +9,11 @@ export interface IVideo {
   specialtyIds: string[]
   subspecialtyIds: string[]
   status: Status
+  clicks: number
+  recomendations: {
+    outherVideosIds: string[]
+    moreVideosIds: string[]
+    specialtyIds: string[]
+    postIds: string[]
+  }
 }

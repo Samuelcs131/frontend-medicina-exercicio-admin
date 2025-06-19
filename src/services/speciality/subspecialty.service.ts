@@ -6,7 +6,7 @@ import { fakePromise } from 'src/utils/fakePromise.util'
 export async function getAll(): Promise<ISubspecialty[]> {
   /* const { data } = await api.get('/subspecialty')
   return data.users */
-  await fakePromise(1000)
+  await fakePromise(100)
   return [
     {
       id: '1',
@@ -14,7 +14,7 @@ export async function getAll(): Promise<ISubspecialty[]> {
       specialty: {
         id: '1',
         name: 'Cardiologia',
-        medicalArea: {
+        professionalArea: {
           id: '1',
           name: 'Especialidades Médicas - Adulto',
           imageURL:

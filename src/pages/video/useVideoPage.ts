@@ -8,9 +8,11 @@ import * as VideoService from 'src/services/video/video.service'
 import * as ProfessionalService from 'src/services/professional/professional.service'
 import * as SpecialtyService from 'src/services/speciality/specialty.service'
 import * as SubspecialtyService from 'src/services/speciality/subspecialty.service'
+import * as PostService from 'src/services/post.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import type { IVideo } from 'src/types/video/IVideo.type'
+import { IPostResume } from 'src/types/post/IPost.type'
 
 interface IState {
   form: {
@@ -22,11 +24,22 @@ interface IState {
     specialtyIds: string[]
     subspecialtyIds: string[]
     status: Status
+    recomendations: {
+      outherVideosIds: string[]
+      moreVideosIds: string[]
+      specialtyIds: string[]
+      postIds: string[]
+    }
   }
   options: {
     professionals: IBasicEntity<string>[]
     specialties: IBasicEntity<string>[]
     subspecialties: IBasicEntity<string>[]
+    videos: IVideo[]
+    posts: IPostResume[]
+  }
+  optionsData: {
+    videos: IVideo[]
   }
   list: IVideo[]
   filter: string
@@ -44,11 +57,22 @@ export function useVideoPage() {
       professionalIds: [],
       specialtyIds: [],
       subspecialtyIds: [],
+      recomendations: {
+        outherVideosIds: [],
+        moreVideosIds: [],
+        specialtyIds: [],
+        postIds: [],
+      },
     },
     options: {
       professionals: [],
       specialties: [],
       subspecialties: [],
+      videos: [],
+      posts: [],
+    },
+    optionsData: {
+      videos: [],
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
@@ -57,14 +81,14 @@ export function useVideoPage() {
   }
 
   const dialog = {
-    edit: 'edit-j64h53wf235g',
-    action: 'action-143dsdfcasd',
+    edit: 'edit-5h4hg4k656g4',
+    action: 'action-fdgh453gzcvc',
   }
 
   const loader = {
-    list: 'list-j64h53wf235g',
-    edit: 'edit-76kj6h5g32',
-    action: 'action-143dsdfcasd',
+    list: 'list-5h4hg4k656g4',
+    edit: 'edit-j76j5h45g3',
+    action: 'action-fdgh453gzcvc',
   }
 
   const state = ref<IState>(cloneDeep(initState))
@@ -74,13 +98,27 @@ export function useVideoPage() {
   async function fetchList() {
     await requester.dispatch({
       callback: async () => {
-        state.value.options = {
-          specialties: await SpecialtyService.getAll(),
-          professionals: await ProfessionalService.getAll(),
-          subspecialties: await SubspecialtyService.getAll(),
+        const [specialties, professionals, subspecialties, videos, posts] =
+          await Promise.all([
+            await SpecialtyService.getAll(),
+            await ProfessionalService.getAll(),
+            await SubspecialtyService.getAll(),
+            await VideoService.getAll(),
+            await PostService.getAllPostResume(),
+          ])
+
+        const options = {
+          specialties,
+          professionals,
+          subspecialties,
+          videos,
+          posts,
         }
 
-        state.value.list = await VideoService.getAll()
+        state.value.options = cloneDeep(options)
+        state.value.optionsData.videos = cloneDeep(options.videos)
+
+        state.value.list = videos
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
@@ -101,6 +139,7 @@ export function useVideoPage() {
             state.value.form.description,
             state.value.form.professionalIds,
             state.value.form.specialtyIds,
+            state.value.form.recomendations,
           )
         else
           await VideoService.create(
@@ -109,6 +148,7 @@ export function useVideoPage() {
             state.value.form.description,
             state.value.form.professionalIds,
             state.value.form.specialtyIds,
+            state.value.form.recomendations,
           )
       },
       successCallback: async () => {
@@ -149,8 +189,13 @@ export function useVideoPage() {
   }
 
   function openEditDialog(item?: IVideo) {
-    if (item) state.value.form = { ...item }
-    else clearEditDialog()
+    if (item) {
+      state.value.form = { ...item }
+
+      state.value.options.videos = state.value.optionsData.videos.filter(
+        (video) => video.id != item.id,
+      )
+    } else clearEditDialog()
 
     toggleDialog(dialog.edit)
   }

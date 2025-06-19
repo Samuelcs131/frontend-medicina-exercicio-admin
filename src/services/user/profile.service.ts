@@ -29,7 +29,7 @@ export async function getProfile(): Promise<IProfile> {
   /* const { data } = await api.get('/users/profile')
   return data */
 
-  await fakePromise(1000)
+  await fakePromise(100)
 
   return {
     id: '1',

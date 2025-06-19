@@ -123,12 +123,7 @@
             </div>
 
             <div class="col-12 col-md-6">
-              <q-input
-                label="CRM"
-                :rules="[requiredRule]"
-                v-model="state.form.CRM"
-                v-bind="$vInput"
-              />
+              <q-input label="CRM" v-model="state.form.CRM" v-bind="$vInput" />
             </div>
 
             <div class="col-12 col-md-6">
@@ -152,23 +147,33 @@
 
             <div class="col-12 col-md-6">
               <q-select
-                label="Estado"
+                label="Estados"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
-                v-model="state.form.stateId"
+                v-model="state.form.stateIds"
                 :options="state.options.states"
                 option-value="id"
-              />
+                multiple
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" />
+                </template>
+              </q-select>
             </div>
             <div class="col-12 col-md-6">
               <q-select
-                label="Cidade"
+                label="Cidades"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
-                v-model="state.form.cityId"
+                v-model="state.form.cityIds"
                 :options="state.options.cities"
                 option-value="id"
-              />
+                multiple
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" />
+                </template>
+              </q-select>
             </div>
 
             <div class="col-12">
@@ -251,6 +256,62 @@
                 />
               </div>
             </div>
+
+            <div class="col-12">
+              <p class="text-caption q-mb-sm">Conteúdos recomendados</p>
+              <q-separator />
+            </div>
+
+            <div class="col-12">
+              <q-select
+                label="Especialidades"
+                :rules="[(v) => maxArrayRule(v, 4)]"
+                v-bind="$vSelect"
+                v-model="state.form.recomendations.specialtyIds"
+                multiple
+                :options="state.options.specialty"
+                option-value="id"
+                use-chips
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" />
+                </template>
+              </q-select>
+            </div>
+
+            <div class="col-12">
+              <q-select
+                label="Videos do profissional"
+                :rules="[(v) => maxArrayRule(v, 4)]"
+                v-bind="$vSelect"
+                v-model="state.form.recomendations.professionalVideoIds"
+                multiple
+                :options="state.options.videos"
+                option-value="id"
+                use-chips
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" />
+                </template>
+              </q-select>
+            </div>
+
+            <div class="col-12">
+              <q-select
+                label="Outros profissionais"
+                :rules="[(v) => maxArrayRule(v, 4)]"
+                v-bind="$vSelect"
+                v-model="state.form.recomendations.professionalIds"
+                multiple
+                :options="state.options.professionals"
+                option-value="id"
+                use-chips
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" />
+                </template>
+              </q-select>
+            </div>
           </q-card-section>
 
           <q-separator />
@@ -283,12 +344,13 @@ import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
 import { onMounted } from 'vue'
 import { useProfessional } from './useProfessional'
-import { professionalTableColumns } from './medicalArea.const'
+import { professionalTableColumns } from './professional.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import ImageRow from 'src/components/table/ImageRow.vue'
 import ChipSelect from 'src/components/select/ChipSelect.vue'
+import { maxArrayRule } from 'src/validations/form-rules/arrayRules.util'
 
 const {
   state,

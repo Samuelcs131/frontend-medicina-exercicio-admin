@@ -10,20 +10,22 @@ import * as SpecialtyService from 'src/services/speciality/specialty.service'
 import * as LocalServiceService from 'src/services/local-service/localService.service'
 import * as StateService from 'src/services/location/state.service'
 import * as CityService from 'src/services/location/city.service'
+import * as VideoService from 'src/services/video/video.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { IProfessional } from 'src/types/professional/IProfessional.type'
 import type { IBasicEntity } from 'src/types/IBasicEntity.type'
+import { IVideo } from 'src/types/video/IVideo.type'
 
 interface IState {
   form: {
     id?: string
     name: string
-    RQN: string
-    CRM: string
+    RQN: string | null
+    CRM: string | null
     imageURL: string
     specialtyIds: string[]
-    stateId: string
-    cityId: string
+    stateIds: string[]
+    cityIds: string[]
     subspecialtyIds: string[]
     aboutMy: string
     localServiceIds: string[]
@@ -34,6 +36,11 @@ interface IState {
     status: Status
     curriculumLattes: string
     imageFile: File | null
+    recomendations: {
+      specialtyIds: string[]
+      professionalVideoIds: string[]
+      professionalIds: string[]
+    }
   }
   options: {
     specialty: IBasicEntity<string>[]
@@ -41,6 +48,17 @@ interface IState {
     localsService: IBasicEntity<string>[]
     states: IBasicEntity<string>[]
     cities: IBasicEntity<string>[]
+    videos: IVideo[]
+    professionals: IProfessional[]
+  }
+  optionsData: {
+    specialty: IBasicEntity<string>[]
+    subspecialty: IBasicEntity<string>[]
+    localsService: IBasicEntity<string>[]
+    states: IBasicEntity<string>[]
+    cities: IBasicEntity<string>[]
+    videos: IVideo[]
+    professionals: IProfessional[]
   }
   list: IProfessional[]
   filter: string
@@ -66,8 +84,13 @@ export function useProfessional() {
       curriculumLattes: '',
       teleconsultation: false,
       speakEnglish: false,
-      cityId: '',
-      stateId: '',
+      cityIds: [],
+      stateIds: [],
+      recomendations: {
+        specialtyIds: [],
+        professionalVideoIds: [],
+        professionalIds: [],
+      },
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
@@ -79,6 +102,17 @@ export function useProfessional() {
       localsService: [],
       cities: [],
       states: [],
+      videos: [],
+      professionals: [],
+    },
+    optionsData: {
+      specialty: [],
+      subspecialty: [],
+      localsService: [],
+      cities: [],
+      states: [],
+      videos: [],
+      professionals: [],
     },
   }
 
@@ -100,23 +134,38 @@ export function useProfessional() {
   async function fetchList() {
     await requester.dispatch({
       callback: async () => {
-        const [subspecialty, specialty, localsService, states, cities] =
-          await Promise.all([
-            await SubspecialtyService.getAll(),
-            await SpecialtyService.getAll(),
-            await LocalServiceService.getAll(),
-            await StateService.getAll(),
-            await CityService.getAll(),
-          ])
+        const [
+          subspecialty,
+          specialty,
+          localsService,
+          states,
+          cities,
+          videos,
+          professionals,
+        ] = await Promise.all([
+          await SubspecialtyService.getAll(),
+          await SpecialtyService.getAll(),
+          await LocalServiceService.getAll(),
+          await StateService.getAll(),
+          await CityService.getAll(),
+          await VideoService.getAll(),
+          await ProfessionalService.getAll(),
+        ])
 
-        state.value.options = {
+        const options = {
           specialty,
           subspecialty,
           localsService,
           cities,
           states,
+          videos,
+          professionals,
         }
-        state.value.list = await ProfessionalService.getAll()
+
+        state.value.options = cloneDeep(options)
+        state.value.optionsData = cloneDeep(options)
+
+        state.value.list = professionals
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
@@ -145,6 +194,9 @@ export function useProfessional() {
             state.value.form.speakEnglish,
             state.value.form.imageFile,
             state.value.form.curriculumLattes,
+            state.value.form.cityIds,
+            state.value.form.stateIds,
+            state.value.form.recomendations,
           )
         else
           await ProfessionalService.create(
@@ -161,6 +213,9 @@ export function useProfessional() {
             state.value.form.speakEnglish,
             state.value.form.imageFile!,
             state.value.form.curriculumLattes,
+            state.value.form.cityIds,
+            state.value.form.stateIds,
+            state.value.form.recomendations,
           )
       },
       successCallback: async () => {
@@ -201,16 +256,23 @@ export function useProfessional() {
   }
 
   function openEditDialog(item?: IProfessional) {
-    if (item)
+    if (item) {
       state.value.form = {
         ...item,
         imageFile: null,
-        cityId: item.city.id,
-        stateId: item.state.id,
-        specialtyIds: item.specialties.map((item) => item.id),
-        subspecialtyIds: item.subspecialties.map((item) => item.id),
+        cityIds: item.cities.map((item) => item.id),
+        stateIds: item.states.map((item) => item.id),
       }
-    else clearEditDialog()
+
+      state.value.options.videos = state.value.optionsData.videos.filter(
+        (video) => video.professionalIds.includes(item.id),
+      )
+
+      state.value.options.professionals =
+        state.value.optionsData.professionals.filter(
+          (professional) => item.id != professional.id,
+        )
+    } else clearEditDialog()
 
     toggleDialog(dialog.edit)
   }

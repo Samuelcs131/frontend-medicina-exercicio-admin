@@ -9,6 +9,7 @@ import { MixedForm } from '../form/mixedForm.utils'
 import { NumberForm } from '../form/numberForm.utils'
 import { EnumForm } from '../form/enumForm.utils'
 import { DateForm } from '../form/dateForm.utils'
+import { ArrayForm } from '../form/arrayForm.utils'
 
 /**
  * Classe de utilitário para validações diversas.
@@ -299,6 +300,34 @@ export class IsValid {
     return isValid
   }
 
+  static countArray(
+    value: unknown[],
+    min: number,
+    max: number,
+    error?: boolean,
+  ): boolean {
+    let isValid = false
+    isValid = value.length >= min && value.length <= max
+    if (!isValid && error) throw new Error(ArrayForm.range(min, max))
+
+    return isValid
+  }
+
+  static minArray(value: unknown[], min: number, error?: boolean): boolean {
+    let isValid = false
+    isValid = value.length >= min
+    if (!isValid && error) throw new Error(ArrayForm.min(min))
+
+    return isValid
+  }
+  static maxArray(value: unknown[], max: number, error?: boolean): boolean {
+    let isValid = false
+    isValid = value.length <= max
+    if (!isValid && error) throw new Error(ArrayForm.max(max))
+
+    return isValid
+  }
+
   /**
    * Verifica se um número possui a quantidade esperada de dígitos numéricos.
    *
@@ -315,7 +344,8 @@ export class IsValid {
     const digitsOnly = value.toString().replace(/[^0-9]/g, '')
     isValid = digitsOnly.length === expectedCount
 
-    if (!isValid && error) throw new Error(NumberForm.numberLength(expectedCount))
+    if (!isValid && error)
+      throw new Error(NumberForm.numberLength(expectedCount))
 
     return isValid
   }

@@ -7,10 +7,10 @@ export interface IProfessional {
   RQN: string
   CRM: string
   imageURL: string
-  specialties: IBasicEntity<string>[]
-  subspecialties: IBasicEntity<string>[]
-  city: IBasicEntity<string>
-  state: IBasicEntity<string>
+  specialtyIds: string[]
+  subspecialtyIds: string[]
+  cities: IBasicEntity<string>[]
+  states: IBasicEntity<string>[]
   aboutMy: string
   localServiceIds: string[]
   instagram: string
@@ -19,4 +19,10 @@ export interface IProfessional {
   teleconsultation: boolean
   speakEnglish: boolean
   status: Status
+  recomendations: {
+    specialtyIds: string[],
+    professionalVideoIds: string[],
+    professionalIds: string[],
+  }
+  clicks: number
 }
