@@ -1,13 +1,11 @@
 import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
 import type { IProfessional } from 'src/types/professional/IProfessional.type'
-import { fakePromise } from 'src/utils/fakePromise.util'
 
 export async function getAll(): Promise<IProfessional[]> {
-  /* const { data } = await api.get('/professional')
-  return data.users */
-  await fakePromise(100)
-  return [
+  const { data } = await api.get('/professional')
+  return data
+  /* return [
     {
       id: '1',
       name: 'Paulo Muzy',
@@ -60,7 +58,7 @@ export async function getAll(): Promise<IProfessional[]> {
       },
       clicks: 74,
     },
-  ]
+  ] */
 }
 
 export async function create(
@@ -75,7 +73,7 @@ export async function create(
   site: string,
   teleconsultation: boolean,
   speakEnglish: boolean,
-  image: File,
+  image: string,
   curriculumLattes: string,
   cityIds: string[],
   stateIds: string[],
@@ -85,7 +83,25 @@ export async function create(
     professionalIds: string[]
   },
 ) {
-  const formData = new FormData()
+  await api.post('/professional', {
+    name,
+    RQN,
+    CRM,
+    specialtyIds,
+    subspecialtyIds,
+    aboutMy,
+    localServiceIds,
+    instagram,
+    site,
+    teleconsultation,
+    speakEnglish,
+    imageURL: image,
+    curriculumLattes,
+    cityIds,
+    stateIds,
+    recomendations,
+  })
+  /* const formData = new FormData()
 
   formData.append('name', name)
   if (RQN) formData.append('RQN', RQN)
@@ -118,7 +134,7 @@ export async function create(
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-  })
+  }) */
 }
 
 export async function save(
@@ -134,7 +150,7 @@ export async function save(
   site: string,
   teleconsultation: boolean,
   speakEnglish: boolean,
-  image: File | null,
+  image: string,
   curriculumLattes: string,
   cityIds: string[],
   stateIds: string[],
@@ -143,6 +159,7 @@ export async function save(
     professionalVideoIds: string[]
     professionalIds: string[]
   },
+  status: Status,
 ) {
   const formData = new FormData()
 
@@ -155,6 +172,7 @@ export async function save(
   formData.append('curriculumLattes', curriculumLattes)
   formData.append('teleconsultation', `${teleconsultation}`)
   formData.append('speakEnglish', `${speakEnglish}`)
+  formData.append('status', status)
   if (image) formData.append('image', image)
 
   specialtyIds.forEach((id) => formData.append('specialtyId', id))

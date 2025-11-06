@@ -1,12 +1,11 @@
-// import { api } from 'src/boot/axios'
-import type { IBasicEntity } from 'src/types/IBasicEntity.type'
-import { fakePromise } from 'src/utils/fakePromise.util'
+import { api } from 'src/boot/axios'
+import type { IBasicEntity } from 'src/types/IBasicEntity.type' 
 
 export async function getAll(): Promise<IBasicEntity<string>[]> {
-  /* const { data } = await api.get('/state')
-  return data.users */
-  await fakePromise(100)
-  return [
+  const { data } = await api.get('/state')
+  return data
+
+  /* return [
     {
       id: '1',
       name: 'Rio de Janeiro',
@@ -15,5 +14,5 @@ export async function getAll(): Promise<IBasicEntity<string>[]> {
       id: '2',
       name: 'Minas Gerais',
     },
-  ]
+  ] */
 }

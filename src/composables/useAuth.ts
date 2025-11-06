@@ -6,7 +6,6 @@ import { LocalStorageKey } from 'src/enums/LocalStorageKey.enum'
 import { CookieKey } from 'src/enums/CookieKey.enum'
 import requester from 'src/helpers/requester/Requester.helper'
 import { api } from '../boot/axios'
-import { Roles } from 'src/enums/Roles.enum'
 
 export function useAuth() {
   const { setCookie, getCookie, removeCookie } = useCookies()
@@ -14,26 +13,15 @@ export function useAuth() {
   const router = useRouter()
 
   async function login(email: string, senha: string) {
-    // const userData = await AuthService.login(email, senha)
+    const userData = await AuthService.login(email, senha)
 
-    console.log(senha)
-
-    const userData = {
-      name: 'Andre',
-      email,
-      balance: 1232.45,
-      roles: [Roles.admin],
-      token: 'doem09vg49vgm430g',
-    }
 
     setLocalStorage(
       LocalStorageKey.user,
       JSON.stringify({
         name: userData.name,
         email: userData.email,
-        balance: userData.balance,
-        roles: userData.roles,
-        shootingPermissions: userData.roles,
+        roles: userData.roles
       }),
     )
 
@@ -75,7 +63,7 @@ export function useAuth() {
 
     api.interceptors.request.use((config) => {
       if (getCookie(CookieKey.token)) {
-        config.withCredentials = true
+        // config.withCredentials = true
         config.headers['Authorization'] = `Bearer ${getCookie(CookieKey.token)}`
       }
       return config

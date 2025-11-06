@@ -8,4 +8,5 @@ type IDictionary = {
 
 export const rolesDictionary: IDictionary = {
   [Roles.admin]: { name: 'Administrador' },
+  [Roles.editor]: { name: 'Editor' },
 }

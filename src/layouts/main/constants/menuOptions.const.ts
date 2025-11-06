@@ -97,7 +97,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Usuários',
     separator: false,
     to: { name: 'user' },
-    roles: [Roles.admin],
+    roles: [],
     children: [],
   },
   {

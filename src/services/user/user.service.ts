@@ -2,13 +2,11 @@ import { api } from 'src/boot/axios'
 import { Roles } from 'src/enums/Roles.enum'
 import { Status } from 'src/enums/Status.enum'
 import type { IUser } from 'src/types/user/IUser.type'
-import { fakePromise } from 'src/utils/fakePromise.util'
 
 export async function getAll(): Promise<IUser[]> {
-  /* const { data } = await api.get('/users')
-  return data.users */
-  await fakePromise(100)
-  return [
+  const { data } = await api.get('/users')
+  return data.users
+  /* return [
     {
       id: '1',
       name: 'Nome 1',
@@ -30,7 +28,7 @@ export async function getAll(): Promise<IUser[]> {
       roles: [Roles.admin],
       status: Status.active,
     },
-  ]
+  ] */
 }
 
 export async function create(

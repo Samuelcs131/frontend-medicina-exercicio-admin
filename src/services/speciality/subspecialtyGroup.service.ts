@@ -1,13 +1,12 @@
 import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
 import type { ISubspecialtyGroup } from 'src/types/specialty/ISubspecialtyGroup.type'
-import { fakePromise } from 'src/utils/fakePromise.util'
 
 export async function getAll(): Promise<ISubspecialtyGroup[]> {
-  /* const { data } = await api.get('/subspecialty-group')
-  return data.users */
-  await fakePromise(100)
-  return [
+  const { data } = await api.get('/subspecialty-group')
+  return data
+  // await fakePromise(100)
+  /* return [
     {
       id: '1',
       name: 'Subespecialidades e áreas de atuação',
@@ -16,30 +15,47 @@ export async function getAll(): Promise<ISubspecialtyGroup[]> {
         'https://animaniacs.com.br/wp-content/uploads/2020/05/layer-clinica-medica-felinos.jpg',
       status: Status.active,
     },
-  ]
+  ] */
 }
 
-export async function create(name: string, description: string, image: File) {
-  const formData = new FormData()
+export async function create(
+  name: string,
+  description: string,
+  imageURL: string,
+) {
+  await api.post(`/subspecialty-group/`, {
+    name,
+    description,
+    imageURL,
+  })
+  /*   const formData = new FormData()
 
   formData.append('name', name)
   formData.append('description', description)
-  formData.append('image', image)
+  formData.append('imageURL', image)
 
   await api.post('/subspecialty-group', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-  })
+  }) */
 }
 
 export async function save(
   id: string,
   name: string,
   description: string,
-  image: File | null,
+  imageURL: string,
+  status: Status,
 ) {
-  const formData = new FormData()
+  await api.put(`/subspecialty-group/${id}`, {
+    name,
+    description,
+    imageURL,
+    status,
+  })
+
+  /* const formData = new FormData()
 
   formData.append('name', name)
   formData.append('description', description)
@@ -49,7 +65,7 @@ export async function save(
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-  })
+  }) */
 }
 
 export async function deleteItem(ids: string[]) {

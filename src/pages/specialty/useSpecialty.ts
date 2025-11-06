@@ -5,7 +5,7 @@ import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
 import * as SpecialtyService from 'src/services/speciality/specialty.service'
-import * as ProfessionalAreaService from 'src/services/speciality/professionalArea.service'
+import * as ProfessionalAreaService from 'src/services/professional/professionalArea.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
 import type { IProfissionalArea } from 'src/types/specialty/IProfissionalArea.type'
@@ -60,12 +60,23 @@ export function useSpecialty() {
   async function fetchList() {
     await requester.dispatch({
       callback: async () => {
-        state.value.options.professionalAreas = await ProfessionalAreaService.getAll()
+        if (state.value.options.professionalAreas) await fetchOptions()
         state.value.list = await SpecialtyService.getAll()
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
       loaders: [loader.list],
+    })
+  }
+
+  async function fetchOptions() {
+    await requester.dispatch({
+      callback: async () => {
+        state.value.options.professionalAreas =
+          await ProfessionalAreaService.getAll()
+      },
+      errorMessageTitle: 'Houve um erro',
+      errorMessage: 'Não foi possível buscar as opções',
     })
   }
 
@@ -79,6 +90,7 @@ export function useSpecialty() {
             id,
             state.value.form.name,
             state.value.form.professionalAreaId,
+            state.value.form.status,
           )
         else
           await SpecialtyService.create(
@@ -87,8 +99,8 @@ export function useSpecialty() {
           )
       },
       successCallback: async () => {
-        await fetchList()
         toggleDialog(dialog.edit)
+        await fetchList()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',

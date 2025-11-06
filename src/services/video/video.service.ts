@@ -4,10 +4,11 @@ import type { IVideo } from 'src/types/video/IVideo.type'
 import { fakePromise } from 'src/utils/fakePromise.util'
 
 export async function getAll(): Promise<IVideo[]> {
-  /* const { data } = await api.get('/video')
-  return data.users */
-  await fakePromise(100)
-  return [
+  await fakePromise(50)
+  return []
+  //const { data } = await api.get('/video')
+  // return data
+  /* return [
     {
       id: '1',
       name: 'Subespecialidades e áreas de atuação',
@@ -76,7 +77,7 @@ export async function getAll(): Promise<IVideo[]> {
         postIds: ['1'],
       },
     },
-  ]
+  ] */
 }
 
 export async function create(
@@ -118,6 +119,7 @@ export async function save(
     specialtyIds: string[]
     postIds: string[]
   },
+  status: Status,
 ) {
   await api.put(`/video/${id}`, {
     name,
@@ -125,6 +127,7 @@ export async function save(
     description,
     professionalIds,
     specialtyIds,
+    status,
     recomendationOutherVideosIds: recomendations.outherVideosIds,
     recomendationMoreVideosIds: recomendations.moreVideosIds,
     recomendationSpecialtyIds: recomendations.specialtyIds,

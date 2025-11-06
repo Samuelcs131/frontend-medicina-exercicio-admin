@@ -5,11 +5,13 @@ import type { IPost, IPostResume } from 'src/types/post/IPost.type'
 import { fakePromise } from 'src/utils/fakePromise.util'
 
 export async function getAllPostResume(): Promise<IPostResume[]> {
-  // const { data } = await api.get('/posts/resume')
+  const { data } = await api.get('/post')
 
-  await fakePromise(100)
+  return data
 
-  return [
+  /*await fakePromise(100)
+
+   return [
     {
       id: '1',
       title: 'Hemodinâmica',
@@ -43,7 +45,7 @@ export async function getAllPostResume(): Promise<IPostResume[]> {
       clicks: 564,
       specialtyIds: ['3'],
     },
-  ]
+  ] */
 }
 
 export async function getPostById(id: string): Promise<IPost> {

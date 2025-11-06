@@ -134,42 +134,45 @@ export function useProfessional() {
   async function fetchList() {
     await requester.dispatch({
       callback: async () => {
-        const [
-          subspecialty,
-          specialty,
-          localsService,
-          states,
-          cities,
-          videos,
-          professionals,
-        ] = await Promise.all([
-          await SubspecialtyService.getAll(),
-          await SpecialtyService.getAll(),
-          await LocalServiceService.getAll(),
-          await StateService.getAll(),
-          await CityService.getAll(),
-          await VideoService.getAll(),
-          await ProfessionalService.getAll(),
-        ])
+        if (!state.value.options.states.length) await fetchOptions()
 
-        const options = {
-          specialty,
-          subspecialty,
-          localsService,
-          cities,
-          states,
-          videos,
-          professionals,
-        }
-
-        state.value.options = cloneDeep(options)
-        state.value.optionsData = cloneDeep(options)
-
+        const professionals = await ProfessionalService.getAll()
         state.value.list = professionals
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
       loaders: [loader.list],
+    })
+  }
+
+  async function fetchOptions() {
+    await requester.dispatch({
+      callback: async () => {
+        const [subspecialty, specialty, localsService, states, cities, videos] =
+          await Promise.all([
+            SubspecialtyService.getAll(),
+            SpecialtyService.getAll(),
+            LocalServiceService.getAll(),
+            StateService.getAll(),
+            CityService.getAll(),
+            VideoService.getAll(),
+          ])
+
+        const options = {
+          ...state.value.options,
+          specialty,
+          subspecialty,
+          localsService,
+          cities,
+          states,
+          videos,
+        }
+
+        state.value.options = cloneDeep(options)
+        state.value.optionsData = cloneDeep(options)
+      },
+      errorMessageTitle: 'Houve um erro',
+      errorMessage: 'Não foi possível buscar os dados',
     })
   }
 
@@ -192,11 +195,12 @@ export function useProfessional() {
             state.value.form.site,
             state.value.form.teleconsultation,
             state.value.form.speakEnglish,
-            state.value.form.imageFile,
+            state.value.form.imageURL,
             state.value.form.curriculumLattes,
             state.value.form.cityIds,
             state.value.form.stateIds,
             state.value.form.recomendations,
+            state.value.form.status,
           )
         else
           await ProfessionalService.create(
@@ -211,7 +215,7 @@ export function useProfessional() {
             state.value.form.site,
             state.value.form.teleconsultation,
             state.value.form.speakEnglish,
-            state.value.form.imageFile!,
+            state.value.form.imageURL,
             state.value.form.curriculumLattes,
             state.value.form.cityIds,
             state.value.form.stateIds,
@@ -219,8 +223,8 @@ export function useProfessional() {
           )
       },
       successCallback: async () => {
-        await fetchList()
         toggleDialog(dialog.edit)
+        await fetchList()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',

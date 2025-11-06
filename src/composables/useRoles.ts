@@ -6,7 +6,7 @@ export function useRoles() {
   const { getLocalStorage } = useLocalStorage()
 
   function getUserRoles(): Roles[] {
-    return JSON.parse(getLocalStorage(LocalStorageKey.user)).roles || []
+    return JSON.parse(getLocalStorage(LocalStorageKey.user))?.roles || []
   }
 
   function hasRoles(requiredRoles: Roles[]): boolean {

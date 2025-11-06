@@ -1,13 +1,12 @@
 import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
 import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
-import { fakePromise } from 'src/utils/fakePromise.util'
 
 export async function getAll(): Promise<ISpecialty[]> {
-  /* const { data } = await api.get('/specialty')
-  return data.users */
-  await fakePromise(100)
-  return [
+  const { data } = await api.get('/specialty')
+  return data
+
+  /* return [
     {
       id: '1',
       name: 'Cardiologia',
@@ -44,7 +43,7 @@ export async function getAll(): Promise<ISpecialty[]> {
       },
       status: Status.active,
     },
-  ]
+  ] */
 }
 
 export async function create(name: string, professionalAreaId: string) {
@@ -58,10 +57,12 @@ export async function save(
   id: string,
   name: string,
   professionalAreaId: string,
+  status: Status,
 ) {
   await api.put(`/specialty/${id}`, {
     name,
     professionalAreaId,
+    status,
   })
 }
 

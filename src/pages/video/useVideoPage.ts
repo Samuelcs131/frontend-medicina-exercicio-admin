@@ -140,6 +140,7 @@ export function useVideoPage() {
             state.value.form.professionalIds,
             state.value.form.specialtyIds,
             state.value.form.recomendations,
+            state.value.form.status,
           )
         else
           await VideoService.create(
@@ -152,8 +153,8 @@ export function useVideoPage() {
           )
       },
       successCallback: async () => {
-        await fetchList()
         toggleDialog(dialog.edit)
+        await fetchList()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',

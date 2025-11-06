@@ -74,16 +74,26 @@ export function useLocalService() {
   async function fetchList() {
     await requester.dispatch({
       callback: async () => {
-        state.value.options = {
-          states: await StateService.getAll(),
-          cities: await CityService.getAll(),
-        }
+        if (!state.value.options.cities.length) await fetchOptions()
 
         state.value.list = await LocalServiceService.getAll()
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
       loaders: [loader.list],
+    })
+  }
+
+  async function fetchOptions() {
+    await requester.dispatch({
+      callback: async () => {
+        state.value.options = {
+          states: await StateService.getAll(),
+          cities: await CityService.getAll(),
+        }
+      },
+      errorMessageTitle: 'Houve um erro',
+      errorMessage: 'Não foi possível buscar os dados'
     })
   }
 
@@ -102,6 +112,7 @@ export function useLocalService() {
             state.value.form.street,
             state.value.form.contact,
             state.value.form.coordinates,
+            state.value.form.status,
           )
         else
           await LocalServiceService.create(
@@ -115,8 +126,8 @@ export function useLocalService() {
           )
       },
       successCallback: async () => {
-        await fetchList()
         toggleDialog(dialog.edit)
+        await fetchList()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',

@@ -11,7 +11,7 @@ export function useInterface() {
   }
 
   function startInterfaceConfig() {
-    const currentCompact = getLocalStorage(LocalStorageKey.compact)
+    const currentCompact = getLocalStorage(LocalStorageKey.compact) || 'true'
 
     const config = {
       theme: getLocalStorage(LocalStorageKey.theme) == 'true',

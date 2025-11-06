@@ -192,10 +192,10 @@ export function usePostEditPage() {
 
         const [specialties, subspecialties, professional, posts] =
           await Promise.all([
-            await SpecialityService.getAll(),
-            await SubspecialityService.getAll(),
-            await ProfessionalService.getAll(),
-            await PostService.getAllPostResume(),
+            SpecialityService.getAll(),
+            SubspecialityService.getAll(),
+            ProfessionalService.getAll(),
+            PostService.getAllPostResume(),
           ])
         const postsFilter: IBasicEntity<string>[] = []
 
@@ -207,8 +207,6 @@ export function usePostEditPage() {
             })
         })
 
-        console.log(postsFilter)
-
         state.value.options = {
           specialties,
           subspecialties,
@@ -218,7 +216,6 @@ export function usePostEditPage() {
       },
       errorMessageTitle: 'Houve um erro!',
       errorMessage: 'Não foi possível carregar a postagem',
-      loaders: [Loader.fetch],
     })
   }
 

@@ -66,16 +66,31 @@ export function useSubspecialty() {
   async function fetchList() {
     await requester.dispatch({
       callback: async () => {
-        state.value.options = {
-          subspecialtyGroups: await SubspecialtyGroupService.getAll(),
-          specialty: await SpecialtyService.getAll(),
-        }
+        if (!state.value.options.subspecialtyGroups.length) await fetchOptions()
 
         state.value.list = await SubspecialtyService.getAll()
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
       loaders: [loader.list],
+    })
+  }
+
+  async function fetchOptions() {
+    await requester.dispatch({
+      callback: async () => {
+        const [subspecialtyGroups, specialty] = await Promise.all([
+          SubspecialtyGroupService.getAll(),
+          SpecialtyService.getAll(),
+        ])
+
+        state.value.options = {
+          subspecialtyGroups,
+          specialty,
+        }
+      },
+      errorMessageTitle: 'Houve um erro',
+      errorMessage: 'Não foi possível buscar as opções',
     })
   }
 
@@ -90,6 +105,7 @@ export function useSubspecialty() {
             state.value.form.name,
             state.value.form.specialtyId,
             state.value.form.subspecialtyGroupId,
+            state.value.form.status,
           )
         else
           await SubspecialtyService.create(
@@ -99,8 +115,8 @@ export function useSubspecialty() {
           )
       },
       successCallback: async () => {
-        await fetchList()
         toggleDialog(dialog.edit)
+        await fetchList()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',

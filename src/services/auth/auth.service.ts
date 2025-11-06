@@ -13,7 +13,7 @@ export async function login(
       email,
       password,
     },
-    { withCredentials: true },
+    { },
   )
 
   const { token, user } = data

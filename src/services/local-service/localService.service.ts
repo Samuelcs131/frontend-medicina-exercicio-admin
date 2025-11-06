@@ -1,13 +1,11 @@
 import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
 import type { ILocalService } from 'src/types/local-service/ILocalService.type'
-import { fakePromise } from 'src/utils/fakePromise.util'
 
 export async function getAll(): Promise<ILocalService[]> {
-  /* const { data } = await api.get('/local-service')
-  return data.users */
-  await fakePromise(100)
-  return [
+  const { data } = await api.get('/local-service')
+  return data
+  /* return [
     {
       id: '1',
       name: 'Alexandre III',
@@ -25,7 +23,7 @@ export async function getAll(): Promise<ILocalService[]> {
       coordinates: '-22.865307226398542, -43.21486019013049',
       status: Status.active,
     },
-  ]
+  ] */
 }
 
 export async function create(
@@ -57,6 +55,7 @@ export async function save(
   street: string,
   contact: string,
   coordinates: string,
+  status: Status,
 ) {
   await api.put(`/local-service/${id}`, {
     name,
@@ -66,6 +65,7 @@ export async function save(
     street,
     contact,
     coordinates,
+    status,
   })
 }
 

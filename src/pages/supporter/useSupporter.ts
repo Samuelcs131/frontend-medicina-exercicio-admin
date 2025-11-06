@@ -71,17 +71,18 @@ export function useSupporter() {
           await SupporterService.save(
             id,
             state.value.form.name,
-            state.value.form.imageFile,
+            state.value.form.imageURL,
+            state.value.form.status,
           )
         else
           await SupporterService.create(
             state.value.form.name,
-            state.value.form.imageFile!,
+            state.value.form.imageURL,
           )
       },
       successCallback: async () => {
-        await fetchList()
         toggleDialog(dialog.edit)
+        await fetchList()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',

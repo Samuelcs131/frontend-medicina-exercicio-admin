@@ -96,6 +96,15 @@
               />
             </div>
             <div class="col-12">
+              <q-input
+                label="Image (URL)"
+                :rules="[requiredRule]"
+                v-model="state.form.imageURL"
+                v-bind="$vInput"
+              />
+            </div>
+
+            <!-- <div class="col-12">
               <q-uploader
                 class="shadow-0 q-my-md full-width"
                 bordered
@@ -106,7 +115,7 @@
                 @removed="removeFile"
                 accept="image/*"
               />
-            </div>
+            </div> -->
 
             <div class="col-12">
               <div class="bg-black rounded-borders">
@@ -135,9 +144,11 @@
               label="Salvar"
               unelevated
               type="submit"
-              :disable="!state.form.imageFile && !state.form.id"
               :loading="loaderStatus(loader.edit)"
             />
+            <!--
+                :disable="!state.form.imageFile && !state.form.id"
+               -->
           </q-card-actions>
         </q-form>
       </q-card>
@@ -161,9 +172,9 @@ const {
   dialog,
   loader,
   save,
-  addFile,
+  // addFile,
   fetchList,
-  removeFile,
+  // removeFile,
   loaderStatus,
   toggleDialog,
   confirmAction,

@@ -65,7 +65,7 @@ function handleRoles(roles: Roles[]) {
   const { getLocalStorage } = useLocalStorage()
 
   const userRoles: Roles[] =
-    JSON.parse(getLocalStorage(LocalStorageKey.user)).roles || []
+    JSON.parse(getLocalStorage(LocalStorageKey.user))?.roles || []
 
   if (userRoles.includes(Roles.admin)) return true
   return roles.some((role) => userRoles.includes(role))

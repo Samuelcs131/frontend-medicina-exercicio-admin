@@ -5,7 +5,7 @@ import type { IProfissionalArea } from 'src/types/specialty/IProfissionalArea.ty
 import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
-import * as ProfessionalAreaService from 'src/services/speciality/professionalArea.service'
+import * as ProfessionalAreaService from 'src/services/professional/professionalArea.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 
 interface IState {
@@ -72,6 +72,7 @@ export function useProfissionalArea() {
             id,
             state.value.form.name,
             state.value.form.imageFile,
+            state.value.form.status,
           )
         else
           await ProfessionalAreaService.create(
@@ -80,8 +81,8 @@ export function useProfissionalArea() {
           )
       },
       successCallback: async () => {
-        await fetchList()
         toggleDialog(dialog.edit)
+        await fetchList()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
