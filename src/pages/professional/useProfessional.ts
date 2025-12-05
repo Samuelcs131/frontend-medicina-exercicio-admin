@@ -15,6 +15,8 @@ import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { IProfessional } from 'src/types/professional/IProfessional.type'
 import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import { IVideo } from 'src/types/video/IVideo.type'
+import { ICity } from 'src/types/city/ICity.type'
+import { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 
 interface IState {
   form: {
@@ -44,19 +46,19 @@ interface IState {
   }
   options: {
     specialty: IBasicEntity<string>[]
-    subspecialty: IBasicEntity<string>[]
+    subspecialty: ISubspecialty[]
     localsService: IBasicEntity<string>[]
     states: IBasicEntity<string>[]
-    cities: IBasicEntity<string>[]
+    cities: ICity[]
     videos: IVideo[]
     professionals: IProfessional[]
   }
   optionsData: {
     specialty: IBasicEntity<string>[]
-    subspecialty: IBasicEntity<string>[]
+    subspecialty: ISubspecialty[]
     localsService: IBasicEntity<string>[]
     states: IBasicEntity<string>[]
-    cities: IBasicEntity<string>[]
+    cities: ICity[]
     videos: IVideo[]
     professionals: IProfessional[]
   }
@@ -195,12 +197,12 @@ export function useProfessional() {
             state.value.form.site,
             state.value.form.teleconsultation,
             state.value.form.speakEnglish,
-            state.value.form.imageURL,
             state.value.form.curriculumLattes,
             state.value.form.cityIds,
             state.value.form.stateIds,
             state.value.form.recomendations,
             state.value.form.status,
+            state.value.form.imageFile,
           )
         else
           await ProfessionalService.create(
@@ -215,11 +217,11 @@ export function useProfessional() {
             state.value.form.site,
             state.value.form.teleconsultation,
             state.value.form.speakEnglish,
-            state.value.form.imageURL,
             state.value.form.curriculumLattes,
             state.value.form.cityIds,
             state.value.form.stateIds,
             state.value.form.recomendations,
+            state.value.form.imageFile!,
           )
       },
       successCallback: async () => {

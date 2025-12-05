@@ -1,83 +1,10 @@
 import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
 import type { IVideo } from 'src/types/video/IVideo.type'
-import { fakePromise } from 'src/utils/fakePromise.util'
 
 export async function getAll(): Promise<IVideo[]> {
-  await fakePromise(50)
-  return []
-  //const { data } = await api.get('/video')
-  // return data
-  /* return [
-    {
-      id: '1',
-      name: 'Subespecialidades e áreas de atuação',
-      description: 'Descrição de alguma coisa',
-      status: Status.active,
-      professionalIds: ['1'],
-      specialtyIds: ['1'],
-      subspecialtyIds: ['1'],
-      url: 'https://youtu.be/GkYcFV7qkyk',
-      clicks: 14,
-      recomendations: {
-        outherVideosIds: ['4'],
-        moreVideosIds: ['4'],
-        specialtyIds: ['1'],
-        postIds: ['1'],
-      },
-    },
-    {
-      id: '2',
-      name: 'Asma na Infância',
-      description: 'Descrição de alguma coisa 2',
-      status: Status.active,
-      professionalIds: ['2'],
-      specialtyIds: ['1'],
-      subspecialtyIds: ['1'],
-      url: 'https://youtu.be/GkYcFV7qkyk',
-      clicks: 47,
-      recomendations: {
-        outherVideosIds: ['3'],
-        moreVideosIds: ['1'],
-        specialtyIds: ['1'],
-        postIds: ['1'],
-      },
-    },
-    {
-      id: '3',
-      name: 'Depressão',
-      description: 'Descrição de alguma coisa 3',
-      status: Status.active,
-      professionalIds: ['2'],
-      specialtyIds: ['1'],
-      subspecialtyIds: ['1'],
-      url: 'https://youtu.be/GkYcFV7qkyk',
-      clicks: 47,
-      recomendations: {
-        outherVideosIds: ['2'],
-        moreVideosIds: ['1'],
-        specialtyIds: ['1'],
-        postIds: ['1'],
-      },
-    },
-    {
-      id: '4',
-      name: 'Obesidade',
-      description: 'Descrição de alguma coisa 4',
-      status: Status.active,
-      professionalIds: ['1'],
-      specialtyIds: ['1'],
-      subspecialtyIds: ['1'],
-      url: 'https://youtu.be/GkYcFV7qkyk',
-      clicks: 47,
-      recomendations: {
-        outherVideosIds: ['1'],
-        moreVideosIds: ['1'],
-        specialtyIds: ['1'],
-        postIds: ['1'],
-      },
-    },
-  ] */
+  const { data } = await api.get('/video')
+  return data
 }
 
 export async function create(
@@ -86,6 +13,7 @@ export async function create(
   description: string,
   professionalIds: string[],
   specialtyIds: string[],
+  subspecialtyIds: string[],
   recomendations: {
     outherVideosIds: string[]
     moreVideosIds: string[]
@@ -99,10 +27,8 @@ export async function create(
     description,
     professionalIds,
     specialtyIds,
-    recomendationOutherVideosIds: recomendations.outherVideosIds,
-    recomendationMoreVideosIds: recomendations.moreVideosIds,
-    recomendationSpecialtyIds: recomendations.specialtyIds,
-    recomendationPostIds: recomendations.postIds,
+    subspecialtyIds,
+    recomendations,
   })
 }
 
@@ -113,6 +39,7 @@ export async function save(
   description: string,
   professionalIds: string[],
   specialtyIds: string[],
+  subspecialtyIds: string[],
   recomendations: {
     outherVideosIds: string[]
     moreVideosIds: string[]
@@ -127,11 +54,9 @@ export async function save(
     description,
     professionalIds,
     specialtyIds,
+    subspecialtyIds,
     status,
-    recomendationOutherVideosIds: recomendations.outherVideosIds,
-    recomendationMoreVideosIds: recomendations.moreVideosIds,
-    recomendationSpecialtyIds: recomendations.specialtyIds,
-    recomendationPostIds: recomendations.postIds,
+    recomendations
   })
 }
 

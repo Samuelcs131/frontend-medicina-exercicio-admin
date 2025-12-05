@@ -56,6 +56,16 @@
           </q-btn>
         </q-td>
       </template>
+      <template #body-cell-name="props">
+        <q-td :props="props" :title="props.row.name">
+          {{ truncateText(props.row.name, 30) }}
+        </q-td>
+      </template>
+      <template #body-cell-description="props">
+        <q-td :props="props" :title="props.row.description">
+          {{ truncateText(props.row.description, 30) }}
+        </q-td>
+      </template>
     </q-table>
 
     <action-dialog
@@ -121,6 +131,18 @@
                 :options="state.options.professionals"
                 option-value="id"
                 use-chips
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.professionals = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.professionals,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />
@@ -137,6 +159,19 @@
                 :options="state.options.specialties"
                 option-value="id"
                 use-chips
+                emit-value
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.specialties = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.specialties,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />
@@ -153,6 +188,19 @@
                 :options="state.options.subspecialties"
                 option-value="id"
                 use-chips
+                emit-value
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.subspecialties = filterFn(
+                          v,
+                          'name',
+                          subspecialtyOptions,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />
@@ -258,6 +306,8 @@
 
           <q-separator />
 
+          {{ state.form }}
+
           <q-card-actions align="right">
             <q-btn
               color="default"
@@ -283,7 +333,7 @@
 import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useVideoPage } from './useVideoPage'
 import { videoPageTableColumns } from './videoPage.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
@@ -292,6 +342,8 @@ import VDialog from 'src/components/dialog/VDialog.vue'
 import { thumbnailYoutube } from 'src/utils/youtube.util'
 import ChipSelect from 'src/components/select/ChipSelect.vue'
 import { maxArrayRule } from 'src/validations/form-rules/arrayRules.util'
+import { filterFn } from 'src/utils/filter.util'
+import { truncateText } from 'src/utils/text.util'
 
 const {
   state,
@@ -306,6 +358,12 @@ const {
   clearEditDialog,
   openActionDialog,
 } = useVideoPage()
+
+const subspecialtyOptions = computed(() => {
+  return state.value.optionsData.subspecialties.filter((sub) =>
+    state.value.form.specialtyIds.includes(sub.specialty.id),
+  )
+})
 
 onMounted(async () => {
   await fetchList()

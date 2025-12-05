@@ -39,6 +39,16 @@
       <template #body-cell-imageURL="props">
         <image-row :props="props" label="imageURL" />
       </template>
+      <template #body-cell-name="props">
+        <q-td :props="props" :title="props.row.name">
+          {{ truncateText(props.row.name, 40) }}
+        </q-td>
+      </template>
+      <template #body-cell-description="props">
+        <q-td :props="props" :title="props.row.description">
+          {{ truncateText(props.row.description, 20) }}
+        </q-td>
+      </template>
       <template #body-cell-status="props">
         <status-row :props="props" />
       </template>
@@ -95,16 +105,8 @@
                 :options="statusOptions"
               />
             </div>
-            <div class="col-12">
-              <q-input
-                label="Image (URL)"
-                :rules="[requiredRule]"
-                v-model="state.form.imageURL"
-                v-bind="$vInput"
-              />
-            </div>
 
-            <!-- <div class="col-12">
+            <div class="col-12">
               <q-uploader
                 class="shadow-0 q-my-md full-width"
                 bordered
@@ -115,7 +117,7 @@
                 @removed="removeFile"
                 accept="image/*"
               />
-            </div> -->
+            </div>
 
             <div class="col-12">
               <div class="bg-black rounded-borders">
@@ -145,10 +147,8 @@
               unelevated
               type="submit"
               :loading="loaderStatus(loader.edit)"
+              :disable="!state.form.imageFile && !state.form.id"
             />
-            <!--
-                :disable="!state.form.imageFile && !state.form.id"
-               -->
           </q-card-actions>
         </q-form>
       </q-card>
@@ -166,15 +166,16 @@ import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import ImageRow from 'src/components/table/ImageRow.vue'
+import { truncateText } from 'src/utils/text.util'
 
 const {
   state,
   dialog,
   loader,
   save,
-  // addFile,
+  addFile,
   fetchList,
-  // removeFile,
+  removeFile,
   loaderStatus,
   toggleDialog,
   confirmAction,

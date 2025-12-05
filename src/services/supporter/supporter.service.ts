@@ -5,23 +5,10 @@ import { ISupporter } from 'src/types/supporter/ISupporter.type'
 export async function getAll(): Promise<ISupporter[]> {
   const { data } = await api.get('/support')
   return data
-  /* return [
-    {
-      id: '1',
-      name: "Mc Donald's",
-      imageURL:
-        'https://i.pinimg.com/564x/54/ca/74/54ca74a3709b4787b44970ed6a87f8c6.jpg',
-      status: Status.active,
-    },
-  ] */
 }
 
-export async function create(name: string, imageURL: string) {
-  await api.post('/support', {
-    name,
-    imageURL,
-  })
-  /* const formData = new FormData()
+export async function create(name: string, image: File) {
+  const formData = new FormData()
 
   formData.append('name', name)
   formData.append('image', image)
@@ -30,30 +17,26 @@ export async function create(name: string, imageURL: string) {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-  }) */
+  })
 }
 
 export async function save(
   id: string,
   name: string,
-  imageURL: string,
   status: Status,
+  image: File | null,
 ) {
-  await api.put(`/support/${id}`, {
-    name,
-    imageURL,
-    status,
-  })
-  /* const formData = new FormData()
+  const formData = new FormData()
 
   formData.append('name', name)
+  formData.append('status', status)
   if (image) formData.append('image', image)
 
   await api.put(`/support/${id}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-  }) */
+  })
 }
 
 export async function deleteItem(ids: string[]) {

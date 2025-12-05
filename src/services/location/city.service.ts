@@ -1,17 +1,7 @@
 import { api } from 'src/boot/axios'
-import type { IBasicEntity } from 'src/types/IBasicEntity.type'
+import { ICity } from 'src/types/city/ICity.type'
 
-export async function getAll(): Promise<IBasicEntity<string>[]> {
+export async function getAll(): Promise<ICity[]> {
   const { data } = await api.get('/city')
   return data
-  /* return [
-    {
-      id: '1',
-      name: 'Rio de Janeiro',
-    },
-    {
-      id: '2',
-      name: 'Niteroi',
-    },
-  ] */
 }

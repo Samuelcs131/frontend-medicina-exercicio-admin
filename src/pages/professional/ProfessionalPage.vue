@@ -49,6 +49,11 @@
           </q-btn>
         </q-td>
       </template>
+      <template #body-cell-name="props">
+        <q-td :props="props" :title="props.row.name">
+          {{ truncateText(props.row.name, 30) }}
+        </q-td>
+      </template>
     </q-table>
 
     <action-dialog
@@ -99,6 +104,19 @@
                 :options="state.options.specialty"
                 option-value="id"
                 use-chips
+                use-input
+                @update:model-value="resetSubspecialty"
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.specialty = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.specialty,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />
@@ -115,6 +133,18 @@
                 :options="state.options.subspecialty"
                 option-value="id"
                 use-chips
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.subspecialty = filterFn(
+                          v,
+                          'name',
+                          subspecialtyOptions,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />
@@ -154,6 +184,19 @@
                 :options="state.options.states"
                 option-value="id"
                 multiple
+                use-input
+                @update:model-value="resetCityIds"
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.states = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.states,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />
@@ -169,6 +212,18 @@
                 :options="state.options.cities"
                 option-value="id"
                 multiple
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.cities = filterFn(
+                          v,
+                          'name',
+                          citiesOptions,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />
@@ -186,6 +241,18 @@
                 :options="state.options.localsService"
                 option-value="id"
                 use-chips
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.localsService = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.localsService,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />
@@ -234,14 +301,6 @@
             </div>
 
             <div class="col-12">
-              <q-input
-                label="Imagem (URL)"
-                v-model="state.form.imageURL"
-                v-bind="$vInput"
-                class="q-mb-md"
-              />
-            </div>
-            <!-- <div class="col-12">
               <q-uploader
                 class="shadow-0 q-my-md full-width"
                 bordered
@@ -252,7 +311,7 @@
                 @removed="removeFile"
                 accept="image/*"
               />
-            </div> -->
+            </div>
 
             <div class="col-12">
               <div class="bg-black rounded-borders">
@@ -287,7 +346,7 @@
               </q-select>
             </div>
 
-            <div class="col-12">
+            <!-- <div class="col-12">
               <q-select
                 label="Videos do profissional"
                 :rules="[(v) => maxArrayRule(v, 4)]"
@@ -319,7 +378,7 @@
                   <chip-select :scope="scope" />
                 </template>
               </q-select>
-            </div>
+            </div> -->
           </q-card-section>
 
           <q-separator />
@@ -338,8 +397,8 @@
               unelevated
               type="submit"
               :loading="loaderStatus(loader.edit)"
+              :disable="!state.form.imageFile && !state.form.id"
             />
-            <!-- :disable="!state.form.imageFile && !state.form.id" -->
           </q-card-actions>
         </q-form>
       </q-card>
@@ -350,7 +409,7 @@
 import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useProfessional } from './useProfessional'
 import { professionalTableColumns } from './professional.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
@@ -359,15 +418,37 @@ import VDialog from 'src/components/dialog/VDialog.vue'
 import ImageRow from 'src/components/table/ImageRow.vue'
 import ChipSelect from 'src/components/select/ChipSelect.vue'
 import { maxArrayRule } from 'src/validations/form-rules/arrayRules.util'
+import { filterFn } from 'src/utils/filter.util'
+import { truncateText } from 'src/utils/text.util'
+
+const citiesOptions = computed(() => {
+  return state.value.optionsData.cities.filter((city) =>
+    state.value.form.stateIds.includes(city.stateId),
+  )
+})
+
+const subspecialtyOptions = computed(() => {
+  return state.value.optionsData.subspecialty.filter((sub) =>
+    state.value.form.specialtyIds.includes(sub.specialty.id),
+  )
+})
+
+function resetCityIds() {
+  state.value.form.cityIds = []
+}
+
+function resetSubspecialty() {
+  state.value.form.subspecialtyIds = []
+}
 
 const {
   state,
   dialog,
   loader,
   save,
-  //addFile,
+  addFile,
   fetchList,
-  //removeFile,
+  removeFile,
   loaderStatus,
   toggleDialog,
   confirmAction,

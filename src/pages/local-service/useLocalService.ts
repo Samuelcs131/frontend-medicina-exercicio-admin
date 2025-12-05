@@ -87,13 +87,15 @@ export function useLocalService() {
   async function fetchOptions() {
     await requester.dispatch({
       callback: async () => {
-        state.value.options = {
-          states: await StateService.getAll(),
-          cities: await CityService.getAll(),
-        }
+        const [states, cities] = await Promise.all([
+          StateService.getAll(),
+          CityService.getAll(),
+        ])
+
+        state.value.options = { states, cities }
       },
       errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar os dados'
+      errorMessage: 'Não foi possível buscar os dados',
     })
   }
 

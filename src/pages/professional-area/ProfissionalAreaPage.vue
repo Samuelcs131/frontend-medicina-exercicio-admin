@@ -49,6 +49,11 @@
           </q-btn>
         </q-td>
       </template>
+      <template #body-cell-name="props">
+        <q-td :props="props" :title="props.row.name">
+          {{ truncateText(props.row.name, 30) }}
+        </q-td>
+      </template>
     </q-table>
 
     <action-dialog
@@ -148,6 +153,7 @@ import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import ImageRow from 'src/components/table/ImageRow.vue'
+import { truncateText } from 'src/utils/text.util'
 
 const {
   state,

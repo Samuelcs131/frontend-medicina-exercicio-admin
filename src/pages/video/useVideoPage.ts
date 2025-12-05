@@ -13,6 +13,7 @@ import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import type { IVideo } from 'src/types/video/IVideo.type'
 import { IPostResume } from 'src/types/post/IPost.type'
+import { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 
 interface IState {
   form: {
@@ -34,12 +35,16 @@ interface IState {
   options: {
     professionals: IBasicEntity<string>[]
     specialties: IBasicEntity<string>[]
-    subspecialties: IBasicEntity<string>[]
+    subspecialties: ISubspecialty[]
     videos: IVideo[]
     posts: IPostResume[]
   }
   optionsData: {
+    professionals: IBasicEntity<string>[]
+    specialties: IBasicEntity<string>[]
+    subspecialties: ISubspecialty[]
     videos: IVideo[]
+    posts: IPostResume[]
   }
   list: IVideo[]
   filter: string
@@ -72,7 +77,11 @@ export function useVideoPage() {
       posts: [],
     },
     optionsData: {
+      professionals: [],
+      specialties: [],
+      subspecialties: [],
       videos: [],
+      posts: [],
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
@@ -100,11 +109,11 @@ export function useVideoPage() {
       callback: async () => {
         const [specialties, professionals, subspecialties, videos, posts] =
           await Promise.all([
-            await SpecialtyService.getAll(),
-            await ProfessionalService.getAll(),
-            await SubspecialtyService.getAll(),
-            await VideoService.getAll(),
-            await PostService.getAllPostResume(),
+            SpecialtyService.getAll(),
+            ProfessionalService.getAll(),
+            SubspecialtyService.getAll(),
+            VideoService.getAll(),
+            PostService.getAllPostResume(),
           ])
 
         const options = {
@@ -116,7 +125,7 @@ export function useVideoPage() {
         }
 
         state.value.options = cloneDeep(options)
-        state.value.optionsData.videos = cloneDeep(options.videos)
+        state.value.optionsData = cloneDeep(options)
 
         state.value.list = videos
       },
@@ -139,6 +148,7 @@ export function useVideoPage() {
             state.value.form.description,
             state.value.form.professionalIds,
             state.value.form.specialtyIds,
+            state.value.form.subspecialtyIds,
             state.value.form.recomendations,
             state.value.form.status,
           )
@@ -149,6 +159,7 @@ export function useVideoPage() {
             state.value.form.description,
             state.value.form.professionalIds,
             state.value.form.specialtyIds,
+            state.value.form.subspecialtyIds,
             state.value.form.recomendations,
           )
       },

@@ -16,6 +16,8 @@ import { LocalStorageKey } from 'src/enums/LocalStorageKey.enum'
 import { Roles } from 'src/enums/Roles.enum'
 import { Status } from 'src/enums/Status.enum'
 import { IBasicEntity } from 'src/types/IBasicEntity.type'
+import { ISpecialty } from 'src/types/specialty/ISpecialty.type'
+import { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 
 interface IForm extends IPost {
   thumbnailFile: File | null
@@ -35,10 +37,15 @@ interface IState {
     height: number
   }
   options: {
-    specialties: IBasicEntity<string>[]
-    subspecialties: IBasicEntity<string>[]
+    specialties: ISpecialty[]
+    subspecialties: ISubspecialty[]
     professional: IBasicEntity<string>[]
     posts: IBasicEntity<string>[]
+  }
+  optionsData: {
+    specialties: ISpecialty[]
+    subspecialties: ISubspecialty[]
+    professional: IBasicEntity<string>[]
   }
 }
 
@@ -87,6 +94,11 @@ const initializeState: IState = {
     subspecialties: [],
     professional: [],
     posts: [],
+  },
+  optionsData: {
+    specialties: [],
+    subspecialties: [],
+    professional: [],
   },
 }
 
@@ -176,7 +188,6 @@ export function usePostEditPage() {
     await requester.dispatch({
       callback: async () => {
         const post = await PostService.getPostById(id)
-
         state.value.form = { ...post, thumbnailFile: null }
       },
       errorMessageTitle: 'Houve um erro!',
@@ -212,6 +223,12 @@ export function usePostEditPage() {
           subspecialties,
           professional,
           posts: postsFilter,
+        }
+
+        state.value.optionsData = {
+          specialties,
+          subspecialties,
+          professional
         }
       },
       errorMessageTitle: 'Houve um erro!',

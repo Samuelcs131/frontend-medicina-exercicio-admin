@@ -71,13 +71,13 @@ export function useSupporter() {
           await SupporterService.save(
             id,
             state.value.form.name,
-            state.value.form.imageURL,
             state.value.form.status,
+            state.value.form.imageFile,
           )
-        else
-          await SupporterService.create(
-            state.value.form.name,
-            state.value.form.imageURL,
+          else
+            await SupporterService.create(
+          state.value.form.name,
+          state.value.form.imageFile!,
           )
       },
       successCallback: async () => {

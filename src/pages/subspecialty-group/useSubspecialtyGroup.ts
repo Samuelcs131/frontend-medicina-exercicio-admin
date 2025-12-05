@@ -74,14 +74,14 @@ export function useSubspecialtyGroup() {
             id,
             state.value.form.name,
             state.value.form.description,
-            state.value.form.imageURL,
             state.value.form.status,
+            state.value.form.imageFile,
           )
         else
           await SubspecialtyGroupService.create(
             state.value.form.name,
             state.value.form.description,
-            state.value.form.imageURL,
+            state.value.form.imageFile!,
           )
       },
       successCallback: async () => {

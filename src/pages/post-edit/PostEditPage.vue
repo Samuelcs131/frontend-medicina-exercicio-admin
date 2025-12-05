@@ -24,6 +24,19 @@
                   :rules="[requiredRule]"
                   use-chips
                   multiple
+                  use-input
+                  @update:model-value="resetSubspecialty"
+                  @filter="
+                    (v, update) =>
+                      update(
+                        () =>
+                          (state.options.specialties = filterFn(
+                            v,
+                            'name',
+                            state.optionsData.specialties,
+                          )),
+                      )
+                  "
                 >
                   <template v-slot:selected-item="scope">
                     <chip-select :scope="scope" />
@@ -41,6 +54,18 @@
                   :rules="[requiredRule]"
                   use-chips
                   multiple
+                  use-input
+                  @filter="
+                    (v, update) =>
+                      update(
+                        () =>
+                          (state.options.subspecialties = filterFn(
+                            v,
+                            'name',
+                            subspecialtyOptions,
+                          )),
+                      )
+                  "
                 >
                   <template v-slot:selected-item="scope">
                     <chip-select :scope="scope" />
@@ -357,7 +382,7 @@ import DatePicker from 'src/components/date-picker/DatePicker.vue'
 import draggable from 'vuedraggable'
 import EditText from './components/editor-text/EditorText.vue'
 import { usePostEditPage } from './usePostEditPage'
-import { onMounted, onBeforeMount, ref } from 'vue'
+import { onMounted, onBeforeMount, ref, computed } from 'vue'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { useRoute, useRouter } from 'vue-router'
 import { rangeRule } from 'src/validations/form-rules/stringRules.util'
@@ -369,6 +394,7 @@ import { QUploader } from 'quasar'
 import { statusOptions } from 'src/constants/status.const'
 import ChipSelect from 'src/components/select/ChipSelect.vue'
 import { maxArrayRule } from 'src/validations/form-rules/arrayRules.util'
+import { filterFn } from 'src/utils/filter.util'
 
 const router = useRouter()
 const route = useRoute()
@@ -390,7 +416,17 @@ const {
   handleProfessional,
 } = usePostEditPage()
 
+const subspecialtyOptions = computed(() => {
+  return state.value.optionsData.subspecialties.filter((sub) =>
+    state.value.form.specialtyIds.includes(sub.specialty.id),
+  )
+})
+
 const uploadInput = ref<QUploader | null>(null)
+
+function resetSubspecialty() {
+  state.value.form.subspecialtyIds = []
+}
 
 function handleSetFile(files: readonly File[]) {
   const [file] = files

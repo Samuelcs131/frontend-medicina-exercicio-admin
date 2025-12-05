@@ -21,51 +21,41 @@ export async function getAll(): Promise<ISubspecialtyGroup[]> {
 export async function create(
   name: string,
   description: string,
-  imageURL: string,
+  image: File,
 ) {
-  await api.post(`/subspecialty-group/`, {
-    name,
-    description,
-    imageURL,
-  })
-  /*   const formData = new FormData()
+  const formData = new FormData()
 
   formData.append('name', name)
   formData.append('description', description)
-  formData.append('imageURL', image)
+  formData.append('image', image)
 
   await api.post('/subspecialty-group', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-  }) */
+  })
 }
 
 export async function save(
   id: string,
   name: string,
   description: string,
-  imageURL: string,
   status: Status,
+  image: File | null,
 ) {
-  await api.put(`/subspecialty-group/${id}`, {
-    name,
-    description,
-    imageURL,
-    status,
-  })
-
-  /* const formData = new FormData()
+  const formData = new FormData()
 
   formData.append('name', name)
   formData.append('description', description)
+  formData.append('status', status)
+
   if (image) formData.append('image', image)
 
   await api.put(`/subspecialty-group/${id}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-  }) */
+  })
 }
 
 export async function deleteItem(ids: string[]) {
