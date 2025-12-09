@@ -140,6 +140,8 @@ export function useProfessional() {
 
         const professionals = await ProfessionalService.getAll()
         state.value.list = professionals
+        state.value.optionsData.professionals = professionals
+        state.value.options.professionals = professionals
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
@@ -221,7 +223,7 @@ export function useProfessional() {
             state.value.form.cityIds,
             state.value.form.stateIds,
             state.value.form.recomendations,
-            state.value.form.imageFile!,
+            state.value.form.imageFile,
           )
       },
       successCallback: async () => {

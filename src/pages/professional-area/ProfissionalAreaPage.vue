@@ -67,7 +67,7 @@
     />
 
     <v-dialog :dialog-id="dialog.edit" @hide-before="clearEditDialog">
-      <q-card v-bind="$vCard" style="max-width: 500px">
+      <q-card v-bind="$vCard" style="max-width: 500px" class="full-width">
         <q-form @submit="save">
           <q-card-section class="q-py-none q-pt-sm">
             <h6 class="text-h6 q-my-none">

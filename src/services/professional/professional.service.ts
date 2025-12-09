@@ -27,7 +27,7 @@ export async function create(
     professionalVideoIds: string[]
     professionalIds: string[]
   },
-  image: File,
+  image: File | null,
 ) {
   const formData = new FormData()
 
@@ -39,7 +39,7 @@ export async function create(
   formData.append('site', site)
   formData.append('teleconsultation', `${teleconsultation}`)
   formData.append('speakEnglish', `${speakEnglish}`)
-  formData.append('image', image)
+  if(image) formData.append('image', image)
   formData.append('curriculumLattes', curriculumLattes)
 
   specialtyIds.forEach((id) => formData.append('specialtyIds', id))
@@ -51,12 +51,12 @@ export async function create(
   recomendations.specialtyIds.forEach((id) =>
     formData.append('recomendationSpecialtyIds', `${id}`),
   )
-  /* recomendations.professionalVideoIds.forEach((id) =>
+  recomendations.professionalVideoIds.forEach((id) =>
     formData.append('recomendationProfessionalVideoIds', `${id}`),
   )
   recomendations.professionalIds.forEach((id) =>
     formData.append('recomendationProfessionalIds', `${id}`),
-  ) */
+  )
 
   await api.post('/professional', formData, {
     headers: {
@@ -112,12 +112,12 @@ export async function save(
   recomendations.specialtyIds.forEach((id) =>
     formData.append('recomendationSpecialtyIds', `${id}`),
   )
-  /* recomendations.professionalVideoIds.forEach((id) =>
+  recomendations.professionalVideoIds.forEach((id) =>
     formData.append('recomendationProfessionalVideoIds', `${id}`),
   )
   recomendations.professionalIds.forEach((id) =>
     formData.append('recomendationProfessionalIds', `${id}`),
-  ) */
+  )
 
   await api.put(`/professional/${id}`, formData, {
     headers: {

@@ -67,7 +67,7 @@
     />
 
     <v-dialog :dialog-id="dialog.edit" @hide-before="clearEditDialog">
-      <q-card v-bind="$vCard" style="max-width: 500px">
+      <q-card v-bind="$vCard" style="max-width: 600px">
         <q-form @submit="save">
           <q-card-section class="q-py-none q-pt-sm">
             <h6 class="text-h6 q-my-none">
@@ -97,7 +97,6 @@
             <div class="col-12 col-md-6">
               <q-select
                 label="Especialidades"
-                :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.specialtyIds"
                 multiple
@@ -105,6 +104,7 @@
                 option-value="id"
                 use-chips
                 use-input
+                class="q-mb-md"
                 @update:model-value="resetSubspecialty"
                 @filter="
                   (v, update) =>
@@ -126,13 +126,13 @@
             <div class="col-12 col-md-6">
               <q-select
                 label="Subespecialidades"
-                :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.subspecialtyIds"
                 multiple
                 :options="state.options.subspecialty"
                 option-value="id"
                 use-chips
+                class="q-mb-md"
                 use-input
                 @filter="
                   (v, update) =>
@@ -153,7 +153,12 @@
             </div>
 
             <div class="col-12 col-md-6">
-              <q-input label="CRM" v-model="state.form.CRM" v-bind="$vInput" />
+              <q-input
+                label="CRM"
+                class="q-mb-md"
+                v-model="state.form.CRM"
+                v-bind="$vInput"
+              />
             </div>
 
             <div class="col-12 col-md-6">
@@ -167,8 +172,8 @@
 
             <div class="col-12">
               <q-input
+                class="q-mb-md"
                 label="Sobre mim"
-                :rules="[requiredRule]"
                 v-model="state.form.aboutMy"
                 v-bind="$vInput"
                 type="textarea"
@@ -177,8 +182,8 @@
 
             <div class="col-12 col-md-6">
               <q-select
+                class="q-mb-md"
                 label="Estados"
-                :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.stateIds"
                 :options="state.options.states"
@@ -205,8 +210,8 @@
             </div>
             <div class="col-12 col-md-6">
               <q-select
+                class="q-mb-md"
                 label="Cidades"
-                :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.cityIds"
                 :options="state.options.cities"
@@ -233,8 +238,8 @@
 
             <div class="col-12">
               <q-select
+                class="q-mb-md"
                 label="Locais de atendimento"
-                :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.localServiceIds"
                 multiple
@@ -346,7 +351,7 @@
               </q-select>
             </div>
 
-            <!-- <div class="col-12">
+            <div class="col-12">
               <q-select
                 label="Videos do profissional"
                 :rules="[(v) => maxArrayRule(v, 4)]"
@@ -378,7 +383,7 @@
                   <chip-select :scope="scope" />
                 </template>
               </q-select>
-            </div> -->
+            </div>
           </q-card-section>
 
           <q-separator />
@@ -397,7 +402,6 @@
               unelevated
               type="submit"
               :loading="loaderStatus(loader.edit)"
-              :disable="!state.form.imageFile && !state.form.id"
             />
           </q-card-actions>
         </q-form>
