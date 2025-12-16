@@ -20,9 +20,9 @@ export interface IProfessional {
   speakEnglish: boolean
   status: Status
   recomendations: {
-    specialtyIds: string[],
-    professionalVideoIds: string[],
-    professionalIds: string[],
+    professionalVideoIds: string[]
+    informativeContentIds: string[]
+    otherSpecialtyIds: string[]
   }
   clicks: number
 }

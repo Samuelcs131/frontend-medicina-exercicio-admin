@@ -39,9 +39,9 @@ interface IState {
     curriculumLattes: string
     imageFile: File | null
     recomendations: {
-      specialtyIds: string[]
       professionalVideoIds: string[]
-      professionalIds: string[]
+      informativeContentIds: string[]
+      otherSpecialtyIds: string[]
     }
   }
   options: {
@@ -89,9 +89,9 @@ export function useProfessional() {
       cityIds: [],
       stateIds: [],
       recomendations: {
-        specialtyIds: [],
         professionalVideoIds: [],
-        professionalIds: [],
+        informativeContentIds: [],
+        otherSpecialtyIds: [],
       },
     },
     actionsData: [],
@@ -222,7 +222,6 @@ export function useProfessional() {
             state.value.form.curriculumLattes,
             state.value.form.cityIds,
             state.value.form.stateIds,
-            state.value.form.recomendations,
             state.value.form.imageFile,
           )
       },

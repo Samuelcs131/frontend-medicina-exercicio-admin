@@ -8,8 +8,9 @@ import * as LocalServiceService from 'src/services/local-service/localService.se
 import * as StateService from 'src/services/location/state.service'
 import * as CityService from 'src/services/location/city.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
-import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import type { ILocalService } from 'src/types/local-service/ILocalService.type'
+import { ICity } from 'src/types/city/ICity.type'
+import { IBasicEntity } from 'src/types/IBasicEntity.type'
 
 interface IState {
   form: {
@@ -25,7 +26,11 @@ interface IState {
   }
   options: {
     states: IBasicEntity<string>[]
-    cities: IBasicEntity<string>[]
+    cities: ICity[]
+  }
+  optionsData: {
+    cities: ICity[]
+    states: IBasicEntity<string>[]
   }
   list: ILocalService[]
   filter: string
@@ -46,6 +51,10 @@ export function useLocalService() {
       street: '',
     },
     options: {
+      cities: [],
+      states: [],
+    },
+    optionsData: {
       cities: [],
       states: [],
     },
@@ -92,7 +101,10 @@ export function useLocalService() {
           CityService.getAll(),
         ])
 
-        state.value.options = { states, cities }
+        const options = { states, cities }
+
+        state.value.options = cloneDeep(options)
+        state.value.optionsData = cloneDeep(options)
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',

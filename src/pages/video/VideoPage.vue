@@ -306,8 +306,6 @@
 
           <q-separator />
 
-          {{ state.form }}
-
           <q-card-actions align="right">
             <q-btn
               color="default"

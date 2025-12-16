@@ -22,11 +22,6 @@ export async function create(
   curriculumLattes: string,
   cityIds: string[],
   stateIds: string[],
-  recomendations: {
-    specialtyIds: string[]
-    professionalVideoIds: string[]
-    professionalIds: string[]
-  },
   image: File | null,
 ) {
   const formData = new FormData()
@@ -39,7 +34,7 @@ export async function create(
   formData.append('site', site)
   formData.append('teleconsultation', `${teleconsultation}`)
   formData.append('speakEnglish', `${speakEnglish}`)
-  if(image) formData.append('image', image)
+  if (image) formData.append('image', image)
   formData.append('curriculumLattes', curriculumLattes)
 
   specialtyIds.forEach((id) => formData.append('specialtyIds', id))
@@ -47,16 +42,6 @@ export async function create(
   localServiceIds.forEach((id) => formData.append('localServiceIds', id))
   cityIds.forEach((id) => formData.append('cityIds', id))
   stateIds.forEach((id) => formData.append('stateIds', id))
-
-  recomendations.specialtyIds.forEach((id) =>
-    formData.append('recomendationSpecialtyIds', `${id}`),
-  )
-  recomendations.professionalVideoIds.forEach((id) =>
-    formData.append('recomendationProfessionalVideoIds', `${id}`),
-  )
-  recomendations.professionalIds.forEach((id) =>
-    formData.append('recomendationProfessionalIds', `${id}`),
-  )
 
   await api.post('/professional', formData, {
     headers: {
@@ -82,9 +67,9 @@ export async function save(
   cityIds: string[],
   stateIds: string[],
   recomendations: {
-    specialtyIds: string[]
     professionalVideoIds: string[]
-    professionalIds: string[]
+    informativeContentIds: string[]
+    otherSpecialtyIds: string[]
   },
   status: Status,
   image: File | null,
@@ -109,14 +94,14 @@ export async function save(
   cityIds.forEach((id) => formData.append('cityIds', id))
   stateIds.forEach((id) => formData.append('stateIds', id))
 
-  recomendations.specialtyIds.forEach((id) =>
-    formData.append('recomendationSpecialtyIds', `${id}`),
+  recomendations.informativeContentIds.forEach((id) =>
+    formData.append('recomendationInformativeContentIds', `${id}`),
   )
   recomendations.professionalVideoIds.forEach((id) =>
     formData.append('recomendationProfessionalVideoIds', `${id}`),
   )
-  recomendations.professionalIds.forEach((id) =>
-    formData.append('recomendationProfessionalIds', `${id}`),
+  recomendations.otherSpecialtyIds.forEach((id) =>
+    formData.append('recomendationOtherSpecialtyIds', `${id}`),
   )
 
   await api.put(`/professional/${id}`, formData, {

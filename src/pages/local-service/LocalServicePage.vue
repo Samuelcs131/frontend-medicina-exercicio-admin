@@ -105,12 +105,7 @@
               />
             </div>
             <div class="col-12 col-md-6">
-              <q-input
-                label="Contato"
-                :rules="[requiredRule]"
-                v-model="state.form.contact"
-                v-bind="$vInput"
-              />
+              <input-telephone label="Contato" v-model="state.form.contact" />
             </div>
             <div class="col-12 q-pt-none">
               <q-toggle
@@ -136,6 +131,19 @@
                 v-model="state.form.stateId"
                 :options="state.options.states"
                 option-value="id"
+                use-input
+                @update:model-value="resetCityIds"
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.states = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.states,
+                        )),
+                    )
+                "
               />
             </div>
             <div class="col-12 col-md-6">
@@ -146,6 +154,18 @@
                 v-model="state.form.cityId"
                 :options="state.options.cities"
                 option-value="id"
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.cities = filterFn(
+                          v,
+                          'name',
+                          citiesOptions,
+                        )),
+                    )
+                "
               />
             </div>
             <div class="col-12">
@@ -208,7 +228,7 @@
 import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useLocalService } from './useLocalService'
 import { localServiceTableColumns } from './localService.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
@@ -216,6 +236,8 @@ import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import exampleCoordinates from 'src/assets/placeholder/example-coordinates.png'
 import { truncateText } from 'src/utils/text.util'
+import InputTelephone from 'src/components/input-telephone/InputTelephone.vue'
+import { filterFn } from 'src/utils/filter.util'
 
 const {
   state,
@@ -231,6 +253,16 @@ const {
   clearEditDialog,
   openActionDialog,
 } = useLocalService()
+
+const citiesOptions = computed(() => {
+  return state.value.optionsData.cities.filter(
+    (city) => state.value.form.stateId == city.stateId,
+  )
+})
+
+function resetCityIds() {
+  state.value.form.cityId = ''
+}
 
 onMounted(async () => {
   await fetchList()

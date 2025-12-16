@@ -336,24 +336,8 @@
 
             <div class="col-12">
               <q-select
-                label="Especialidades"
-                :rules="[(v) => maxArrayRule(v, 4)]"
-                v-bind="$vSelect"
-                v-model="state.form.recomendations.specialtyIds"
-                multiple
-                :options="state.options.specialty"
-                option-value="id"
-                use-chips
-              >
-                <template v-slot:selected-item="scope">
-                  <chip-select :scope="scope" />
-                </template>
-              </q-select>
-            </div>
-
-            <div class="col-12">
-              <q-select
-                label="Videos do profissional"
+                label="Videos com o profissional"
+                :disable="!state.form.id"
                 :rules="[(v) => maxArrayRule(v, 4)]"
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.professionalVideoIds"
@@ -370,12 +354,29 @@
 
             <div class="col-12">
               <q-select
-                label="Outros profissionais"
+                label="Conteúdos informativos"
                 :rules="[(v) => maxArrayRule(v, 4)]"
                 v-bind="$vSelect"
-                v-model="state.form.recomendations.professionalIds"
+                v-model="state.form.recomendations.informativeContentIds"
                 multiple
-                :options="state.options.professionals"
+                :options="state.optionsData.specialty"
+                option-value="id"
+                use-chips
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" />
+                </template>
+              </q-select>
+            </div>
+
+            <div class="col-12">
+              <q-select
+                label="Outros especialistas"
+                :rules="[(v) => maxArrayRule(v, 4)]"
+                v-bind="$vSelect"
+                v-model="state.form.recomendations.otherSpecialtyIds"
+                multiple
+                :options="state.optionsData.specialty"
                 option-value="id"
                 use-chips
               >

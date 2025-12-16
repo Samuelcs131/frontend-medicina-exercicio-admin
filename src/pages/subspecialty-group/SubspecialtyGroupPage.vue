@@ -80,7 +80,7 @@
             </h6>
           </q-card-section>
           <q-card-section class="row q-col-gutter-md">
-            <div class="col-12 col-md-6">
+            <div class="col-12">
               <q-input
                 label="Nome"
                 :rules="[requiredRule]"
@@ -88,8 +88,9 @@
                 v-bind="$vInput"
               />
             </div>
-            <div class="col-12 col-md-6">
+            <div class="col-12">
               <q-input
+                type="textarea"
                 label="Descrição"
                 :rules="[requiredRule]"
                 v-model="state.form.description"
