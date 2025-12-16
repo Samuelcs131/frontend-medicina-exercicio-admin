@@ -225,12 +225,18 @@
 
             <div class="col-12">
               <q-select
-                label="Encontre especialista"
+                label="Outros vídeos com os profissionais"
                 :rules="[(v) => maxArrayRule(v, 2)]"
                 v-bind="$vSelect"
-                v-model="state.form.recomendations.specialtyIds"
+                v-model="state.form.recomendations.outherVideosIds"
                 multiple
-                :options="state.options.specialties"
+                :options="
+                  state.options.videos.filter((v) =>
+                    state.form.professionalIds.some((p) =>
+                      v.professionalIds.includes(p),
+                    ),
+                  )
+                "
                 option-value="id"
                 use-chips
               >
@@ -259,18 +265,12 @@
 
             <div class="col-12">
               <q-select
-                label="Outros vídeos com os profissionais"
+                label="Encontre especialista"
                 :rules="[(v) => maxArrayRule(v, 2)]"
                 v-bind="$vSelect"
-                v-model="state.form.recomendations.outherVideosIds"
+                v-model="state.form.recomendations.specialtyIds"
                 multiple
-                :options="
-                  state.options.videos.filter((v) =>
-                    state.form.professionalIds.some((p) =>
-                      v.professionalIds.includes(p),
-                    ),
-                  )
-                "
+                :options="state.options.specialties"
                 option-value="id"
                 use-chips
               >
@@ -279,6 +279,7 @@
                 </template>
               </q-select>
             </div>
+
             <div class="col-12">
               <q-select
                 label="Conteúdos informativos"
@@ -299,6 +300,23 @@
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" label="title" />
+                </template>
+              </q-select>
+            </div>
+
+            <div class="col-12">
+              <q-select
+                label="Vídeos relacionados"
+                :rules="[(v) => maxArrayRule(v, 7)]"
+                v-bind="$vSelect"
+                v-model="state.form.recomendations.relatedVideoIds"
+                multiple
+                :options="state.options.videos"
+                option-value="id"
+                use-chips
+              >
+                <template v-slot:selected-item="scope">
+                  <chip-select :scope="scope" />
                 </template>
               </q-select>
             </div>

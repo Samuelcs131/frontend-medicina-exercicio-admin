@@ -19,6 +19,7 @@ export async function create(
     moreVideosIds: string[]
     specialtyIds: string[]
     postIds: string[]
+    relatedVideoIds: string[]
   },
 ) {
   await api.post('/video', {
@@ -45,6 +46,7 @@ export async function save(
     moreVideosIds: string[]
     specialtyIds: string[]
     postIds: string[]
+    relatedVideoIds: string[]
   },
   status: Status,
 ) {

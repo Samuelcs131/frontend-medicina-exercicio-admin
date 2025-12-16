@@ -15,5 +15,6 @@ export interface IVideo {
     moreVideosIds: string[]
     specialtyIds: string[]
     postIds: string[]
+    relatedVideoIds: string[]
   }
 }

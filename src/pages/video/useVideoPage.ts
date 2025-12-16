@@ -30,6 +30,7 @@ interface IState {
       moreVideosIds: string[]
       specialtyIds: string[]
       postIds: string[]
+      relatedVideoIds: string[]
     }
   }
   options: {
@@ -67,6 +68,7 @@ export function useVideoPage() {
         moreVideosIds: [],
         specialtyIds: [],
         postIds: [],
+        relatedVideoIds: [],
       },
     },
     options: {
