@@ -21,7 +21,8 @@ interface IState {
     name: string
     url: string
     description: string
-    professionalIds: string[]
+    author: string
+    guests: string[]
     specialtyIds: string[]
     subspecialtyIds: string[]
     status: Status
@@ -60,7 +61,9 @@ export function useVideoPage() {
       name: '',
       url: '',
       description: '',
-      professionalIds: [],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      author: undefined as any,
+      guests: [],
       specialtyIds: [],
       subspecialtyIds: [],
       recomendations: {
@@ -148,7 +151,8 @@ export function useVideoPage() {
             state.value.form.name,
             state.value.form.url,
             state.value.form.description,
-            state.value.form.professionalIds,
+            state.value.form.author,
+            state.value.form.guests,
             state.value.form.specialtyIds,
             state.value.form.subspecialtyIds,
             state.value.form.recomendations,
@@ -159,7 +163,8 @@ export function useVideoPage() {
             state.value.form.name,
             state.value.form.url,
             state.value.form.description,
-            state.value.form.professionalIds,
+            state.value.form.author,
+            state.value.form.guests,
             state.value.form.specialtyIds,
             state.value.form.subspecialtyIds,
             state.value.form.recomendations,

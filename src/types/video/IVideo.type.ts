@@ -5,9 +5,10 @@ export interface IVideo {
   name: string
   url: string
   description: string
-  professionalIds: string[]
   specialtyIds: string[]
   subspecialtyIds: string[]
+  author: string
+  guests: string[]
   status: Status
   clicks: number
   recomendations: {

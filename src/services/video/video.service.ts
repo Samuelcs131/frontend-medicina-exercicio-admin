@@ -11,7 +11,8 @@ export async function create(
   name: string,
   url: string,
   description: string,
-  professionalIds: string[],
+  author: string,
+  guests: string[],
   specialtyIds: string[],
   subspecialtyIds: string[],
   recomendations: {
@@ -26,7 +27,8 @@ export async function create(
     name,
     url,
     description,
-    professionalIds,
+    author,
+    guests,
     specialtyIds,
     subspecialtyIds,
     recomendations,
@@ -38,7 +40,8 @@ export async function save(
   name: string,
   url: string,
   description: string,
-  professionalIds: string[],
+  author: string,
+  guests: string[],
   specialtyIds: string[],
   subspecialtyIds: string[],
   recomendations: {
@@ -54,11 +57,12 @@ export async function save(
     name,
     url,
     description,
-    professionalIds,
+    author,
+    guests,
     specialtyIds,
     subspecialtyIds,
     status,
-    recomendations
+    recomendations,
   })
 }
 

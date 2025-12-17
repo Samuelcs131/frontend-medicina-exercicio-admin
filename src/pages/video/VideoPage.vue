@@ -123,10 +123,20 @@
 
             <div class="col-12">
               <q-select
-                label="Profissionais"
+                label="Autor"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
-                v-model="state.form.professionalIds"
+                v-model="state.form.author"
+                :options="state.optionsData.professionals"
+                option-value="id"
+              />
+            </div>
+
+            <div class="col-12 q-mb-md">
+              <q-select
+                label="Profissionais"
+                v-bind="$vSelect"
+                v-model="state.form.guests"
                 multiple
                 :options="state.options.professionals"
                 option-value="id"
@@ -232,9 +242,7 @@
                 multiple
                 :options="
                   state.options.videos.filter((v) =>
-                    state.form.professionalIds.some((p) =>
-                      v.professionalIds.includes(p),
-                    ),
+                    state.form.guests.some((p) => v.guests.includes(p)),
                   )
                 "
                 option-value="id"

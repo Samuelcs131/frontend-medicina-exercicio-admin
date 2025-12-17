@@ -270,7 +270,7 @@ export function useProfessional() {
       }
 
       state.value.options.videos = state.value.optionsData.videos.filter(
-        (video) => video.professionalIds.includes(item.id),
+        (video) => video.guests.includes(item.id),
       )
 
       state.value.options.professionals =
