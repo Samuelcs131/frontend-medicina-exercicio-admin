@@ -26,8 +26,8 @@ interface IState {
     CRM: string | null
     imageURL: string
     specialtyIds: string[]
-    stateIds: string[]
-    cityIds: string[]
+    states: string[]
+    cities: string[]
     subspecialtyIds: string[]
     aboutMy: string
     localServiceIds: string[]
@@ -86,8 +86,8 @@ export function useProfessional() {
       curriculumLattes: '',
       teleconsultation: false,
       speakEnglish: false,
-      cityIds: [],
-      stateIds: [],
+      cities: [],
+      states: [],
       recomendations: {
         professionalVideoIds: [],
         informativeContentIds: [],
@@ -200,8 +200,8 @@ export function useProfessional() {
             state.value.form.teleconsultation,
             state.value.form.speakEnglish,
             state.value.form.curriculumLattes,
-            state.value.form.cityIds,
-            state.value.form.stateIds,
+            state.value.form.cities,
+            state.value.form.states,
             state.value.form.recomendations,
             state.value.form.status,
             state.value.form.imageFile,
@@ -220,8 +220,8 @@ export function useProfessional() {
             state.value.form.teleconsultation,
             state.value.form.speakEnglish,
             state.value.form.curriculumLattes,
-            state.value.form.cityIds,
-            state.value.form.stateIds,
+            state.value.form.cities,
+            state.value.form.states,
             state.value.form.imageFile,
           )
       },
@@ -267,8 +267,6 @@ export function useProfessional() {
       state.value.form = {
         ...item,
         imageFile: null,
-        cityIds: item.cities.map((item) => item.id),
-        stateIds: item.states.map((item) => item.id),
       }
 
       state.value.options.videos = state.value.optionsData.videos.filter(

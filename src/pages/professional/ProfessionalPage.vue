@@ -185,7 +185,7 @@
                 class="q-mb-md"
                 label="Estados"
                 v-bind="$vSelect"
-                v-model="state.form.stateIds"
+                v-model="state.form.states"
                 :options="state.options.states"
                 option-value="id"
                 multiple
@@ -213,7 +213,7 @@
                 class="q-mb-md"
                 label="Cidades"
                 v-bind="$vSelect"
-                v-model="state.form.cityIds"
+                v-model="state.form.cities"
                 :options="state.options.cities"
                 option-value="id"
                 multiple
@@ -428,7 +428,7 @@ import { truncateText } from 'src/utils/text.util'
 
 const citiesOptions = computed(() => {
   return state.value.optionsData.cities.filter((city) =>
-    state.value.form.stateIds.includes(city.stateId),
+    state.value.form.states.includes(city.stateId),
   )
 })
 
@@ -439,7 +439,7 @@ const subspecialtyOptions = computed(() => {
 })
 
 function resetCityIds() {
-  state.value.form.cityIds = []
+  state.value.form.cities = []
 }
 
 function resetSubspecialty() {
