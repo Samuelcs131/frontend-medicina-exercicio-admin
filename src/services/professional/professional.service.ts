@@ -14,7 +14,7 @@ export async function create(
   specialtyIds: string[],
   subspecialtyIds: string[],
   aboutMy: string,
-  localServiceIds: string[],
+  locationService: string[],
   instagram: string,
   site: string,
   teleconsultation: boolean,
@@ -39,7 +39,7 @@ export async function create(
 
   specialtyIds.forEach((id) => formData.append('specialtyIds', id))
   subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
-  localServiceIds.forEach((id) => formData.append('localServiceIds', id))
+  locationService.forEach((id) => formData.append('locationService', id))
   cityIds.forEach((id) => formData.append('cityIds', id))
   stateIds.forEach((id) => formData.append('stateIds', id))
 
@@ -58,7 +58,7 @@ export async function save(
   specialtyIds: string[],
   subspecialtyIds: string[],
   aboutMy: string,
-  localServiceIds: string[],
+  locationService: string[],
   instagram: string,
   site: string,
   teleconsultation: boolean,
@@ -90,7 +90,7 @@ export async function save(
 
   specialtyIds.forEach((id) => formData.append('specialtyIds', id))
   subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
-  localServiceIds.forEach((id) => formData.append('localServiceIds', id))
+  locationService.forEach((id) => formData.append('locationService', id))
   cityIds.forEach((id) => formData.append('cityIds', id))
   stateIds.forEach((id) => formData.append('stateIds', id))
 

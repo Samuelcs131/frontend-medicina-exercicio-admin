@@ -11,7 +11,7 @@ export interface IProfessional {
   cities: string[]
   states: string[]
   aboutMy: string
-  localServiceIds: string[]
+  locationService: string[]
   instagram: string
   site: string
   curriculumLattes: string

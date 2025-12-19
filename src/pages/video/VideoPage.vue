@@ -134,7 +134,7 @@
 
             <div class="col-12 q-mb-md">
               <q-select
-                label="Profissionais"
+                label="Convidados"
                 v-bind="$vSelect"
                 v-model="state.form.guests"
                 multiple

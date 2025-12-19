@@ -30,7 +30,7 @@ interface IState {
     cities: string[]
     subspecialtyIds: string[]
     aboutMy: string
-    localServiceIds: string[]
+    locationService: string[]
     instagram: string
     site: string
     teleconsultation: boolean
@@ -80,7 +80,7 @@ export function useProfessional() {
       specialtyIds: [],
       subspecialtyIds: [],
       aboutMy: '',
-      localServiceIds: [],
+      locationService: [],
       instagram: '',
       site: '',
       curriculumLattes: '',
@@ -194,7 +194,7 @@ export function useProfessional() {
             state.value.form.specialtyIds,
             state.value.form.subspecialtyIds,
             state.value.form.aboutMy,
-            state.value.form.localServiceIds,
+            state.value.form.locationService,
             state.value.form.instagram,
             state.value.form.site,
             state.value.form.teleconsultation,
@@ -214,7 +214,7 @@ export function useProfessional() {
             state.value.form.specialtyIds,
             state.value.form.subspecialtyIds,
             state.value.form.aboutMy,
-            state.value.form.localServiceIds,
+            state.value.form.locationService,
             state.value.form.instagram,
             state.value.form.site,
             state.value.form.teleconsultation,
