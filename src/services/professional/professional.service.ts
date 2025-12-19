@@ -20,8 +20,8 @@ export async function create(
   teleconsultation: boolean,
   speakEnglish: boolean,
   curriculumLattes: string,
-  cityIds: string[],
-  stateIds: string[],
+  cities: string[],
+  states: string[],
   image: File | null,
 ) {
   const formData = new FormData()
@@ -40,8 +40,8 @@ export async function create(
   specialtyIds.forEach((id) => formData.append('specialtyIds', id))
   subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
   locationService.forEach((id) => formData.append('locationService', id))
-  cityIds.forEach((id) => formData.append('cityIds', id))
-  stateIds.forEach((id) => formData.append('stateIds', id))
+  cities.forEach((id) => formData.append('cities', id))
+  states.forEach((id) => formData.append('states', id))
 
   await api.post('/professional', formData, {
     headers: {
@@ -64,8 +64,8 @@ export async function save(
   teleconsultation: boolean,
   speakEnglish: boolean,
   curriculumLattes: string,
-  cityIds: string[],
-  stateIds: string[],
+  cities: string[],
+  states: string[],
   recomendations: {
     professionalVideoIds: string[]
     informativeContentIds: string[]
@@ -86,23 +86,14 @@ export async function save(
   formData.append('teleconsultation', `${teleconsultation}`)
   formData.append('speakEnglish', `${speakEnglish}`)
   formData.append('status', status)
+  formData.append('recomendations', JSON.stringify(recomendations))
   if (image) formData.append('image', image)
 
   specialtyIds.forEach((id) => formData.append('specialtyIds', id))
   subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
   locationService.forEach((id) => formData.append('locationService', id))
-  cityIds.forEach((id) => formData.append('cityIds', id))
-  stateIds.forEach((id) => formData.append('stateIds', id))
-
-  recomendations.informativeContentIds.forEach((id) =>
-    formData.append('recomendationInformativeContentIds', `${id}`),
-  )
-  recomendations.professionalVideoIds.forEach((id) =>
-    formData.append('recomendationProfessionalVideoIds', `${id}`),
-  )
-  recomendations.otherSpecialtyIds.forEach((id) =>
-    formData.append('recomendationOtherSpecialtyIds', `${id}`),
-  )
+  cities.forEach((id) => formData.append('cities', id))
+  states.forEach((id) => formData.append('states', id))
 
   await api.put(`/professional/${id}`, formData, {
     headers: {
