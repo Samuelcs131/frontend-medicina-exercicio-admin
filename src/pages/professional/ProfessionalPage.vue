@@ -241,7 +241,7 @@
                 class="q-mb-md"
                 label="Locais de atendimento"
                 v-bind="$vSelect"
-                v-model="state.form.localServiceIds"
+                v-model="state.form.locationService"
                 multiple
                 :options="state.options.localsService"
                 option-value="id"
