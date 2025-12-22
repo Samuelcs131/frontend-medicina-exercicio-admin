@@ -101,6 +101,7 @@
                 :rules="[requiredRule]"
                 v-model="state.form.description"
                 v-bind="$vInput"
+                type="textarea"
               />
             </div>
             <div class="col-12">
@@ -159,6 +160,11 @@
                 </template>
               </q-select>
             </div>
+
+            <div class="col-12 q-py-none">
+              <p class="q-my-none">Selecione a especialidade e subespecialidade do convidado.</p>
+            </div>
+
             <div class="col-12 col-md-6">
               <q-select
                 label="Especialidade"
@@ -235,7 +241,7 @@
 
             <div class="col-12">
               <q-select
-                label="Outros vídeos com os profissionais"
+                label="Outros vídeos com os convidados"
                 :rules="[(v) => maxArrayRule(v, 2)]"
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.outherVideosIds"
