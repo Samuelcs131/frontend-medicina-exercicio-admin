@@ -53,6 +53,13 @@ export async function create(name: string, professionalAreaId: string) {
   })
 }
 
+export async function getByProfessionalIds(guestIds: string[]) {
+  const { data } = await api.post(`/professional/specialties-by-guests`, {
+    guestIds,
+  })
+  return data
+}
+
 export async function save(
   id: string,
   name: string,

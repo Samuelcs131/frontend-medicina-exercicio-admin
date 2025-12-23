@@ -108,17 +108,20 @@ export async function save(
 }
 
 export async function deleteItem(ids: string[]) {
-  await fakePromise(100)
-
-  await api.delete(`/video/`, {
+  await api.delete(`/post/`, {
     data: { ids },
   })
 }
 
-export async function disable(ids: string[]) {
-  await fakePromise(100)
+export async function getByProfessionalIds(ids: string[]) {
+  const { data } = await api.post(`/post/by-guests/`, {
+    guests: ids,
+  })
+  return data
+}
 
-  await api.patch('/video/disable', {
+export async function disable(ids: string[]) {
+  await api.patch('/post/disable', {
     ids,
   })
 }

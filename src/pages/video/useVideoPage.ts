@@ -14,6 +14,7 @@ import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import type { IVideo } from 'src/types/video/IVideo.type'
 import { IPostResume } from 'src/types/post/IPost.type'
 import { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
+import { IProfessional } from 'src/types/professional/IProfessional.type'
 
 interface IState {
   form: {
@@ -39,14 +40,15 @@ interface IState {
     specialties: IBasicEntity<string>[]
     subspecialties: ISubspecialty[]
     videos: IVideo[]
+    relatedVideos: IVideo[]
     posts: IPostResume[]
+    specialtyProfessionals: IBasicEntity<string>[]
   }
   optionsData: {
-    professionals: IBasicEntity<string>[]
+    professionals: IProfessional[]
     specialties: IBasicEntity<string>[]
     subspecialties: ISubspecialty[]
     videos: IVideo[]
-    posts: IPostResume[]
   }
   list: IVideo[]
   filter: string
@@ -79,14 +81,15 @@ export function useVideoPage() {
       specialties: [],
       subspecialties: [],
       videos: [],
+      relatedVideos: [],
       posts: [],
+      specialtyProfessionals: [],
     },
     optionsData: {
       professionals: [],
       specialties: [],
       subspecialties: [],
       videos: [],
-      posts: [],
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
@@ -112,13 +115,12 @@ export function useVideoPage() {
   async function fetchList() {
     await requester.dispatch({
       callback: async () => {
-        const [specialties, professionals, subspecialties, videos, posts] =
+        const [professionals, specialties, subspecialties, videos] =
           await Promise.all([
-            SpecialtyService.getAll(),
             ProfessionalService.getAll(),
+            SpecialtyService.getAll(),
             SubspecialtyService.getAll(),
             VideoService.getAll(),
-            PostService.getAllPostResume(),
           ])
 
         const options = {
@@ -126,13 +128,54 @@ export function useVideoPage() {
           professionals,
           subspecialties,
           videos,
-          posts,
         }
 
-        state.value.options = cloneDeep(options)
-        state.value.optionsData = cloneDeep(options)
+        state.value.options = {
+          ...state.value.options,
+          ...cloneDeep(options),
+        }
+
+        state.value.optionsData = {
+          ...state.value.options,
+          ...cloneDeep(options),
+        }
 
         state.value.list = videos
+      },
+      errorMessageTitle: 'Houve um erro',
+      errorMessage: 'Não foi possível buscar os dados',
+      loaders: [loader.list],
+    })
+  }
+
+  async function fetchOptionsData(guestIds: string[]) {
+    await requester.dispatch({
+      callback: async () => {
+        const [posts] = await Promise.all([
+          PostService.getByProfessionalIds(guestIds),
+        ])
+
+        state.value.options.posts = posts
+
+        state.value.options.videos = state.value.optionsData.videos.filter(
+          (video) => video.guests.some((g) => guestIds.includes(g)),
+        )
+
+        const guestSpecialties = new Set<string>([])
+
+        state.value.optionsData.professionals.forEach((p) => {
+          p.specialtyIds.forEach((s) => guestSpecialties.add(s))
+        })
+
+        state.value.options.relatedVideos =
+          state.value.optionsData.videos.filter((video) => {
+            return video.specialtyIds.some((s) => guestSpecialties.has(s))
+          })
+
+        state.value.options.specialtyProfessionals =
+          state.value.optionsData.specialties.filter((specialty) =>
+            guestSpecialties.has(specialty.id),
+          )
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
@@ -207,13 +250,11 @@ export function useVideoPage() {
     })
   }
 
-  function openEditDialog(item?: IVideo) {
+  async function openEditDialog(item?: IVideo) {
     if (item) {
       state.value.form = { ...item }
 
-      state.value.options.videos = state.value.optionsData.videos.filter(
-        (video) => video.id != item.id,
-      )
+      await fetchOptionsData(!item.guests.length ? [item.author] : item.guests)
     } else clearEditDialog()
 
     toggleDialog(dialog.edit)
@@ -241,6 +282,7 @@ export function useVideoPage() {
     confirmAction,
     openEditDialog,
     clearEditDialog,
+    fetchOptionsData,
     openActionDialog,
   }
 }

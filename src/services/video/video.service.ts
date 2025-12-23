@@ -66,6 +66,13 @@ export async function save(
   })
 }
 
+export async function getByProfessionalIds(ids: string[]) {
+  const { data } = await api.post(`/video/by-guests`, {
+    guests: ids,
+  })
+  return data
+}
+
 export async function deleteItem(ids: string[]) {
   await api.delete(`/video/`, {
     data: { ids },

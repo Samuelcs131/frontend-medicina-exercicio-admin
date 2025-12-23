@@ -162,7 +162,9 @@
             </div>
 
             <div class="col-12 q-py-none">
-              <p class="q-my-none">Selecione a especialidade e subespecialidade do convidado.</p>
+              <p class="q-my-none">
+                Selecione a especialidade e subespecialidade do convidado.
+              </p>
             </div>
 
             <div class="col-12 col-md-6">
@@ -284,7 +286,7 @@
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.specialtyIds"
                 multiple
-                :options="state.options.specialties"
+                :options="state.options.specialtyProfessionals"
                 option-value="id"
                 use-chips
               >
@@ -301,13 +303,7 @@
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.postIds"
                 multiple
-                :options="
-                  state.options.posts.filter((p) =>
-                    state.form.specialtyIds.some((id) =>
-                      p.specialtyIds.includes(id),
-                    ),
-                  )
-                "
+                :options="state.options.posts"
                 option-value="id"
                 option-label="title"
                 use-chips
@@ -325,7 +321,7 @@
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.relatedVideoIds"
                 multiple
-                :options="state.options.videos"
+                :options="state.options.relatedVideos"
                 option-value="id"
                 use-chips
               >
@@ -363,7 +359,7 @@
 import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useVideoPage } from './useVideoPage'
 import { videoPageTableColumns } from './videoPage.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
@@ -374,6 +370,7 @@ import ChipSelect from 'src/components/select/ChipSelect.vue'
 import { maxArrayRule } from 'src/validations/form-rules/arrayRules.util'
 import { filterFn } from 'src/utils/filter.util'
 import { truncateText } from 'src/utils/text.util'
+import { useDialog } from 'src/composables/useDialog'
 
 const {
   state,
@@ -386,14 +383,30 @@ const {
   confirmAction,
   openEditDialog,
   clearEditDialog,
+  fetchOptionsData,
   openActionDialog,
 } = useVideoPage()
+
+const { dialogIsOpen } = useDialog()
 
 const subspecialtyOptions = computed(() => {
   return state.value.optionsData.subspecialties.filter((sub) =>
     state.value.form.specialtyIds.includes(sub.specialty.id),
   )
 })
+
+watch(
+  () => [state.value.form.guests, state.value.form.author],
+  async () => {
+    if (dialogIsOpen(dialog.edit))
+      await fetchOptionsData(
+        !state.value.form.guests.length
+          ? [state.value.form.author]
+          : state.value.form.guests,
+      )
+  },
+  // { deep: true },
+)
 
 onMounted(async () => {
   await fetchList()
