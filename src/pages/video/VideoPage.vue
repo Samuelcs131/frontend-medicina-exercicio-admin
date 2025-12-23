@@ -397,15 +397,14 @@ const subspecialtyOptions = computed(() => {
 
 watch(
   () => [state.value.form.guests, state.value.form.author],
-  async () => {
-    if (dialogIsOpen(dialog.edit))
+  async ([guests, author]) => {
+    if (dialogIsOpen(dialog.edit) && (author || guests?.length))
       await fetchOptionsData(
         !state.value.form.guests.length
           ? [state.value.form.author]
           : state.value.form.guests,
       )
   },
-  // { deep: true },
 )
 
 onMounted(async () => {

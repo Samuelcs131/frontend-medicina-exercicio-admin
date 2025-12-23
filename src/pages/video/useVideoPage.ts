@@ -151,11 +151,13 @@ export function useVideoPage() {
   async function fetchOptionsData(guestIds: string[]) {
     await requester.dispatch({
       callback: async () => {
-        const [posts] = await Promise.all([
-          PostService.getByProfessionalIds(guestIds),
-        ])
+        if (guestIds.length > 0) {
+          const [posts] = await Promise.all([
+            PostService.getByProfessionalIds(guestIds),
+          ])
 
-        state.value.options.posts = posts
+          state.value.options.posts = posts
+        }
 
         state.value.options.videos = state.value.optionsData.videos.filter(
           (video) => video.guests.some((g) => guestIds.includes(g)),
