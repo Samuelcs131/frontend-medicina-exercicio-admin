@@ -164,8 +164,10 @@ export function useVideoPage() {
         )
 
         const guestSpecialties = new Set<string>([])
-
+ 
         state.value.optionsData.professionals.forEach((p) => {
+          if (!guestIds.includes(p.id)) return
+
           p.specialtyIds.forEach((s) => guestSpecialties.add(s))
         })
 
