@@ -143,7 +143,6 @@
                   v-bind="$vInput"
                   v-model="state.form.thumbnailAlt"
                   label="Descrição da thumbnail - Alt"
-                  :rules="[requiredRule]"
                 />
               </div>
 
@@ -161,25 +160,19 @@
                   label="Profissional"
                   clearable
                   class="q-mb-md"
-                  @update:model-value="handleProfessional"
-                />
-              </div>
-
-              <div class="col-12 col-md-6">
-                <q-input
-                  v-model="state.form.author"
-                  label="Autor"
-                  outlined
-                  dense
-                />
-              </div>
-
-              <div class="col-12 col-md-6">
-                <q-input
-                  v-model="state.form.authorDescription"
-                  label="Descrição do autor"
-                  outlined
-                  dense
+                  emit-value
+                  use-input
+                  @filter="
+                    (v, update) =>
+                      update(
+                        () =>
+                          (state.options.professional = filterFn(
+                            v,
+                            'name',
+                            state.optionsData.professional,
+                          )),
+                      )
+                  "
                 />
               </div>
 
@@ -235,7 +228,6 @@
                   option-value="id"
                   label="Encontre um especialista"
                   clearable
-                  @update:model-value="handleProfessional"
                   multiple
                   :rules="[(v) => maxArrayRule(v, 4)]"
                 >
@@ -253,7 +245,6 @@
                   option-value="id"
                   label="Leia também"
                   clearable
-                  @update:model-value="handleProfessional"
                   multiple
                   :rules="[(v) => maxArrayRule(v, 4)]"
                 >
@@ -271,7 +262,6 @@
                   option-value="id"
                   label="Outros conteúdos"
                   clearable
-                  @update:model-value="handleProfessional"
                   multiple
                   :rules="[(v) => maxArrayRule(v, 4)]"
                 >
@@ -298,14 +288,7 @@
 
         <div class="q-gutter-md">
           <q-btn @click="router.push({ name: 'post' })" flat label="Cancelar" />
-          <q-btn
-            :disable="
-              !state.form.thumbnailUrlImage && state.form.thumbnailFile == null
-            "
-            type="submit"
-            color="primary"
-            label="Salvar"
-          />
+          <q-btn type="submit" color="primary" label="Salvar" />
         </div>
       </div>
     </q-form>
@@ -413,7 +396,6 @@ const {
   createDialog,
   handleSlugURL,
   removeSection,
-  handleProfessional,
 } = usePostEditPage()
 
 const subspecialtyOptions = computed(() => {

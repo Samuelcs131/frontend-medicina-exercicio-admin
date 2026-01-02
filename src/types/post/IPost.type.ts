@@ -6,8 +6,6 @@ export interface IPost {
   title: string
   schedulingDate: string
   url: string
-  author: string
-  authorDescription: string
   professionalId: string
   subspecialtyIds: string[]
   specialtyIds: string[]
@@ -28,7 +26,6 @@ export interface IPost {
 export interface IPostResume {
   id: string
   title: string
-  author: string
   schedulingDate: string
   status: Status
   thumbnailUrlImage: string

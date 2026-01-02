@@ -61,9 +61,12 @@
           {{ truncateText(props.row.name, 30) }}
         </q-td>
       </template>
-      <template #body-cell-description="props">
-        <q-td :props="props" :title="props.row.description">
-          {{ truncateText(props.row.description, 30) }}
+      <template #body-cell-specialtyIds="props">
+        <q-td
+          :props="props"
+          :title="getSpecialtiesText(props.row.specialtyIds)"
+        >
+          {{ truncateText(getSpecialtiesText(props.row.specialtyIds), 30) }}
         </q-td>
       </template>
     </q-table>
@@ -388,6 +391,13 @@ const {
 } = useVideoPage()
 
 const { dialogIsOpen } = useDialog()
+
+function getSpecialtiesText(specialtyIds: string[]) {
+  return state.value.optionsData.specialties
+    .filter((s) => specialtyIds.includes(s.id))
+    .map((s) => s.name)
+    .join(', ')
+}
 
 const subspecialtyOptions = computed(() => {
   return state.value.optionsData.subspecialties.filter((sub) =>

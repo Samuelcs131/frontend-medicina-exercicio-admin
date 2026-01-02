@@ -8,14 +8,15 @@
     :rules="[validateTelephone]"
     @update:model-value="onInput"
   >
-    <template v-slot:append>
+    <template v-slot:after>
       <q-btn
-        round
-        dense
-        flat
+        unelevated
+        outline
         :icon="isTelephone ? 'call' : 'smartphone'"
         @click="isTelephone = !isTelephone"
-      />
+      >
+        <q-tooltip>{{ 'Formato contato' }}</q-tooltip>
+      </q-btn>
     </template>
   </q-input>
 </template>

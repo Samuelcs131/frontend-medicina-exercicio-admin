@@ -53,7 +53,6 @@ const initializeState: IState = {
   form: {
     id: '',
     title: '',
-    author: '',
     url: '',
     professionalId: '',
     schedulingDate: new Date().toISOString(),
@@ -67,7 +66,6 @@ const initializeState: IState = {
     status: Status.active,
     postItems: [],
     thumbnailFile: null,
-    authorDescription: '',
     recomendations: {
       specialtyIds: [],
       readMorePostIds: [],
@@ -228,7 +226,7 @@ export function usePostEditPage() {
         state.value.optionsData = {
           specialties,
           subspecialties,
-          professional
+          professional,
         }
       },
       errorMessageTitle: 'Houve um erro!',
@@ -257,12 +255,6 @@ export function usePostEditPage() {
     })
   }
 
-  function handleProfessional(value: string) {
-    state.value.form.author =
-      state.value.options.professional.find((item) => item.id === value)
-        ?.name || ''
-  }
-
   return {
     state,
     Dialog,
@@ -284,6 +276,5 @@ export function usePostEditPage() {
     openImageDialog,
     clearImageInput,
     handleRemoveFile,
-    handleProfessional,
   }
 }

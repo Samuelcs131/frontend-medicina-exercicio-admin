@@ -184,15 +184,17 @@
                   v-bind="$vInput"
                   class="full-width"
                   :rules="[requiredRule]"
-                />
-                <q-btn
-                  style="flex-shrink: 0"
-                  icon="map"
-                  flat
-                  @click="openGoogleMaps(state.form.street)"
                 >
-                  <q-tooltip>Google Maps</q-tooltip>
-                </q-btn>
+                  <template v-slot:after>
+                    <q-btn
+                      icon="map"
+                      outline
+                      @click="openGoogleMaps(state.form.street)"
+                    >
+                      <q-tooltip>Google Maps</q-tooltip>
+                    </q-btn>
+                  </template>
+                </q-input>
               </div>
             </div>
 
