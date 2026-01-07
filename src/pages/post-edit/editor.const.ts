@@ -26,6 +26,9 @@ import Gapcursor from '@tiptap/extension-gapcursor'
 import { EditorOptions } from '@tiptap/core'
 import Image from 'src/pages/post-edit/components/editor-text/extensions/image/image'
 import Iframe from 'src/pages/post-edit/components/editor-text/extensions/iframe/iframe'
+import { Accordion } from './components/editor-text/extensions/accordion/accordion'
+import { AccordionTitle } from './components/editor-text/extensions/accordion/accordionTitle'
+import { AccordionContent } from './components/editor-text/extensions/accordion/accordionContent'
 
 export const editorOptions = {
   editable: true,
@@ -72,6 +75,9 @@ export const editorOptions = {
     TextAlign.configure({
       types: ['heading', 'paragraph'],
     }),
+    Accordion,
+    AccordionTitle,
+    AccordionContent,
     // ResizableMedia,
     Image,
   ],

@@ -350,8 +350,8 @@
             size="sm"
             dense
             flat
-            @click="editorInstance?.chain().focus().insertAccordion().run()"
-            icon="horizontal_rule"
+            @click="editorInstance?.commands?.insertAccordion()"
+            icon="expand"
           >
             <q-tooltip>Acoordion</q-tooltip>
           </q-btn>
@@ -435,6 +435,10 @@
       </q-card-section>
 
       <q-card-section class="full-height" style="overflow-y: auto">
+        <DragHandle v-if="editorInstance" :editor="editorInstance">
+          <div class="custom-drag-handle" />
+        </DragHandle>
+
         <EditorContent
           v-if="editorInstance"
           :editor="editorInstance"
@@ -478,6 +482,7 @@
   </q-dialog>
 </template>
 <script setup lang="ts">
+import { DragHandle } from '@tiptap/extension-drag-handle-vue-3'
 import { onBeforeUnmount } from 'vue'
 import { Editor, EditorContent, useEditor } from '@tiptap/vue-3'
 import { PostTypeContent } from 'src/enums/post/PostTypeContent.enum'
@@ -505,6 +510,7 @@ import { cloneDeep } from 'src/utils/clone.util'
 import { uniqueId } from 'src/utils/random.util'
 import ImageDialog from './components/ImageDialog.vue'
 import { IPostItem } from 'src/types/post/IPost.type'
+import { extractIframeSrc } from 'src/utils/text.util'
 
 interface IImageDialog {
   url: string
@@ -566,11 +572,12 @@ function closeDialog() {
 }
 
 function addIframe() {
-  const url = window.prompt('URL')
+  const input = window.prompt('URL')
+  if (!input) return
 
-  if (url) {
-    editorInstance.value?.chain().focus().setIframe({ src: url }).run()
-  }
+  const url = input.includes('iframe') ? extractIframeSrc(input) : input
+
+  editorInstance.value?.chain().focus().setIframe({ src: url }).run()
 }
 
 function initializeEditorText() {
@@ -625,6 +632,20 @@ onBeforeUnmount(() => {
 })
 </script>
 <style lang="scss" scoped>
-.tiptap {
+.custom-drag-handle {
+  &::after {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1.25rem;
+    content: '⠿';
+    font-weight: 700;
+    cursor: grab;
+    background: #dddddddc;
+    color: #0d0d0d50;
+    border-radius: 0.25rem;
+    margin-right: 5px;
+  }
 }
 </style>

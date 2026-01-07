@@ -79,6 +79,8 @@ const Image = TiptapImage.extend({
     return {
       ...this.parent?.(),
       inline: true,
+      allowBase64: this.parent?.()?.allowBase64 ?? false,
+      HTMLAttributes: this.parent?.()?.HTMLAttributes ?? {},
       uploadRequest: null,
       urlPattern: DEFAULT_IMAGE_URL_REGEX,
     }

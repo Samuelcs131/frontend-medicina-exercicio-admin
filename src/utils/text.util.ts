@@ -69,3 +69,11 @@ export function truncateText(text: string, limit: number) {
   if (text.length > limit) return text.substring(0, limit) + '...'
   return text
 }
+
+export function extractIframeSrc(html: string) {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(html, 'text/html')
+  const iframe = doc.querySelector('iframe')
+
+  return iframe?.getAttribute('src') ?? ''
+}
