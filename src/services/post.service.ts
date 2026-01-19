@@ -28,17 +28,9 @@ export async function create(post: IPost, thumbnailFile: File | null) {
   formData.append('status', post.status)
 
   post.subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
-  post.specialtyIds.forEach((id) => formData.append('specialtyIds', id))
+  formData.append('specialtyId', post.specialtyId)
 
-  post.recomendations.specialtyIds.forEach((id) =>
-    formData.append('recomendationSpecialtyIds', `${id}`),
-  )
-  post.recomendations.outherContentPostIds.forEach((id) =>
-    formData.append('recomendationOutherContentPostIds', `${id}`),
-  )
-  post.recomendations.readMorePostIds.forEach((id) =>
-    formData.append('recomendationReadMorePostIds', `${id}`),
-  )
+  formData.append('recomendations', JSON.stringify(post.recomendations))
 
   post.postItems.forEach((item, idx) => {
     formData.append(`${idx}-contentHTML`, item.contentHTML)
@@ -77,17 +69,9 @@ export async function save(
   formData.append('status', post.status)
 
   post.subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
-  post.specialtyIds.forEach((id) => formData.append('specialtyIds', id))
+  formData.append('specialtyId', post.specialtyId)
 
-  post.recomendations.specialtyIds.forEach((id) =>
-    formData.append('recomendationSpecialtyIds', `${id}`),
-  )
-  post.recomendations.outherContentPostIds.forEach((id) =>
-    formData.append('recomendationOutherContentPostIds', `${id}`),
-  )
-  post.recomendations.readMorePostIds.forEach((id) =>
-    formData.append('recomendationReadMorePostIds', `${id}`),
-  )
+  formData.append('recomendations', JSON.stringify(post.recomendations))
 
   post.postItems.forEach((item, idx) => {
     formData.append(`${idx}-contentHTML`, item.contentHTML)

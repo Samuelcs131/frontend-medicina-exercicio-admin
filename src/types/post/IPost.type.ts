@@ -8,7 +8,7 @@ export interface IPost {
   url: string
   professionalId: string
   subspecialtyIds: string[]
-  specialtyIds: string[]
+  specialtyId: string
   tagTitle: string
   tagDescription: string
   tagKeywords: string
@@ -19,7 +19,7 @@ export interface IPost {
   recomendations: {
     specialtyIds: string[]
     readMorePostIds: string[]
-    outherContentPostIds: string[]
+    outherContentIds: string[]
   }
 }
 

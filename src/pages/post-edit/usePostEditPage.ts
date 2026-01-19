@@ -56,7 +56,7 @@ const initializeState: IState = {
     url: '',
     professionalId: '',
     schedulingDate: new Date().toISOString(),
-    specialtyIds: [],
+    specialtyId: null as unknown as string,
     subspecialtyIds: [],
     tagDescription: '',
     tagKeywords: '',
@@ -69,7 +69,7 @@ const initializeState: IState = {
     recomendations: {
       specialtyIds: [],
       readMorePostIds: [],
-      outherContentPostIds: [],
+      outherContentIds: [],
     },
   },
   postOrder: null,

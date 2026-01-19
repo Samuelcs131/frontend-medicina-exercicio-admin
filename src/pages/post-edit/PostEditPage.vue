@@ -17,13 +17,12 @@
               <div class="col-12 col-md-6">
                 <q-select
                   v-bind="$vSelect"
-                  v-model="state.form.specialtyIds"
+                  v-model="state.form.specialtyId"
                   :options="state.options.specialties"
                   option-value="id"
                   label="Especialidades"
                   :rules="[requiredRule]"
                   use-chips
-                  multiple
                   use-input
                   @update:model-value="resetSubspecialty"
                   @filter="
@@ -51,7 +50,6 @@
                   :options="state.options.subspecialties"
                   option-value="id"
                   label="Subespecialidades"
-                  :rules="[requiredRule]"
                   use-chips
                   multiple
                   use-input
@@ -257,12 +255,11 @@
               <div class="col-12">
                 <q-select
                   v-bind="$vSelect"
-                  v-model="state.form.recomendations.outherContentPostIds"
-                  :options="state.options.posts"
+                  v-model="state.form.recomendations.outherContentIds"
+                  :options="state.options.specialties"
                   option-value="id"
                   label="Outros conteúdos"
                   clearable
-                  multiple
                   :rules="[(v) => maxArrayRule(v, 4)]"
                 >
                   <template v-slot:selected-item="scope">
@@ -399,8 +396,8 @@ const {
 } = usePostEditPage()
 
 const subspecialtyOptions = computed(() => {
-  return state.value.optionsData.subspecialties.filter((sub) =>
-    state.value.form.specialtyIds.includes(sub.specialty.id),
+  return state.value.optionsData.subspecialties.filter(
+    (sub) => state.value.form.specialtyId == sub.specialty.id,
   )
 })
 
