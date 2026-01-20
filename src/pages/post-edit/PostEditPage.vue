@@ -260,6 +260,7 @@
                   option-value="id"
                   label="Outros conteúdos"
                   clearable
+                  multiple
                   :rules="[(v) => maxArrayRule(v, 4)]"
                 >
                   <template v-slot:selected-item="scope">
