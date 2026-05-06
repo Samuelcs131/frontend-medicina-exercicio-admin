@@ -2,34 +2,66 @@ import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
 import type { ISubspecialtyGroup } from 'src/types/specialty/ISubspecialtyGroup.type'
 
-export async function getAll(): Promise<ISubspecialtyGroup[]> {
-  const { data } = await api.get('/subspecialty-group')
+export async function getAll(specialtyId?: string): Promise<ISubspecialtyGroup[]> {
+  if (specialtyId) {
+    const { data } = await api.get('/articles-group', {
+      params: {
+        specialtyId,
+      },
+    })
+    return data
+  }
+  const { data } = await api.get('/articles-group')
   return data
-  // await fakePromise(100)
-  /* return [
-    {
-      id: '1',
-      name: 'Subespecialidades e áreas de atuação',
-      description: 'Descrição de alguma coisa',
-      imageURL:
-        'https://animaniacs.com.br/wp-content/uploads/2020/05/layer-clinica-medica-felinos.jpg',
-      status: Status.active,
-    },
-  ] */
+}
+
+export async function getById(id: string): Promise<ISubspecialtyGroup> {
+  const { data } = await api.get(`/articles-group/${id}`)
+  return data
 }
 
 export async function create(
   name: string,
   description: string,
-  image: File,
+  status: Status,
+  specialtyId: string,
+  postIds: string[],
+  orderPosts: Array<{ postId: string; order: number }>,
+  image: File | null,
 ) {
   const formData = new FormData()
 
+  // Campos obrigatórios
   formData.append('name', name)
   formData.append('description', description)
-  formData.append('image', image)
+  formData.append('status', status)
+  formData.append('specialtyId', specialtyId) // String direto, não array
 
-  await api.post('/subspecialty-group', formData, {
+  // Campos opcionais
+  if (postIds.length > 0) {
+    formData.append('postIds', JSON.stringify(postIds)) // Array de strings como JSON
+  }
+
+  if (orderPosts.length > 0) {
+    formData.append('orderPosts', JSON.stringify(orderPosts)) // Array de objetos { postId, order } como JSON
+  }
+
+  if (image) {
+    formData.append('image', image) // Arquivo de imagem
+  }
+
+  // Formato enviado:
+  // {
+  //   "name": string,
+  //   "description": string,
+  //   "status": Status,
+  //   "specialtyId": string,
+  //   "postIds": string[] (JSON),
+  //   "orderPosts": Array<{ postId: string, order: number }> (JSON),
+  //   "image": File
+  // }
+
+  await api.post('/articles-group/create', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -38,34 +70,53 @@ export async function create(
 
 export async function save(
   id: string,
-  name: string,
-  description: string,
-  status: Status,
-  image: File | null,
+  name?: string,
+  description?: string,
+  status?: Status,
+  specialtyId?: string,
+  postIds?: string[],
+  orderPosts?: Array<{ postId: string; order: number }>,
+  image?: File | null,
 ) {
   const formData = new FormData()
 
-  formData.append('name', name)
-  formData.append('description', description)
-  formData.append('status', status)
+  if (name) formData.append('name', name)
+  if (description) formData.append('description', description)
+  if (status) formData.append('status', status)
 
-  if (image) formData.append('image', image)
+  if (specialtyId) {
+    formData.append('specialtyId', specialtyId)
+  }
 
-  await api.put(`/subspecialty-group/${id}`, formData, {
+  if (postIds && postIds.length > 0) {
+    formData.append('postIds', JSON.stringify(postIds))
+  }
+
+  if (orderPosts && orderPosts.length > 0) {
+    formData.append('orderPosts', JSON.stringify(orderPosts))
+  }
+
+  if (image) {
+    formData.append('image', image)
+  }
+
+  await api.put(`/articles-group/${id}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   })
 }
 
-export async function deleteItem(ids: string[]) {
-  await api.delete(`/subspecialty-group/`, {
-    data: { ids },
-  })
+export async function deleteItem(id: string) {
+  await api.delete(`/articles-group/${id}`)
 }
 
-export async function disable(ids: string[]) {
-  await api.patch('/subspecialty-group/disable', {
-    ids,
+export async function updateOrdersBySpecialty(
+  specialtyId: string,
+  groups: Array<{ id: string; order: number }>,
+) {
+  await api.put('/articles-group/update-orders-by-specialty', {
+    specialtyId,
+    groups,
   })
 }

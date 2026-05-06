@@ -4,8 +4,10 @@ import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
 import * as PostService from 'src/services/post.service'
+import * as SpecialtyService from 'src/services/speciality/specialty.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { IPostResume } from 'src/types/post/IPost.type'
+import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
 import { useRouter } from 'vue-router'
 
 interface IState {
@@ -13,6 +15,8 @@ interface IState {
   filter: string
   actionType: ActionDialogOptions
   actionsData: IPostResume[]
+  specialties: ISpecialty[]
+  selectedSpecialties: ISpecialty[]
 }
 
 export function usePost() {
@@ -21,6 +25,8 @@ export function usePost() {
     actionType: ActionDialogOptions.delete,
     filter: '',
     list: [],
+    specialties: [],
+    selectedSpecialties: [],
   }
 
   const router = useRouter()
@@ -28,6 +34,7 @@ export function usePost() {
   const dialog = {
     edit: 'edit-j64h53wf235g',
     action: 'action-143dsdfcasd',
+    specialties: 'specialties-dialog',
   }
 
   const loader = {
@@ -43,12 +50,28 @@ export function usePost() {
   async function fetchList() {
     await requester.dispatch({
       callback: async () => {
-        state.value.list = await PostService.getAllPostResume()
+        const [posts, specialties] = await Promise.all([
+          PostService.getAllPostResume(),
+          SpecialtyService.getAll(),
+        ])
+        state.value.list = posts
+        state.value.specialties = specialties
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
       loaders: [loader.list],
     })
+  }
+
+  function getSpecialtiesByIds(specialtyIds: string[]): ISpecialty[] {
+    return state.value.specialties.filter((specialty) =>
+      specialtyIds.includes(specialty.id),
+    )
+  }
+
+  function openSpecialtiesDialog(specialtyIds: string[]) {
+    state.value.selectedSpecialties = getSpecialtiesByIds(specialtyIds)
+    toggleDialog(dialog.specialties)
   }
 
   async function confirmAction() {
@@ -99,5 +122,7 @@ export function usePost() {
     confirmAction,
     openEditDialog,
     openActionDialog,
+    getSpecialtiesByIds,
+    openSpecialtiesDialog,
   }
 }

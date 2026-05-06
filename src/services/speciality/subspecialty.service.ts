@@ -38,12 +38,10 @@ export async function getAll(): Promise<ISubspecialty[]> {
 export async function create(
   name: string,
   specialtyId: string,
-  subspecialtyGroupId: string,
 ) {
   await api.post('/subspecialty', {
     name,
     specialtyId,
-    subspecialtyGroupId,
   })
 }
 
@@ -51,13 +49,11 @@ export async function save(
   id: string,
   name: string,
   specialtyId: string,
-  subspecialtyGroupId: string,
   status: Status,
 ) {
   await api.put(`/subspecialty/${id}`, {
     name,
     specialtyId,
-    subspecialtyGroupId,
     status,
   })
 }

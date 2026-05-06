@@ -36,7 +36,7 @@ export const menuOptions: IMenuOptions[] = [
       },
       {
         icon: '',
-        name: 'Grupo de subespecialidades',
+        name: 'Grupo de artigos',
         separator: false,
         to: { name: 'subspecialtyGroup' },
         roles: [],

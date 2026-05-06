@@ -5,23 +5,22 @@ import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
 import * as SubspecialtyService from 'src/services/speciality/subspecialty.service'
-import * as SubspecialtyGroupService from 'src/services/speciality/subspecialtyGroup.service'
 import * as SpecialtyService from 'src/services/speciality/specialty.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
-import type { ISubspecialtyGroup } from 'src/types/specialty/ISubspecialtyGroup.type'
 import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
 
 interface IState {
   form: {
     id?: string
     name: string
-    subspecialtyGroupId: string
     specialtyId: string
     status: Status
   }
   options: {
-    subspecialtyGroups: ISubspecialtyGroup[]
+    specialty: ISpecialty[]
+  }
+  optionsData: {
     specialty: ISpecialty[]
   }
   list: ISubspecialty[]
@@ -35,12 +34,13 @@ export function useSubspecialty() {
     form: {
       status: Status.active,
       name: '',
-      subspecialtyGroupId: '',
       specialtyId: '',
     },
     options: {
       specialty: [],
-      subspecialtyGroups: [],
+    },
+    optionsData: {
+      specialty: [],
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
@@ -66,7 +66,7 @@ export function useSubspecialty() {
   async function fetchList() {
     await requester.dispatch({
       callback: async () => {
-        if (!state.value.options.subspecialtyGroups.length) await fetchOptions()
+        if (!state.value.options.specialty.length) await fetchOptions()
 
         state.value.list = await SubspecialtyService.getAll()
       },
@@ -79,13 +79,12 @@ export function useSubspecialty() {
   async function fetchOptions() {
     await requester.dispatch({
       callback: async () => {
-        const [subspecialtyGroups, specialty] = await Promise.all([
-          SubspecialtyGroupService.getAll(),
-          SpecialtyService.getAll(),
-        ])
+        const specialty = await SpecialtyService.getAll()
 
         state.value.options = {
-          subspecialtyGroups,
+          specialty,
+        }
+        state.value.optionsData = {
           specialty,
         }
       },
@@ -104,14 +103,12 @@ export function useSubspecialty() {
             id,
             state.value.form.name,
             state.value.form.specialtyId,
-            state.value.form.subspecialtyGroupId,
             state.value.form.status,
           )
         else
           await SubspecialtyService.create(
             state.value.form.name,
             state.value.form.specialtyId,
-            state.value.form.subspecialtyGroupId,
           )
       },
       successCallback: async () => {
@@ -151,12 +148,21 @@ export function useSubspecialty() {
     })
   }
 
-  function openEditDialog(item?: ISubspecialty) {
+  async function openEditDialog(item?: ISubspecialty) {
+    // Garante que as opções estejam carregadas
+    if (!state.value.optionsData.specialty.length) {
+      await fetchOptions()
+    }
+
+    // Garante que as opções sejam resetadas para mostrar todas as especialidades
+    if (state.value.optionsData.specialty.length) {
+      state.value.options.specialty = [...state.value.optionsData.specialty]
+    }
+
     if (item)
       state.value.form = {
         ...item,
         specialtyId: item.specialty.id,
-        subspecialtyGroupId: item.subspecialtyGroup.id,
       }
     else clearEditDialog()
 

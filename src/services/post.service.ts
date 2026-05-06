@@ -27,8 +27,7 @@ export async function create(post: IPost, thumbnailFile: File | null) {
   formData.append('tagTitle', post.tagTitle || '')
   formData.append('status', post.status)
 
-  post.subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
-  formData.append('specialtyId', post.specialtyId)
+  post.specialtyIds.forEach((id) => formData.append('specialtyIds', id))
 
   formData.append('recomendations', JSON.stringify(post.recomendations))
 
@@ -68,8 +67,7 @@ export async function save(
   formData.append('tagTitle', post.tagTitle || '')
   formData.append('status', post.status)
 
-  post.subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
-  formData.append('specialtyId', post.specialtyId)
+  post.specialtyIds.forEach((id) => formData.append('specialtyIds', id))
 
   formData.append('recomendations', JSON.stringify(post.recomendations))
 

@@ -14,17 +14,17 @@
         <q-card class="shadow-0" bordered>
           <q-card-section>
             <div class="row q-col-gutter-md">
-              <div class="col-12 col-md-6">
+              <div class="col-12">
                 <q-select
                   v-bind="$vSelect"
-                  v-model="state.form.specialtyId"
+                  v-model="state.form.specialtyIds"
                   :options="state.options.specialties"
                   option-value="id"
                   label="Especialidades"
                   :rules="[requiredRule]"
+                  multiple
                   use-chips
                   use-input
-                  @update:model-value="resetSubspecialty"
                   @filter="
                     (v, update) =>
                       update(
@@ -33,34 +33,6 @@
                             v,
                             'name',
                             state.optionsData.specialties,
-                          )),
-                      )
-                  "
-                >
-                  <template v-slot:selected-item="scope">
-                    <chip-select :scope="scope" />
-                  </template>
-                </q-select>
-              </div>
-
-              <div class="col-12 col-md-6">
-                <q-select
-                  v-bind="$vSelect"
-                  v-model="state.form.subspecialtyIds"
-                  :options="state.options.subspecialties"
-                  option-value="id"
-                  label="Subespecialidades"
-                  use-chips
-                  multiple
-                  use-input
-                  @filter="
-                    (v, update) =>
-                      update(
-                        () =>
-                          (state.options.subspecialties = filterFn(
-                            v,
-                            'name',
-                            subspecialtyOptions,
                           )),
                       )
                   "
@@ -227,7 +199,20 @@
                   label="Encontre um especialista"
                   clearable
                   multiple
+                  use-input
+                  use-chips
                   :rules="[(v) => maxArrayRule(v, 4)]"
+                  @filter="
+                    (v, update) =>
+                      update(
+                        () =>
+                          (state.options.specialties = filterFn(
+                            v,
+                            'name',
+                            state.optionsData.specialties,
+                          )),
+                      )
+                  "
                 >
                   <template v-slot:selected-item="scope">
                     <chip-select :scope="scope" />
@@ -244,7 +229,20 @@
                   label="Leia também"
                   clearable
                   multiple
+                  use-input
+                  use-chips
                   :rules="[(v) => maxArrayRule(v, 4)]"
+                  @filter="
+                    (v, update) =>
+                      update(
+                        () =>
+                          (state.options.posts = filterFn(
+                            v,
+                            'name',
+                            state.optionsData.posts || [],
+                          )),
+                      )
+                  "
                 >
                   <template v-slot:selected-item="scope">
                     <chip-select :scope="scope" />
@@ -261,7 +259,20 @@
                   label="Outros conteúdos"
                   clearable
                   multiple
+                  use-input
+                  use-chips
                   :rules="[(v) => maxArrayRule(v, 4)]"
+                  @filter="
+                    (v, update) =>
+                      update(
+                        () =>
+                          (state.options.specialties = filterFn(
+                            v,
+                            'name',
+                            state.optionsData.specialties,
+                          )),
+                      )
+                  "
                 >
                   <template v-slot:selected-item="scope">
                     <chip-select :scope="scope" />
@@ -363,7 +374,7 @@ import DatePicker from 'src/components/date-picker/DatePicker.vue'
 import draggable from 'vuedraggable'
 import EditText from './components/editor-text/EditorText.vue'
 import { usePostEditPage } from './usePostEditPage'
-import { onMounted, onBeforeMount, ref, computed } from 'vue'
+import { onMounted, onBeforeMount, ref } from 'vue'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { useRoute, useRouter } from 'vue-router'
 import { rangeRule } from 'src/validations/form-rules/stringRules.util'
@@ -396,17 +407,7 @@ const {
   removeSection,
 } = usePostEditPage()
 
-const subspecialtyOptions = computed(() => {
-  return state.value.optionsData.subspecialties.filter(
-    (sub) => state.value.form.specialtyId == sub.specialty.id,
-  )
-})
-
 const uploadInput = ref<QUploader | null>(null)
-
-function resetSubspecialty() {
-  state.value.form.subspecialtyIds = []
-}
 
 function handleSetFile(files: readonly File[]) {
   const [file] = files

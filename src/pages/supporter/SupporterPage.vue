@@ -78,6 +78,14 @@
                 v-bind="$vInput"
               />
             </div>
+            <div class="col-12">
+              <q-input
+                label="URL"
+                v-model="state.form.url"
+                v-bind="$vInput"
+                type="text"
+              />
+            </div>
             <div class="col-12" v-if="state.form.id">
               <q-select
                 label="Status"

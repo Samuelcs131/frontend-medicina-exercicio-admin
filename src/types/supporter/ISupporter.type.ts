@@ -4,5 +4,6 @@ export interface ISupporter {
   id: string
   name: string
   imageURL: string
+  url?: string
   status: Status
 }

@@ -10,10 +10,10 @@ export const postTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
-    label: 'Imagem',
-    field: 'thumbnailUrlImage',
-    name: 'thumbnailUrlImage',
-    sortable: true,
+    label: 'Especialidades',
+    field: 'specialtyIds',
+    name: 'specialtyIds',
+    sortable: false,
     align: 'left',
   },
   {

@@ -7,11 +7,12 @@ export async function getAll(): Promise<ISupporter[]> {
   return data
 }
 
-export async function create(name: string, image: File) {
+export async function create(name: string, image: File, url: string) {
   const formData = new FormData()
 
   formData.append('name', name)
   formData.append('image', image)
+  formData.append('url', url)
 
   await api.post('/support', formData, {
     headers: {
@@ -25,11 +26,13 @@ export async function save(
   name: string,
   status: Status,
   image: File | null,
+  url: string,
 ) {
   const formData = new FormData()
 
   formData.append('name', name)
   formData.append('status', status)
+  formData.append('url', url)
   if (image) formData.append('image', image)
 
   await api.put(`/support/${id}`, formData, {

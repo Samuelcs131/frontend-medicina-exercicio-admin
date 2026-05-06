@@ -69,6 +69,11 @@
           {{ truncateText(getSpecialtiesText(props.row.specialtyIds), 30) }}
         </q-td>
       </template>
+      <template #body-cell-createdAt="props">
+        <q-td :props="props">
+          {{ props.row.createdAt ? formatDate(props.row.createdAt) : '' }}
+        </q-td>
+      </template>
     </q-table>
 
     <action-dialog
@@ -202,7 +207,6 @@
             <div class="col-12 col-md-6">
               <q-select
                 label="Subespecialidade"
-                :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.subspecialtyIds"
                 multiple
@@ -374,6 +378,7 @@ import { maxArrayRule } from 'src/validations/form-rules/arrayRules.util'
 import { filterFn } from 'src/utils/filter.util'
 import { truncateText } from 'src/utils/text.util'
 import { useDialog } from 'src/composables/useDialog'
+import { formatDate } from 'src/utils/date.util'
 
 const {
   state,

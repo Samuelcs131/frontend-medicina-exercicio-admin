@@ -7,8 +7,7 @@ export interface IPost {
   schedulingDate: string
   url: string
   professionalId: string
-  subspecialtyIds: string[]
-  specialtyId: string
+  specialtyIds: string[]
   tagTitle: string
   tagDescription: string
   tagKeywords: string

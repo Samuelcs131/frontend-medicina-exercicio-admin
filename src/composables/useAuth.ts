@@ -56,7 +56,9 @@ export function useAuth() {
     api.interceptors.response.use(
       (response) => response,
       async (error) => {
-        if (error.response.status === 401) await handleLoggedIn()
+        // Verifica se error.response existe antes de acessar status
+        // (pode ser undefined em erros de CORS ou rede)
+        if (error.response?.status === 401) await handleLoggedIn()
         return Promise.reject(error)
       },
     )

@@ -11,6 +11,7 @@ export interface IVideo {
   guests: string[]
   status: Status
   clicks: number
+  createdAt?: string | null
   recomendations: {
     outherVideosIds: string[]
     moreVideosIds: string[]

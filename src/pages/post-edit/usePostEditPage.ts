@@ -6,7 +6,6 @@ import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
 import * as PostService from 'src/services/post.service'
 import * as SpecialityService from 'src/services/speciality/specialty.service'
-import * as SubspecialityService from 'src/services/speciality/subspecialty.service'
 import * as ProfessionalService from 'src/services/professional/professional.service'
 import { useRouter } from 'vue-router'
 import { IPost, IPostItem } from 'src/types/post/IPost.type'
@@ -17,7 +16,6 @@ import { Roles } from 'src/enums/Roles.enum'
 import { Status } from 'src/enums/Status.enum'
 import { IBasicEntity } from 'src/types/IBasicEntity.type'
 import { ISpecialty } from 'src/types/specialty/ISpecialty.type'
-import { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 
 interface IForm extends IPost {
   thumbnailFile: File | null
@@ -38,14 +36,13 @@ interface IState {
   }
   options: {
     specialties: ISpecialty[]
-    subspecialties: ISubspecialty[]
     professional: IBasicEntity<string>[]
     posts: IBasicEntity<string>[]
   }
   optionsData: {
     specialties: ISpecialty[]
-    subspecialties: ISubspecialty[]
     professional: IBasicEntity<string>[]
+    posts: IBasicEntity<string>[]
   }
 }
 
@@ -56,8 +53,7 @@ const initializeState: IState = {
     url: '',
     professionalId: '',
     schedulingDate: new Date().toISOString(),
-    specialtyId: null as unknown as string,
-    subspecialtyIds: [],
+    specialtyIds: [],
     tagDescription: '',
     tagKeywords: '',
     tagTitle: '',
@@ -89,14 +85,13 @@ const initializeState: IState = {
   },
   options: {
     specialties: [],
-    subspecialties: [],
     professional: [],
     posts: [],
   },
   optionsData: {
     specialties: [],
-    subspecialties: [],
     professional: [],
+    posts: [],
   },
 }
 
@@ -186,7 +181,33 @@ export function usePostEditPage() {
     await requester.dispatch({
       callback: async () => {
         const post = await PostService.getPostById(id)
-        state.value.form = { ...post, thumbnailFile: null }
+        // Interface para lidar com possível resposta do backend com formato antigo
+        interface IPostLegacy {
+          specialtyId?: string
+        }
+        const postWithLegacy = post as IPost & IPostLegacy
+
+        const recomendations = post.recomendations || {
+          specialtyIds: [],
+          readMorePostIds: [],
+          outherContentIds: [],
+        }
+
+        const formData: IForm = {
+          ...post,
+          thumbnailFile: null,
+          specialtyIds: post.specialtyIds?.length
+            ? post.specialtyIds
+            : postWithLegacy.specialtyId
+              ? [postWithLegacy.specialtyId]
+              : [],
+          recomendations: {
+            specialtyIds: recomendations.specialtyIds || [],
+            readMorePostIds: recomendations.readMorePostIds || [],
+            outherContentIds: recomendations.outherContentIds || [],
+          },
+        }
+        state.value.form = formData
       },
       errorMessageTitle: 'Houve um erro!',
       errorMessage: 'Não foi possível carregar a postagem',
@@ -199,14 +220,14 @@ export function usePostEditPage() {
       callback: async () => {
         if (state.value.options.professional.length > 0) return
 
-        const [specialties, subspecialties, professional, posts] =
-          await Promise.all([
-            SpecialityService.getAll(),
-            SubspecialityService.getAll(),
-            ProfessionalService.getAll(),
-            PostService.getAllPostResume(),
-          ])
+        const [specialties, professionals, posts] = await Promise.all([
+          SpecialityService.getAll(),
+          ProfessionalService.getAll(),
+          PostService.getAllPostResume(),
+        ])
+
         const postsFilter: IBasicEntity<string>[] = []
+        const professionalsFilter: IBasicEntity<string>[] = []
 
         posts.forEach((post) => {
           if (post.id != state.value.form.id)
@@ -216,17 +237,23 @@ export function usePostEditPage() {
             })
         })
 
+        professionals.forEach((professional) => {
+          professionalsFilter.push({
+            id: professional.id,
+            name: professional.name,
+          })
+        })
+
         state.value.options = {
           specialties,
-          subspecialties,
-          professional,
+          professional: professionalsFilter,
           posts: postsFilter,
         }
 
         state.value.optionsData = {
           specialties,
-          subspecialties,
-          professional,
+          professional: professionalsFilter,
+          posts: postsFilter,
         }
       },
       errorMessageTitle: 'Houve um erro!',

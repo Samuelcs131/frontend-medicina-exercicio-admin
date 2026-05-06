@@ -83,6 +83,7 @@ const Image = TiptapImage.extend({
       HTMLAttributes: this.parent?.()?.HTMLAttributes ?? {},
       uploadRequest: null,
       urlPattern: DEFAULT_IMAGE_URL_REGEX,
+      resize: false,
     }
   },
 

@@ -14,6 +14,7 @@ interface IState {
     name: string
     imageURL: string
     imageFile: File | null
+    url: string
     status: Status
   }
   list: ISupporter[]
@@ -29,6 +30,7 @@ export function useSupporter() {
       imageURL: '',
       imageFile: null,
       name: '',
+      url: '',
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
@@ -73,11 +75,13 @@ export function useSupporter() {
             state.value.form.name,
             state.value.form.status,
             state.value.form.imageFile,
+            state.value.form.url,
           )
-          else
-            await SupporterService.create(
-          state.value.form.name,
-          state.value.form.imageFile!,
+        else
+          await SupporterService.create(
+            state.value.form.name,
+            state.value.form.imageFile!,
+            state.value.form.url,
           )
       },
       successCallback: async () => {
@@ -120,8 +124,12 @@ export function useSupporter() {
   function openEditDialog(item?: ISupporter) {
     if (item)
       state.value.form = {
-        ...item,
+        id: item.id,
+        name: item.name,
+        imageURL: item.imageURL,
         imageFile: null,
+        url: item.url || '',
+        status: item.status,
       }
     else clearEditDialog()
 

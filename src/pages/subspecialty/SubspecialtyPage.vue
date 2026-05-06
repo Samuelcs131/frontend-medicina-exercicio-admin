@@ -33,7 +33,7 @@
           :has-active="!state.actionsData.length"
           :loader-id="loader.list"
           @open-action-dialog="openActionDialog"
-          @open-edit-dialog="openEditDialog"
+          @open-edit-dialog="handleOpenEditDialog"
         />
       </template>
       <template #body-cell-status="props">
@@ -41,7 +41,12 @@
       </template>
       <template #body-cell-actions="props">
         <q-td :props="props">
-          <q-btn icon="edit" flat round @click="openEditDialog(props.row)">
+          <q-btn
+            icon="edit"
+            flat
+            round
+            @click="handleOpenEditDialog(props.row)"
+          >
             <q-tooltip> Editar </q-tooltip>
           </q-btn>
         </q-td>
@@ -49,11 +54,6 @@
       <template #body-cell-name="props">
         <q-td :props="props" :title="props.row.name">
           {{ truncateText(props.row.name, 30) }}
-        </q-td>
-      </template>
-      <template #body-cell-subspecialtyGroup="props">
-        <q-td :props="props" :title="props.row.subspecialtyGroup.name">
-          {{ truncateText(props.row.subspecialtyGroup.name, 30) }}
         </q-td>
       </template>
     </q-table>
@@ -68,7 +68,7 @@
       @confirm-action="confirmAction"
     />
 
-    <v-dialog :dialog-id="dialog.edit" @hide-before="clearEditDialog">
+    <v-dialog :dialog-id="dialog.edit" @hide-before="handleDialogBeforeHide">
       <q-card v-bind="$vCard" style="max-width: 500px" class="full-width">
         <q-form @submit="save">
           <q-card-section class="q-py-none q-pt-sm">
@@ -95,7 +95,40 @@
               />
             </div>
 
-            <div class="col-12">
+            <div class="col-12" v-if="!state.form.id">
+              <q-select
+                outlined
+                dense
+                label="Especialidade"
+                :rules="[requiredRule]"
+                v-model="selectedSpecialty"
+                :options="specialtyOptions"
+                option-value="id"
+                option-label="name"
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (filteredSpecialties = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.specialty,
+                        )),
+                    )
+                "
+                @update:model-value="handleSpecialtyChange"
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey">
+                      Nenhum resultado
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+            </div>
+            <div class="col-12" v-else>
               <q-select
                 label="Especialidade"
                 :rules="[requiredRule]"
@@ -103,17 +136,31 @@
                 v-model="state.form.specialtyId"
                 :options="state.options.specialty"
                 option-value="id"
-              />
-            </div>
-            <div class="col-12">
-              <q-select
-                label="Grupo de subespecialidade"
-                :rules="[requiredRule]"
-                v-bind="$vSelect"
-                v-model="state.form.subspecialtyGroupId"
-                :options="state.options.subspecialtyGroups"
-                option-value="id"
-              />
+                option-label="name"
+                use-input
+                fill-input
+                hide-selected
+                input-debounce="0"
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.specialty = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.specialty,
+                        )),
+                    )
+                "
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey">
+                      Nenhum resultado
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
           </q-card-section>
 
@@ -144,13 +191,16 @@
 import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
-import { onMounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useSubspecialty } from './useSubspecialty'
 import { subspecialtyTableColumns } from './specialty.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import { truncateText } from 'src/utils/text.util'
+import { filterFn } from 'src/utils/filter.util'
+import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
+import type { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 
 const {
   state,
@@ -166,7 +216,44 @@ const {
   openActionDialog,
 } = useSubspecialty()
 
+const filteredSpecialties = ref<ISpecialty[]>([])
+const selectedSpecialty = ref<{ id: string | null; name: string } | null>(null)
+
+const specialtyOptions = computed(() => {
+  return filteredSpecialties.value
+})
+
+function handleSpecialtyChange(
+  value: { id: string | null; name: string } | null,
+) {
+  selectedSpecialty.value = value
+  if (value?.id) {
+    state.value.form.specialtyId = value.id
+  } else {
+    state.value.form.specialtyId = ''
+  }
+}
+
+// Resetar o campo de especialidade quando fechar o modal
+function handleDialogBeforeHide() {
+  clearEditDialog()
+  selectedSpecialty.value = null
+  if (state.value.optionsData.specialty.length) {
+    filteredSpecialties.value = [...state.value.optionsData.specialty]
+  }
+}
+
+// Wrapper para openEditDialog que inicializa o campo de especialidade
+async function handleOpenEditDialog(item?: ISubspecialty) {
+  await openEditDialog(item)
+  // Garantir que as opções estejam disponíveis quando abrir o modal de criar
+  if (!item && state.value.optionsData.specialty.length) {
+    filteredSpecialties.value = [...state.value.optionsData.specialty]
+  }
+}
+
 onMounted(async () => {
   await fetchList()
+  filteredSpecialties.value = state.value.optionsData.specialty
 })
 </script>

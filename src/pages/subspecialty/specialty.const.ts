@@ -9,20 +9,12 @@ export const subspecialtyTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
-    label: 'Grupo de subespecialidade',
-    field: 'subspecialtyGroup',
-    name: 'subspecialtyGroup',
-    sortable: true,
-    align: 'left',
-    format: (v) => v.name
-  },
-  {
     label: 'Especialidade',
     field: 'specialty',
     name: 'specialty',
     sortable: true,
     align: 'left',
-    format: (v) => v.name
+    format: (v) => v.name,
   },
   {
     label: 'Status',

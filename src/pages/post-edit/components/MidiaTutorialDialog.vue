@@ -11,10 +11,8 @@
       </q-card-section>
 
       <q-card-section>
-        <p>1. clique em compartilhar, no botão abaixo do video</p>
-        <p>2. clique em incorporar</p>
-        <p>3. copie somente a URL do video, que está dentro das aspas src e cole no campo de midia</p>
-        <img :src="ExampleYoutube" class="full-width"/>
+        <p>Selecione o link do vídeo que deseja adicionar no HTML.</p>
+        <p>Copie para a área de texto e será gerado automaticamente o iframe do vídeo.</p>
       </q-card-section>
 
       <q-card-actions align="right">
@@ -30,6 +28,6 @@
 </template>
 <script setup lang="ts">
 import { usePostEditPage } from '../usePostEditPage'
-import ExampleYoutube from 'assets/img/example-youtube.jpg'
+
 const { toggleDialog, Dialog, dialogIsOpen } = usePostEditPage()
 </script>
