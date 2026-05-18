@@ -14,11 +14,14 @@
       </q-card-section>
 
       <q-card-section>
-        <p class="text-body">
+        <p class="text-body" v-if="!props.message">
           Tem certeza que deseja
           {{ actionOptions[actionType].name.toLowerCase() }} {{ prefix }}
           {{ title }}
           <b> {{ nameItems.join(', ') }} </b>?
+        </p>
+        <p class="text-body" v-else>
+          {{ props.message }}
         </p>
       </q-card-section>
 
@@ -55,6 +58,7 @@ interface IProps {
   prefix: string
   title: string
   nameItems: string[]
+  message?: string
 }
 
 const props = defineProps<IProps>()

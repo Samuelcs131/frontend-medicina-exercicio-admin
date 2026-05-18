@@ -12,7 +12,7 @@ export const profissionalAreaTableColumns: QTableColumn[] = [
     label: 'Imagem',
     field: 'imageURL',
     name: 'imageURL',
-    sortable: true,
+    sortable: false,
     align: 'left',
   },
   {

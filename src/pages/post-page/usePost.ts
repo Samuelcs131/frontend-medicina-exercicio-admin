@@ -1,4 +1,5 @@
 import { useDialog } from 'src/composables/useDialog'
+import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
 import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
@@ -6,27 +7,29 @@ import requester from 'src/helpers/requester/Requester.helper'
 import * as PostService from 'src/services/post.service'
 import * as SpecialtyService from 'src/services/speciality/specialty.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
-import type { IPostResume } from 'src/types/post/IPost.type'
+import type { IPostNameListItem } from 'src/types/post/IPost.type'
 import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
 import { useRouter } from 'vue-router'
 
+const DEFAULT_POST_SORT = 'createdAt'
+
 interface IState {
-  list: IPostResume[]
-  filter: string
+  list: IPostNameListItem[]
   actionType: ActionDialogOptions
-  actionsData: IPostResume[]
+  actionsData: IPostNameListItem[]
   specialties: ISpecialty[]
   selectedSpecialties: ISpecialty[]
+  activeOnly: boolean
 }
 
 export function usePost() {
   const initState: IState = {
     actionsData: [],
     actionType: ActionDialogOptions.delete,
-    filter: '',
     list: [],
     specialties: [],
     selectedSpecialties: [],
+    activeOnly: true,
   }
 
   const router = useRouter()
@@ -47,21 +50,36 @@ export function usePost() {
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
-  async function fetchList() {
-    await requester.dispatch({
-      callback: async () => {
-        const [posts, specialties] = await Promise.all([
-          PostService.getAllPostResume(),
-          SpecialtyService.getAll(),
+  const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
+    useListTableRequest<IPostNameListItem>({
+      defaultOrdertype: DEFAULT_POST_SORT,
+      allowedOrdertypes: ['title', 'createdAt'],
+      defaultDescending: true,
+      initialRowsPerPage: 40,
+      loaderListId: loader.list,
+      fetchPage: async (q) => {
+        const specialtiesPromise = state.value.specialties.length
+          ? Promise.resolve(null as ISpecialty[] | null)
+          : SpecialtyService.getAll()
+
+        const [postsRes, specialties] = await Promise.all([
+          PostService.getListPaginated({
+            ...q,
+            all: !state.value.activeOnly,
+          }),
+          specialtiesPromise,
         ])
-        state.value.list = posts
-        state.value.specialties = specialties
+
+        if (specialties) {
+          state.value.specialties = specialties
+        }
+
+        return postsRes
       },
-      errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar os dados',
-      loaders: [loader.list],
+      applyResponse: (res) => {
+        state.value.list = res.data
+      },
     })
-  }
 
   function getSpecialtiesByIds(specialtyIds: string[]): ISpecialty[] {
     return state.value.specialties.filter((specialty) =>
@@ -89,7 +107,7 @@ export function usePost() {
       successCallback: async () => {
         toggleDialog(dialog.action)
         state.value.actionsData = []
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: 'Concluído com sucesso',
       errorMessageTitle: 'Houve um erro',
@@ -98,12 +116,18 @@ export function usePost() {
     })
   }
 
+  async function toggleActiveOnly(activeOnly: boolean) {
+    state.value.activeOnly = activeOnly
+    pagination.value.page = 1
+    await refreshCurrentPage()
+  }
+
   function openActionDialog(action: ActionDialogOptions) {
     state.value.actionType = action
     toggleDialog(dialog.action)
   }
 
-  async function openEditDialog(item?: IPostResume) {
+  async function openEditDialog(item?: IPostNameListItem) {
     await router.push({
       name: 'postEdit',
       params: item ? { postId: item.id } : {},
@@ -112,9 +136,12 @@ export function usePost() {
 
   return {
     state,
+    filter,
+    pagination,
+    tableLoading,
     dialog,
     loader,
-    fetchList,
+    onRequest,
     toggleDialog,
     dialogIsOpen,
     createDialog,
@@ -122,6 +149,7 @@ export function usePost() {
     confirmAction,
     openEditDialog,
     openActionDialog,
+    toggleActiveOnly,
     getSpecialtiesByIds,
     openSpecialtiesDialog,
   }

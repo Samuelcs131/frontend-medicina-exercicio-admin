@@ -40,3 +40,20 @@ export async function authSession(token?: string): Promise<string> {
 
   return data.token
 }
+
+export async function validateSession(token?: string): Promise<{ code?: string; error?: string } | 'ok'> {
+  const { getCookie } = useCookies()
+  const authToken = token ?? getCookie(CookieKey.token)
+
+  const { data } = await api.post(
+    '/sessions/validate',
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    },
+  )
+
+  return data
+}

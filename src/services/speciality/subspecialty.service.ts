@@ -1,6 +1,17 @@
 import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
+import type { IListResponse } from 'src/types/api/IListResponse.type'
 import type { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
+import { buildListParams, type IListQuery } from 'src/utils/listQuery.util'
+
+export async function getListPaginated(
+  params: IListQuery,
+): Promise<IListResponse<ISubspecialty>> {
+  const { data } = await api.get<IListResponse<ISubspecialty>>('/subspecialty', {
+    params: buildListParams(params),
+  })
+  return data
+}
 
 export async function getAll(): Promise<ISubspecialty[]> {
   const { data } = await api.get('/subspecialty')

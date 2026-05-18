@@ -12,9 +12,9 @@ export const subspecialtyTableColumns: QTableColumn[] = [
     label: 'Especialidade',
     field: 'specialty',
     name: 'specialty',
-    sortable: true,
+    sortable: false,
     align: 'left',
-    format: (v) => v.name,
+    format: (v) => (v?.name ? v.name : '-'),
   },
   {
     label: 'Status',

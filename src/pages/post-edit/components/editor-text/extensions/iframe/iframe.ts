@@ -1,4 +1,4 @@
-import { Node } from '@tiptap/core'
+import { Node, nodeInputRule } from '@tiptap/core'
 
 export interface IframeOptions {
   allowFullscreen: boolean
@@ -37,8 +37,32 @@ export default Node.create<IframeOptions>({
       src: {
         default: null,
       },
+      height: {
+        default: '400',
+        parseHTML: (element) => element.getAttribute('height') ?? '400',
+      },
+      width: {
+        default: '100%',
+        parseHTML: (element) => element.getAttribute('width') ?? '100%',
+      },
+      title: {
+        default: 'YouTube video player',
+        parseHTML: (element) => element.getAttribute('title') ?? 'YouTube video player',
+      },
       frameborder: {
         default: 0,
+      },
+      allow: {
+        default:
+          'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+        parseHTML: (element) =>
+          element.getAttribute('allow') ??
+          'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+      },
+      referrerpolicy: {
+        default: 'strict-origin-when-cross-origin',
+        parseHTML: (element) =>
+          element.getAttribute('referrerpolicy') ?? 'strict-origin-when-cross-origin',
       },
       allowfullscreen: {
         default: this.options.allowFullscreen,
@@ -56,7 +80,7 @@ export default Node.create<IframeOptions>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['div', this.options.HTMLAttributes, ['iframe', HTMLAttributes]]
+    return ['iframe', HTMLAttributes]
   },
 
   addCommands() {
@@ -74,5 +98,20 @@ export default Node.create<IframeOptions>({
           return true
         },
     }
+  },
+
+  addInputRules() {
+    const videoIdGroup = '([a-zA-Z0-9_-]+)'
+    return [
+      nodeInputRule({
+        find: new RegExp(
+          `(https?:\\/\\/)?(www\\.)?(youtube\\.com\\/watch\\?v=|youtu\\.be\\/)${videoIdGroup}\\s*$`,
+        ),
+        type: this.type,
+        getAttributes: (match) => ({
+          src: `https://www.youtube.com/embed/${match[4]}`,
+        }),
+      }),
+    ]
   },
 })

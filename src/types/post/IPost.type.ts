@@ -1,5 +1,6 @@
 import { PostTypeContent } from 'src/enums/post/PostTypeContent.enum'
 import type { Status } from 'src/enums/Status.enum'
+import type { IListResponse } from 'src/types/api/IListResponse.type'
 
 export interface IPost {
   id: string
@@ -22,6 +23,17 @@ export interface IPost {
   }
 }
 
+/** Resumo retornado pela listagem paginada em `GET /post/names`. */
+export interface IPostNameListItem {
+  id: string
+  title: string
+  createdAt?: string | null
+  specialtyIds: string[]
+}
+
+export type IPostListResponse = IListResponse<IPostNameListItem>
+
+/** Lista completa em `GET /post` (legado / outras telas). */
 export interface IPostResume {
   id: string
   title: string

@@ -1,6 +1,17 @@
 import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
+import type { IListResponse } from 'src/types/api/IListResponse.type'
 import { ISupporter } from 'src/types/supporter/ISupporter.type'
+import { buildListParams, type IListQuery } from 'src/utils/listQuery.util'
+
+export async function getListPaginated(
+  params: IListQuery,
+): Promise<IListResponse<ISupporter>> {
+  const { data } = await api.get<IListResponse<ISupporter>>('/support', {
+    params: buildListParams(params),
+  })
+  return data
+}
 
 export async function getAll(): Promise<ISupporter[]> {
   const { data } = await api.get('/support')

@@ -6,4 +6,6 @@ export interface ISupporter {
   imageURL: string
   url?: string
   status: Status
+  createdAt?: string | null
+  updatedAt?: string | null
 }

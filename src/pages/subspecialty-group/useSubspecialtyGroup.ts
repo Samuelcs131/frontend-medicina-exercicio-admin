@@ -1,4 +1,5 @@
 import { useDialog } from 'src/composables/useDialog'
+import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
 import { Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
@@ -7,9 +8,12 @@ import requester from 'src/helpers/requester/Requester.helper'
 import * as SubspecialtyGroupService from 'src/services/speciality/subspecialtyGroup.service'
 import * as SpecialtyService from 'src/services/speciality/specialty.service'
 import * as PostService from 'src/services/post.service'
+import * as VideoService from 'src/services/video/video.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { ISubspecialtyGroup } from 'src/types/specialty/ISubspecialtyGroup.type'
 import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
+
+const DEFAULT_SORT = 'updatedAt'
 
 interface IBasicEntity {
   id: string
@@ -25,24 +29,24 @@ interface IState {
     imageFile: File | null
     status: Status
     postIds: string[]
+    videoIds: string[]
     specialtyId: string
   }
   options: {
     posts: IBasicEntity[]
+    videos: IBasicEntity[]
     specialties: ISpecialty[]
   }
   optionsData: {
     posts: IBasicEntity[]
+    videos: IBasicEntity[]
     specialties: ISpecialty[]
   }
   list: ISubspecialtyGroup[]
-  filteredList: ISubspecialtyGroup[]
   selectedSpecialtyId: string | null
-  filter: string
   actionType: ActionDialogOptions
   actionsData: ISubspecialtyGroup[]
-  hasOrderChanged: boolean
-  originalOrder: string[]
+  activeOnly: boolean
 }
 
 export function useSubspecialtyGroup() {
@@ -54,24 +58,24 @@ export function useSubspecialtyGroup() {
       name: '',
       description: '',
       postIds: [],
+      videoIds: [],
       specialtyId: '',
     },
     options: {
       posts: [],
+      videos: [],
       specialties: [],
     },
     optionsData: {
       posts: [],
+      videos: [],
       specialties: [],
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
-    filter: '',
     list: [],
-    filteredList: [],
     selectedSpecialtyId: null,
-    hasOrderChanged: false,
-    originalOrder: [],
+    activeOnly: true,
   }
 
   const dialog = {
@@ -90,57 +94,42 @@ export function useSubspecialtyGroup() {
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
-  async function fetchList() {
-    await requester.dispatch({
-      callback: async () => {
-        if (!state.value.options.posts.length) await fetchOptions()
-        // Se uma especialidade estiver selecionada, busca apenas os grupos dessa especialidade
-        const specialtyId = state.value.selectedSpecialtyId || undefined
-        state.value.list = await SubspecialtyGroupService.getAll(specialtyId)
-        applyFilter()
+  const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
+    useListTableRequest<ISubspecialtyGroup>({
+      defaultOrdertype: DEFAULT_SORT,
+      defaultDescending: true,
+      initialRowsPerPage: 40,
+      loaderListId: loader.list,
+      fetchPage: (q) =>
+        SubspecialtyGroupService.getListPaginated(
+          {
+            ...q,
+            all: !state.value.activeOnly,
+          },
+          state.value.selectedSpecialtyId,
+        ),
+      applyResponse: (res) => {
+        state.value.list = res.data
       },
-      errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar os dados',
-      loaders: [loader.list],
     })
-  }
-
-  function applyFilter() {
-    // A API já retorna os dados filtrados, então apenas ordena e prepara a lista
-    state.value.filteredList = [...state.value.list]
-    
-    // Ordena por order se existir (quando uma especialidade estiver selecionada)
-    if (state.value.selectedSpecialtyId) {
-      state.value.filteredList.sort((a, b) => {
-        const orderA = a.order ?? 0
-        const orderB = b.order ?? 0
-        return orderA - orderB
-      })
-      // Salva ordem original
-      state.value.originalOrder = state.value.filteredList.map((item) => item.id)
-    } else {
-      state.value.originalOrder = []
-    }
-    state.value.hasOrderChanged = false
-  }
 
   async function onSpecialtyChange(specialtyId: string | null) {
     state.value.selectedSpecialtyId = specialtyId
-    // Recarrega a lista quando mudar a especialidade
-    await fetchList()
+    pagination.value.page = 1
+    await refreshCurrentPage()
   }
 
-  function onOrderChange(newOrder: ISubspecialtyGroup[]) {
-    state.value.filteredList = newOrder
-    const newOrderIds = newOrder.map((item) => item.id)
-    state.value.hasOrderChanged =
-      JSON.stringify(newOrderIds) !== JSON.stringify(state.value.originalOrder)
+  async function fetchGroupsForOrderDialog(): Promise<ISubspecialtyGroup[]> {
+    const sid = state.value.selectedSpecialtyId
+    if (!sid) return []
+    const data = await SubspecialtyGroupService.getAll(sid)
+    return [...data].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   }
 
-  async function saveOrder() {
+  async function saveOrder(orderedList: ISubspecialtyGroup[]) {
     if (!state.value.selectedSpecialtyId) return
 
-    const groups = state.value.filteredList.map((item, index) => ({
+    const groups = orderedList.map((item, index) => ({
       id: item.id,
       order: index + 1,
     }))
@@ -153,13 +142,11 @@ export function useSubspecialtyGroup() {
         )
       },
       successCallback: async () => {
-        state.value.hasOrderChanged = false
-        state.value.originalOrder = state.value.filteredList.map((item) => item.id)
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: 'Ordem salva com sucesso',
       errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível salvar a ordem',
+      errorMessage: 'N?o foi poss?vel salvar a ordem',
       loaders: [loader.saveOrder],
     })
   }
@@ -168,40 +155,60 @@ export function useSubspecialtyGroup() {
     await requester.dispatch({
       callback: async () => {
         const [posts, specialties] = await Promise.all([
-          PostService.getAllPostResume(),
+          PostService.getAllPostNames(),
           SpecialtyService.getAll(),
         ])
 
-        const postsFormatted: IBasicEntity[] = posts.map((post) => ({
-          id: post.id,
-          name: post.title,
-        }))
-
         state.value.options = {
-          posts: postsFormatted,
+          posts,
+          videos: [],
           specialties,
         }
 
         state.value.optionsData = {
-          posts: postsFormatted,
+          posts,
+          videos: [],
           specialties,
         }
       },
       errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar as opções',
+      errorMessage: 'N?o foi poss?vel buscar as op??es',
+    })
+  }
+
+  async function fetchVideosBySpecialty(specialtyId: string) {
+    if (!specialtyId) {
+      state.value.options.videos = []
+      state.value.optionsData.videos = []
+      state.value.form.videoIds = []
+      return
+    }
+
+    await requester.dispatch({
+      callback: async () => {
+        const videos = (await VideoService.getBySpecialtyId(specialtyId)) || []
+
+        const videosFormatted: IBasicEntity[] = videos.map((video) => ({
+          id: video.id,
+          name: video.name,
+        }))
+
+        state.value.options.videos = videosFormatted
+        state.value.optionsData.videos = videosFormatted
+      },
+      errorMessageTitle: 'Houve um erro',
+      errorMessage: 'N?o foi poss?vel buscar os v?deos',
     })
   }
 
   async function save() {
     const id = state.value.form.id
 
-    // Validação: specialtyId é obrigatório
     if (!state.value.form.specialtyId) {
       return
     }
 
-    // Gera orderPosts baseado na ordem atual dos postIds
-    const orderPosts: Array<{ postId: string; order: number }> = 
+    const orderPosts: Array<{ postId: string; order: number }> =
       state.value.form.postIds.map((postId, index) => ({
         postId,
         order: index,
@@ -219,6 +226,7 @@ export function useSubspecialtyGroup() {
             state.value.form.postIds,
             orderPosts,
             state.value.form.imageFile,
+            state.value.form.videoIds,
           )
         else
           await SubspecialtyGroupService.create(
@@ -229,15 +237,16 @@ export function useSubspecialtyGroup() {
             state.value.form.postIds,
             orderPosts,
             state.value.form.imageFile,
+            state.value.form.videoIds,
           )
       },
       successCallback: async () => {
         toggleDialog(dialog.edit)
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
-      errorMessage: `Não foi possível ${
+      errorMessage: `N?o foi poss?vel ${
         state.value.form.id ? 'editar' : 'salvar'
       }`,
       loaders: [loader.edit],
@@ -247,39 +256,43 @@ export function useSubspecialtyGroup() {
   async function confirmAction() {
     await requester.dispatch({
       callback: async () => {
-        const { actionType } = state.value
+        const { actionType, actionsData } = state.value
+        const ids = actionsData.map((item) => item.id)
 
-        if (actionType == ActionDialogOptions.delete) {
-          // Deleta um por vez (nova API aceita apenas um ID)
-          for (const item of state.value.actionsData) {
-            await SubspecialtyGroupService.deleteItem(item.id)
-          }
+        if (!ids.length) return
+
+        if (actionType === ActionDialogOptions.delete) {
+          await SubspecialtyGroupService.deleteItem(ids)
         }
-        // Removido disable - não existe mais na nova API
+
+        if (actionType === ActionDialogOptions.disable) {
+          await SubspecialtyGroupService.disable(ids)
+        }
       },
       successCallback: async () => {
         toggleDialog(dialog.action)
         state.value.actionsData = []
-        await fetchList()
+        await refreshCurrentPage()
       },
-      successMessageTitle: 'Concluído com sucesso',
+      successMessageTitle: 'Conclu?do com sucesso',
       errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível realizar a ação',
+      errorMessage: 'N?o foi poss?vel realizar a a??o',
       loaders: [loader.action],
     })
   }
 
   function openEditDialog(item?: ISubspecialtyGroup) {
-    // Abre o modal imediatamente
     if (item) {
-      // Converte posts do formato da API para arrays de IDs
-      // Ordena os posts pelo campo 'order' antes de extrair os IDs
       const sortedPosts = item.posts
         ? [...item.posts].sort((a, b) => a.order - b.order)
         : []
       const postIds = sortedPosts.map((post) => post.id)
 
-      // Pega apenas a primeira especialidade (agora é apenas uma)
+      const videoIds: string[] =
+        (item.videoIds?.length ?? 0) > 0
+          ? item.videoIds ?? []
+          : (item.videos ?? []).map((v) => v.id)
+
       const specialtyId = item.specialty?.id || ''
 
       state.value.form = {
@@ -290,6 +303,7 @@ export function useSubspecialtyGroup() {
         status: item.status,
         imageFile: null,
         postIds,
+        videoIds,
         specialtyId,
       }
     } else {
@@ -298,8 +312,11 @@ export function useSubspecialtyGroup() {
 
     toggleDialog(dialog.edit)
 
-    // Carrega os dados em background (sem bloquear a abertura do modal)
-    if (!state.value.options.posts.length || !state.value.options.specialties.length) {
+    if (
+      !state.value.options.posts.length ||
+      !state.value.options.specialties.length ||
+      !state.value.options.videos.length
+    ) {
       void fetchOptions()
     }
   }
@@ -323,19 +340,29 @@ export function useSubspecialtyGroup() {
   }
 
   function updatePostOrder() {
-    // A ordem já está atualizada no v-model do draggable
-    // Esta função pode ser usada para ações adicionais se necessário
+    // reservado
+  }
+
+  async function toggleActiveOnly(activeOnly: boolean) {
+    state.value.activeOnly = activeOnly
+    pagination.value.page = 1
+    await refreshCurrentPage()
   }
 
   return {
     state,
+    filter,
+    pagination,
+    tableLoading,
     dialog,
     loader,
     save,
     addFile,
-    fetchList,
     fetchOptions,
+    fetchVideosBySpecialty,
     removeFile,
+    onRequest,
+    refreshCurrentPage,
     toggleDialog,
     dialogIsOpen,
     createDialog,
@@ -346,7 +373,8 @@ export function useSubspecialtyGroup() {
     openActionDialog,
     updatePostOrder,
     onSpecialtyChange,
-    onOrderChange,
+    toggleActiveOnly,
     saveOrder,
+    fetchGroupsForOrderDialog,
   }
 }

@@ -510,7 +510,7 @@ import { cloneDeep } from 'src/utils/clone.util'
 import { uniqueId } from 'src/utils/random.util'
 import ImageDialog from './components/ImageDialog.vue'
 import { IPostItem } from 'src/types/post/IPost.type'
-import { extractIframeSrc } from 'src/utils/text.util'
+import { extractIframeSrc, toYouTubeEmbedUrl } from 'src/utils/text.util'
 
 interface IImageDialog {
   url: string
@@ -525,6 +525,22 @@ const { state, Dialog, dialogIsOpen, toggleDialog, openImageDialog } =
 
 const editorInstance = useEditor({
   ...cloneDeep(editorOptions),
+  editorProps: {
+    ...(editorOptions.editorProps ?? {}),
+    handlePaste: (view, event) => {
+      const text = event.clipboardData?.getData('text/plain')?.trim() ?? ''
+      if (!text || !/youtube\.com|youtu\.be/.test(text)) return false
+      const url = toYouTubeEmbedUrl(text)
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      const { state, dispatch } = view
+      const node = state.schema.nodes.iframe?.create({ src: url })
+      if (!node) return false
+      const tr = state.tr.replaceSelectionWith(node)
+      dispatch(tr)
+      event.preventDefault()
+      return true
+    },
+  },
 })
 
 function savePostSection(content: string) {
@@ -533,14 +549,20 @@ function savePostSection(content: string) {
   removeUnusedImages(content)
 
   if (key) {
-    const idx = state.value.form.postItems.findIndex((item) => item.key === key)
-
-    state.value.form.postItems[idx] = {
-      key,
-      contentHTML: content,
-      postTypeContent: PostTypeContent.html,
-      imageFiles,
-    } as IPostItem
+    let idx = state.value.form.postItems.findIndex((item) => item.key === key)
+    if (idx < 0) {
+      idx = state.value.form.postItems.findIndex(
+        (item) => item === state.value.postItem,
+      )
+    }
+    if (idx >= 0) {
+      state.value.form.postItems[idx] = {
+        key,
+        contentHTML: content,
+        postTypeContent: PostTypeContent.html,
+        imageFiles,
+      } as IPostItem
+    }
   } else {
     state.value.form.postItems.push({
       key: uniqueId(),
@@ -575,7 +597,8 @@ function addIframe() {
   const input = window.prompt('URL')
   if (!input) return
 
-  const url = input.includes('iframe') ? extractIframeSrc(input) : input
+  let url = input.includes('iframe') ? extractIframeSrc(input) : input.trim()
+  if (/youtube\.com|youtu\.be/.test(url)) url = toYouTubeEmbedUrl(url)
 
   editorInstance.value?.chain().focus().setIframe({ src: url }).run()
 }

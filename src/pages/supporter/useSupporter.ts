@@ -1,4 +1,5 @@
 import { useDialog } from 'src/composables/useDialog'
+import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
 import { Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
@@ -7,6 +8,8 @@ import requester from 'src/helpers/requester/Requester.helper'
 import * as SupporterService from 'src/services/supporter/supporter.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import { ISupporter } from 'src/types/supporter/ISupporter.type'
+
+const DEFAULT_SORT = 'name'
 
 interface IState {
   form: {
@@ -18,9 +21,9 @@ interface IState {
     status: Status
   }
   list: ISupporter[]
-  filter: string
   actionType: ActionDialogOptions
   actionsData: ISupporter[]
+  activeOnly: boolean
 }
 
 export function useSupporter() {
@@ -34,8 +37,8 @@ export function useSupporter() {
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
-    filter: '',
     list: [],
+    activeOnly: true,
   }
 
   const dialog = {
@@ -53,16 +56,21 @@ export function useSupporter() {
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
-  async function fetchList() {
-    await requester.dispatch({
-      callback: async () => {
-        state.value.list = await SupporterService.getAll()
+  const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
+    useListTableRequest<ISupporter>({
+      defaultOrdertype: DEFAULT_SORT,
+      defaultDescending: true,
+      initialRowsPerPage: 40,
+      loaderListId: loader.list,
+      fetchPage: (q) =>
+        SupporterService.getListPaginated({
+          ...q,
+          all: !state.value.activeOnly,
+        }),
+      applyResponse: (res) => {
+        state.value.list = res.data
       },
-      errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar os dados',
-      loaders: [loader.list],
     })
-  }
 
   async function save() {
     const id = state.value.form.id
@@ -86,7 +94,7 @@ export function useSupporter() {
       },
       successCallback: async () => {
         toggleDialog(dialog.edit)
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
@@ -112,7 +120,7 @@ export function useSupporter() {
       successCallback: async () => {
         toggleDialog(dialog.action)
         state.value.actionsData = []
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: 'Concluído com sucesso',
       errorMessageTitle: 'Houve um erro',
@@ -154,13 +162,22 @@ export function useSupporter() {
     state.value.form.imageFile = null
   }
 
+  async function toggleActiveOnly(activeOnly: boolean) {
+    state.value.activeOnly = activeOnly
+    pagination.value.page = 1
+    await refreshCurrentPage()
+  }
+
   return {
     state,
+    filter,
+    pagination,
+    tableLoading,
     dialog,
     loader,
     save,
     addFile,
-    fetchList,
+    onRequest,
     removeFile,
     toggleDialog,
     dialogIsOpen,
@@ -170,5 +187,6 @@ export function useSupporter() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
+    toggleActiveOnly,
   }
 }

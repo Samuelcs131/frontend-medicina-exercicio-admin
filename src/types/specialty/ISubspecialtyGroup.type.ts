@@ -22,8 +22,10 @@ export interface ISubspecialtyGroup {
   order?: number | null
   posts?: IPostInGroup[]
   specialty?: ISpecialtyInGroup
+  videos?: { id: string; name: string }[]
   // Campos para o formulário (gerados a partir de posts e specialty)
   postIds?: string[]
+  videoIds?: string[]
   specialtyId?: string
   orderPosts?: Array<{ postId: string; order: number }>
   createdAt?: string

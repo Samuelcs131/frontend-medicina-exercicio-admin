@@ -1,4 +1,5 @@
 import { useDialog } from 'src/composables/useDialog'
+import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
 import { Status } from 'src/enums/Status.enum'
 import type { IProfissionalArea } from 'src/types/specialty/IProfissionalArea.type'
@@ -7,6 +8,8 @@ import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
 import * as ProfessionalAreaService from 'src/services/professional/professionalArea.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
+
+const DEFAULT_SORT = 'name'
 
 interface IState {
   form: {
@@ -17,9 +20,9 @@ interface IState {
     status: Status
   }
   list: IProfissionalArea[]
-  filter: string
   actionType: ActionDialogOptions
   actionsData: IProfissionalArea[]
+  activeOnly: boolean
 }
 
 export function useProfissionalArea() {
@@ -32,8 +35,8 @@ export function useProfissionalArea() {
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
-    filter: '',
     list: [],
+    activeOnly: true,
   }
 
   const dialog = {
@@ -51,16 +54,22 @@ export function useProfissionalArea() {
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
-  async function fetchList() {
-    await requester.dispatch({
-      callback: async () => {
-        state.value.list = await ProfessionalAreaService.getAll()
+  const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
+    useListTableRequest<IProfissionalArea>({
+      defaultOrdertype: DEFAULT_SORT,
+      allowedOrdertypes: ['name', 'status'],
+      defaultDescending: true,
+      initialRowsPerPage: 40,
+      loaderListId: loader.list,
+      fetchPage: (q) =>
+        ProfessionalAreaService.getListPaginated({
+          ...q,
+          all: !state.value.activeOnly,
+        }),
+      applyResponse: (res) => {
+        state.value.list = res.data
       },
-      errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar os dados',
-      loaders: [loader.list],
     })
-  }
 
   async function save() {
     const id = state.value.form.id
@@ -82,7 +91,7 @@ export function useProfissionalArea() {
       },
       successCallback: async () => {
         toggleDialog(dialog.edit)
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
@@ -108,7 +117,7 @@ export function useProfissionalArea() {
       successCallback: async () => {
         toggleDialog(dialog.action)
         state.value.actionsData = []
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: 'Concluído com sucesso',
       errorMessageTitle: 'Houve um erro',
@@ -137,6 +146,12 @@ export function useProfissionalArea() {
     toggleDialog(dialog.action)
   }
 
+  async function toggleActiveOnly(activeOnly: boolean) {
+    state.value.activeOnly = activeOnly
+    pagination.value.page = 1
+    await refreshCurrentPage()
+  }
+
   function addFile(files: readonly File[]) {
     const [file] = files
     state.value.form.imageFile = file as File
@@ -148,11 +163,14 @@ export function useProfissionalArea() {
 
   return {
     state,
+    filter,
+    pagination,
+    tableLoading,
     dialog,
     loader,
     save,
     addFile,
-    fetchList,
+    onRequest,
     removeFile,
     toggleDialog,
     dialogIsOpen,
@@ -162,5 +180,6 @@ export function useProfissionalArea() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
+    toggleActiveOnly,
   }
 }

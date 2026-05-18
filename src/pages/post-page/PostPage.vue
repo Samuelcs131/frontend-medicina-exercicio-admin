@@ -6,38 +6,50 @@
       <q-input
         outlined
         dense
-        debounce="300"
+        debounce="500"
         placeholder="Pesquisar"
-        v-model="state.filter"
+        v-model="filter"
+        style="min-width: 240px"
       >
         <template #append>
           <q-icon name="search" />
         </template>
       </q-input>
     </div>
+
     <q-table
+      ref="tableRef"
       flat
       dense
       bordered
+      :class="{ 'post-table--transition': tableLoading }"
       selection="multiple"
       v-model:selected="state.actionsData"
+      v-model:pagination="pagination"
       :rows="state.list"
       :columns="postTableColumns"
-      :filter="state.filter"
-      :loading="loaderStatus(loader.list)"
-      :rows-per-page-options="[20]"
+      row-key="id"
+      :loading="tableLoading"
+      :filter="filter"
+      :rows-per-page-options="[10, 20, 40, 100]"
+      @request="onRequest"
     >
       <template #top-right>
-        <action-header
-          label-new-entity="Nova postagem"
-          :has-active="!state.actionsData.length"
-          :loader-id="loader.list"
-          @open-action-dialog="openActionDialog"
-          @open-edit-dialog="openEditDialog"
-        />
-      </template>
-      <template #body-cell-status="props">
-        <status-row :props="props" />
+        <div class="row items-center q-gutter-md">
+          <q-checkbox
+            :model-value="state.activeOnly"
+            label="Apenas ativos"
+            :disable="tableLoading"
+            @update:model-value="handleActiveOnlyChange"
+          />
+          <action-header
+            label-new-entity="Nova postagem"
+            :has-active="!state.actionsData.length"
+            :loader-id="loader.list"
+            @open-action-dialog="openActionDialog"
+            @open-edit-dialog="openEditDialog"
+          />
+        </div>
       </template>
       <template #body-cell-specialtyIds="props">
         <q-td :props="props">
@@ -65,14 +77,9 @@
           </q-btn>
         </q-td>
       </template>
-      <template #body-cell-name="props">
-        <q-td :props="props" :title="props.row.name">
-          {{ truncateText(props.row.name, 30) }}
-        </q-td>
-      </template>
-      <template #body-cell-author="props">
-        <q-td :props="props" :title="props.row.author">
-          {{ truncateText(props.row.author, 30) }}
+      <template #body-cell-title="props">
+        <q-td :props="props" :title="props.row.title">
+          {{ truncateText(props.row.title, 30) }}
         </q-td>
       </template>
     </q-table>
@@ -137,32 +144,58 @@
 <script setup lang="ts">
 import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
-import StatusRow from 'src/components/table/StatusRow.vue'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+import type { QTable } from 'quasar'
 import { usePost } from './usePost'
 import { postTableColumns } from './post.const'
 import { truncateText } from 'src/utils/text.util'
 
 const {
   state,
+  filter,
+  pagination,
+  tableLoading,
   dialog,
   loader,
-  fetchList,
-  loaderStatus,
+  onRequest,
   confirmAction,
   openEditDialog,
   openActionDialog,
   openSpecialtiesDialog,
+  toggleActiveOnly,
   toggleDialog,
   dialogIsOpen,
 } = usePost()
+
+const tableRef = ref<QTable | null>(null)
+
+onMounted(() => {
+  tableRef.value?.requestServerInteraction()
+})
 
 function getSpecialtyName(specialtyId: string): string {
   const specialty = state.value.specialties.find((s) => s.id === specialtyId)
   return specialty?.name || '-'
 }
 
-onMounted(async () => {
-  await fetchList()
-})
+async function handleActiveOnlyChange(value: boolean) {
+  await toggleActiveOnly(value)
+}
+
 </script>
+
+<style scoped>
+.post-table--transition :deep(.q-table tbody) {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+.post-table--transition :deep(.q-table tbody td) {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.post-table--transition :deep(.q-table__bottom .q-btn) {
+  pointer-events: none;
+  opacity: 0.55;
+}
+</style>

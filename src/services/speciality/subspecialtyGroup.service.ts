@@ -1,17 +1,39 @@
 import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
+import type { IListResponse } from 'src/types/api/IListResponse.type'
 import type { ISubspecialtyGroup } from 'src/types/specialty/ISubspecialtyGroup.type'
+import { buildListParams, type IListQuery } from 'src/utils/listQuery.util'
+
+export async function getListPaginated(
+  params: IListQuery,
+  specialtyId?: string | null,
+): Promise<IListResponse<ISubspecialtyGroup>> {
+  const { data } = await api.get<IListResponse<ISubspecialtyGroup>>(
+    '/articles-group',
+    {
+      params: buildListParams(params, {
+        specialtyId: specialtyId || undefined,
+      }),
+    },
+  )
+  return data
+}
 
 export async function getAll(specialtyId?: string): Promise<ISubspecialtyGroup[]> {
   if (specialtyId) {
     const { data } = await api.get('/articles-group', {
       params: {
+        all: true,
         specialtyId,
       },
     })
     return data
   }
-  const { data } = await api.get('/articles-group')
+  const { data } = await api.get('/articles-group', {
+    params: {
+      all: true,
+    },
+  })
   return data
 }
 
@@ -28,6 +50,7 @@ export async function create(
   postIds: string[],
   orderPosts: Array<{ postId: string; order: number }>,
   image: File | null,
+  videoIds?: string[],
 ) {
   const formData = new FormData()
 
@@ -44,6 +67,10 @@ export async function create(
 
   if (orderPosts.length > 0) {
     formData.append('orderPosts', JSON.stringify(orderPosts)) // Array de objetos { postId, order } como JSON
+  }
+
+  if (videoIds && videoIds.length > 0) {
+    formData.append('videoIds', JSON.stringify(videoIds))
   }
 
   if (image) {
@@ -77,6 +104,7 @@ export async function save(
   postIds?: string[],
   orderPosts?: Array<{ postId: string; order: number }>,
   image?: File | null,
+  videoIds?: string[],
 ) {
   const formData = new FormData()
 
@@ -96,6 +124,12 @@ export async function save(
     formData.append('orderPosts', JSON.stringify(orderPosts))
   }
 
+  if (videoIds && videoIds.length > 0) {
+    formData.append('videoIds', JSON.stringify(videoIds))
+  } else if (videoIds && videoIds.length === 0) {
+    formData.append('videoIds', JSON.stringify([]))
+  }
+
   if (image) {
     formData.append('image', image)
   }
@@ -107,8 +141,16 @@ export async function save(
   })
 }
 
-export async function deleteItem(id: string) {
-  await api.delete(`/articles-group/${id}`)
+export async function deleteItem(ids: string[]) {
+  await api.delete('/articles-group', {
+    data: { ids },
+  })
+}
+
+export async function disable(ids: string[]) {
+  await api.patch('/articles-group/disable', {
+    ids,
+  })
 }
 
 export async function updateOrdersBySpecialty(

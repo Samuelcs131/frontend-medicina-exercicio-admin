@@ -6,9 +6,10 @@
       <q-input
         outlined
         dense
-        debounce="300"
+        debounce="500"
         placeholder="Pesquisar"
-        v-model="state.filter"
+        v-model="filter"
+        style="min-width: 240px"
       >
         <template #append>
           <q-icon name="search" />
@@ -16,25 +17,38 @@
       </q-input>
     </div>
     <q-table
+      ref="tableRef"
       flat
       dense
       bordered
+      :class="{ 'local-service-table--transition': tableLoading }"
       selection="multiple"
       v-model:selected="state.actionsData"
+      v-model:pagination="pagination"
       :rows="state.list"
       :columns="localServiceTableColumns"
-      :filter="state.filter"
-      :loading="loaderStatus(loader.list)"
-      :rows-per-page-options="[20]"
+      row-key="id"
+      :loading="tableLoading"
+      :filter="filter"
+      :rows-per-page-options="[10, 20, 40, 100]"
+      @request="onRequest"
     >
       <template #top-right>
-        <action-header
-          label-new-entity="Novo local"
-          :has-active="!state.actionsData.length"
-          :loader-id="loader.list"
-          @open-action-dialog="openActionDialog"
-          @open-edit-dialog="openEditDialog"
-        />
+        <div class="row items-center q-gutter-md">
+          <q-checkbox
+            :model-value="state.activeOnly"
+            label="Apenas ativos"
+            :disable="tableLoading"
+            @update:model-value="handleActiveOnlyChange"
+          />
+          <action-header
+            label-new-entity="Novo local"
+            :has-active="!state.actionsData.length"
+            :loader-id="loader.list"
+            @open-action-dialog="openActionDialog"
+            @open-edit-dialog="openEditDialog"
+          />
+        </div>
       </template>
       <template #body-cell-status="props">
         <status-row :props="props" />
@@ -49,11 +63,6 @@
       <template #body-cell-name="props">
         <q-td :props="props" :title="props.row.name">
           {{ truncateText(props.row.name, 30) }}
-        </q-td>
-      </template>
-      <template #body-cell-street="props">
-        <q-td :props="props" :title="props.row.street">
-          {{ truncateText(props.row.street, 30) }}
         </q-td>
       </template>
     </q-table>
@@ -230,7 +239,8 @@
 import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import type { QTable } from 'quasar'
 import { useLocalService } from './useLocalService'
 import { localServiceTableColumns } from './localService.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
@@ -243,10 +253,14 @@ import { filterFn } from 'src/utils/filter.util'
 
 const {
   state,
+  filter,
+  pagination,
+  tableLoading,
   dialog,
   loader,
   save,
-  fetchList,
+  fetchOptions,
+  onRequest,
   loaderStatus,
   toggleDialog,
   confirmAction,
@@ -254,7 +268,10 @@ const {
   openGoogleMaps,
   clearEditDialog,
   openActionDialog,
+  toggleActiveOnly,
 } = useLocalService()
+
+const tableRef = ref<QTable | null>(null)
 
 const citiesOptions = computed(() => {
   return state.value.optionsData.cities.filter(
@@ -266,7 +283,28 @@ function resetCityIds() {
   state.value.form.cityId = ''
 }
 
+async function handleActiveOnlyChange(value: boolean) {
+  await toggleActiveOnly(value)
+}
+
 onMounted(async () => {
-  await fetchList()
+  await fetchOptions()
+  tableRef.value?.requestServerInteraction()
 })
 </script>
+
+<style scoped>
+.local-service-table--transition :deep(.q-table tbody) {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+.local-service-table--transition :deep(.q-table tbody td) {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.local-service-table--transition :deep(.q-table__bottom .q-btn) {
+  pointer-events: none;
+  opacity: 0.55;
+}
+</style>

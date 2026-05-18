@@ -1,9 +1,33 @@
 import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
+import type { IListResponse } from 'src/types/api/IListResponse.type'
 import type { IVideo } from 'src/types/video/IVideo.type'
+import { buildListParams, type IListQuery } from 'src/utils/listQuery.util'
+
+export async function getListPaginated(
+  params: IListQuery,
+): Promise<IListResponse<IVideo>> {
+  const { data } = await api.get<IListResponse<IVideo>>('/video', {
+    params: buildListParams(params, { front: true }),
+  })
+  return data
+}
 
 export async function getAll(): Promise<IVideo[]> {
-  const { data } = await api.get('/video')
+  const { data } = await api.get('/video', {
+    params: {
+      all: true,
+    },
+  })
+  return data
+}
+
+export async function getBySpecialtyId(specialtyId: string): Promise<IVideo[]> {
+  const { data } = await api.get('/video', {
+    params: {
+      specialtyId,
+    },
+  })
   return data
 }
 

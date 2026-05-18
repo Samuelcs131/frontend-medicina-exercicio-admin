@@ -6,9 +6,10 @@
       <q-input
         outlined
         dense
-        debounce="300"
+        debounce="500"
         placeholder="Pesquisar"
         v-model="state.filter"
+        style="min-width: 240px"
       >
         <template #append>
           <q-icon name="search" />
@@ -16,25 +17,37 @@
       </q-input>
     </div>
     <q-table
+      ref="tableRef"
       flat
       dense
       bordered
       selection="multiple"
       v-model:selected="state.actionsData"
+      v-model:pagination="pagination"
       :rows="state.list"
       :columns="videoPageTableColumns"
-      :filter="state.filter"
+      row-key="id"
       :loading="loaderStatus(loader.list)"
-      :rows-per-page-options="[20]"
+      :filter="state.filter"
+      :rows-per-page-options="[10, 20, 40, 100]"
+      @request="fetchData"
     >
       <template #top-right>
-        <action-header
-          label-new-entity="Novo vídeo"
-          :has-active="!state.actionsData.length"
-          :loader-id="loader.list"
-          @open-action-dialog="openActionDialog"
-          @open-edit-dialog="openEditDialog"
-        />
+        <div class="row items-center q-gutter-md">
+          <q-checkbox
+            v-model="state.activeOnly"
+            label="Apenas ativos"
+            :disable="loaderStatus(loader.list)"
+            @update:model-value="handleActiveOnlyChange"
+          />
+          <action-header
+            label-new-entity="Novo vídeo"
+            :has-active="!state.actionsData.length"
+            :loader-id="loader.list"
+            @open-action-dialog="openActionDialog"
+            @open-edit-dialog="openEditDialog"
+          />
+        </div>
       </template>
       <template #body-cell-status="props">
         <status-row :props="props" />
@@ -69,9 +82,9 @@
           {{ truncateText(getSpecialtiesText(props.row.specialtyIds), 30) }}
         </q-td>
       </template>
-      <template #body-cell-createdAt="props">
+      <template #body-cell-updatedAt="props">
         <q-td :props="props">
-          {{ props.row.createdAt ? formatDate(props.row.createdAt) : '' }}
+          {{ props.row.updatedAt ? formatDate(props.row.updatedAt) : '' }}
         </q-td>
       </template>
     </q-table>
@@ -382,16 +395,18 @@ import { formatDate } from 'src/utils/date.util'
 
 const {
   state,
+  tableRef,
+  pagination,
   dialog,
   loader,
   save,
-  fetchList,
+  fetchData,
   loaderStatus,
   toggleDialog,
   confirmAction,
   openEditDialog,
   clearEditDialog,
-  fetchOptionsData,
+  fetchGuestsData,
   openActionDialog,
 } = useVideoPage()
 
@@ -405,8 +420,10 @@ function getSpecialtiesText(specialtyIds: string[]) {
 }
 
 const subspecialtyOptions = computed(() => {
-  return state.value.optionsData.subspecialties.filter((sub) =>
-    state.value.form.specialtyIds.includes(sub.specialty.id),
+  return state.value.optionsData.subspecialties.filter(
+    (sub) =>
+      sub.specialty != null &&
+      state.value.form.specialtyIds.includes(sub.specialty.id),
   )
 })
 
@@ -414,7 +431,7 @@ watch(
   () => [state.value.form.guests, state.value.form.author],
   async ([guests, author]) => {
     if (dialogIsOpen(dialog.edit) && (author || guests?.length))
-      await fetchOptionsData(
+      await fetchGuestsData(
         !state.value.form.guests.length
           ? [state.value.form.author]
           : state.value.form.guests,
@@ -422,7 +439,11 @@ watch(
   },
 )
 
-onMounted(async () => {
-  await fetchList()
+onMounted(() => {
+  tableRef.value?.requestServerInteraction()
 })
+
+function handleActiveOnlyChange() {
+  tableRef.value?.requestServerInteraction()
+}
 </script>

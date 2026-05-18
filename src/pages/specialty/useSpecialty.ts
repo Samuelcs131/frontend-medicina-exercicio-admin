@@ -1,4 +1,5 @@
 import { useDialog } from 'src/composables/useDialog'
+import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
 import { Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
@@ -6,9 +7,11 @@ import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
 import * as SpecialtyService from 'src/services/speciality/specialty.service'
 import * as ProfessionalAreaService from 'src/services/professional/professionalArea.service'
+import type { IProfessionalAreaNameOption } from 'src/services/professional/professionalArea.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
-import type { IProfissionalArea } from 'src/types/specialty/IProfissionalArea.type'
+
+const DEFAULT_SORT = 'name'
 
 interface IState {
   form: {
@@ -18,12 +21,12 @@ interface IState {
     status: Status
   }
   options: {
-    professionalAreas: IProfissionalArea[]
+    professionalAreas: IProfessionalAreaNameOption[]
   }
   list: ISpecialty[]
-  filter: string
   actionType: ActionDialogOptions
   actionsData: ISpecialty[]
+  activeOnly: boolean
 }
 
 export function useSpecialty() {
@@ -38,8 +41,8 @@ export function useSpecialty() {
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
-    filter: '',
     list: [],
+    activeOnly: true,
   }
 
   const dialog = {
@@ -57,23 +60,28 @@ export function useSpecialty() {
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
-  async function fetchList() {
-    await requester.dispatch({
-      callback: async () => {
-        if (state.value.options.professionalAreas) await fetchOptions()
-        state.value.list = await SpecialtyService.getAll()
+  const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
+    useListTableRequest<ISpecialty>({
+      defaultOrdertype: DEFAULT_SORT,
+      allowedOrdertypes: ['name', 'status'],
+      defaultDescending: true,
+      initialRowsPerPage: 40,
+      loaderListId: loader.list,
+      fetchPage: (q) =>
+        SpecialtyService.getListPaginated({
+          ...q,
+          all: !state.value.activeOnly,
+        }),
+      applyResponse: (res) => {
+        state.value.list = res.data
       },
-      errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar os dados',
-      loaders: [loader.list],
     })
-  }
 
   async function fetchOptions() {
     await requester.dispatch({
       callback: async () => {
         state.value.options.professionalAreas =
-          await ProfessionalAreaService.getAll()
+          await ProfessionalAreaService.getAllNames()
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar as opções',
@@ -100,7 +108,7 @@ export function useSpecialty() {
       },
       successCallback: async () => {
         toggleDialog(dialog.edit)
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
@@ -126,7 +134,7 @@ export function useSpecialty() {
       successCallback: async () => {
         toggleDialog(dialog.action)
         state.value.actionsData = []
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: 'Concluído com sucesso',
       errorMessageTitle: 'Houve um erro',
@@ -139,7 +147,7 @@ export function useSpecialty() {
     if (item)
       state.value.form = {
         ...item,
-        professionalAreaId: item.professionalArea.id,
+        professionalAreaId: item.professionalArea?.id ?? '',
       }
     else clearEditDialog()
 
@@ -155,12 +163,23 @@ export function useSpecialty() {
     toggleDialog(dialog.action)
   }
 
+  async function toggleActiveOnly(activeOnly: boolean) {
+    state.value.activeOnly = activeOnly
+    pagination.value.page = 1
+    await refreshCurrentPage()
+  }
+
   return {
     state,
+    filter,
+    pagination,
+    tableLoading,
     dialog,
     loader,
     save,
-    fetchList,
+    fetchOptions,
+    onRequest,
+    refreshCurrentPage,
     toggleDialog,
     dialogIsOpen,
     createDialog,
@@ -169,5 +188,6 @@ export function useSpecialty() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
+    toggleActiveOnly,
   }
 }

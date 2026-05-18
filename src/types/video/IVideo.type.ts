@@ -12,6 +12,7 @@ export interface IVideo {
   status: Status
   clicks: number
   createdAt?: string | null
+  updatedAt?: string | null
   recomendations: {
     outherVideosIds: string[]
     moreVideosIds: string[]

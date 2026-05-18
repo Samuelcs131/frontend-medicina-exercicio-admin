@@ -1,4 +1,5 @@
 import type { QTableColumn } from 'quasar'
+import { formatDate } from 'src/utils/date.util'
 
 export const subspecialtyGroupTableColumns: QTableColumn[] = [
   {
@@ -7,6 +8,14 @@ export const subspecialtyGroupTableColumns: QTableColumn[] = [
     name: 'name',
     sortable: true,
     align: 'left',
+  },
+  {
+    label: 'Atualizado em',
+    field: 'updatedAt',
+    name: 'updatedAt',
+    sortable: true,
+    align: 'left',
+    format: (v) => (v ? formatDate(v) : '-'),
   },
   {
     label: 'Especialidade',

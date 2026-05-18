@@ -77,3 +77,17 @@ export function extractIframeSrc(html: string) {
 
   return iframe?.getAttribute('src') ?? ''
 }
+
+/**
+ * Converte URL de vídeo do YouTube para o formato embed (src do iframe).
+ * Aceita: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/embed/ID
+ */
+export function toYouTubeEmbedUrl(url: string): string {
+  const trimmed = url.trim()
+  const watchMatch = trimmed.match(/(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/)
+  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`
+  const shortMatch = trimmed.match(/(?:youtu\.be\/)([a-zA-Z0-9_-]+)/)
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`
+  if (/youtube\.com\/embed\//.test(trimmed)) return trimmed
+  return trimmed
+}

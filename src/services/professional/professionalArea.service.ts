@@ -1,6 +1,25 @@
 import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
+import type { IListResponse } from 'src/types/api/IListResponse.type'
 import type { IProfissionalArea } from 'src/types/specialty/IProfissionalArea.type'
+import { buildListParams, type IListQuery } from 'src/utils/listQuery.util'
+
+export interface IProfessionalAreaNameOption {
+  id: string
+  name: string
+}
+
+export async function getListPaginated(
+  params: IListQuery,
+): Promise<IListResponse<IProfissionalArea>> {
+  const { data } = await api.get<IListResponse<IProfissionalArea>>(
+    '/professional-area',
+    {
+      params: buildListParams(params, { hasall: true }),
+    },
+  )
+  return data
+}
 
 export async function getAll(): Promise<IProfissionalArea[]> {
   const { data } = await api.get('/professional-area')
@@ -22,6 +41,13 @@ export async function getAll(): Promise<IProfissionalArea[]> {
       status: Status.active,
     },
   ] */
+}
+
+export async function getAllNames(): Promise<IProfessionalAreaNameOption[]> {
+  const { data } = await api.get<IProfessionalAreaNameOption[]>(
+    '/professional-area/names',
+  )
+  return data
 }
 
 export async function create(name: string, image: File) {

@@ -20,9 +20,12 @@
                   v-model="state.form.specialtyIds"
                   :options="state.options.specialties"
                   option-value="id"
+                  option-label="name"
                   label="Especialidades"
                   :rules="[requiredRule]"
                   multiple
+                  emit-value
+                  map-options
                   use-chips
                   use-input
                   @filter="
@@ -127,10 +130,12 @@
                   v-model="state.form.professionalId"
                   :options="state.options.professional"
                   option-value="id"
+                  option-label="name"
                   label="Profissional"
                   clearable
                   class="q-mb-md"
                   emit-value
+                  map-options
                   use-input
                   @filter="
                     (v, update) =>
@@ -196,9 +201,12 @@
                   v-model="state.form.recomendations.specialtyIds"
                   :options="state.options.specialties"
                   option-value="id"
+                  option-label="name"
                   label="Encontre um especialista"
                   clearable
                   multiple
+                  emit-value
+                  map-options
                   use-input
                   use-chips
                   :rules="[(v) => maxArrayRule(v, 4)]"
@@ -226,9 +234,12 @@
                   v-model="state.form.recomendations.readMorePostIds"
                   :options="state.options.posts"
                   option-value="id"
+                  option-label="name"
                   label="Leia também"
                   clearable
                   multiple
+                  emit-value
+                  map-options
                   use-input
                   use-chips
                   :rules="[(v) => maxArrayRule(v, 4)]"
@@ -256,9 +267,12 @@
                   v-model="state.form.recomendations.outherContentIds"
                   :options="state.options.specialties"
                   option-value="id"
+                  option-label="name"
                   label="Outros conteúdos"
                   clearable
                   multiple
+                  emit-value
+                  map-options
                   use-input
                   use-chips
                   :rules="[(v) => maxArrayRule(v, 4)]"
@@ -307,7 +321,7 @@
     <draggable
       v-if="state.form.postItems"
       v-model="state.form.postItems"
-      item-key="id"
+      item-key="key"
       class="list-select-options"
       handle=".draggable-move"
       :animation="200"
@@ -323,7 +337,7 @@
 
               <div class="q-gutter-sm">
                 <q-btn
-                  @click="handleOpen(index, element)"
+                  @click="handleOpen(index)"
                   icon="edit"
                   size="sm"
                   outline
@@ -381,7 +395,6 @@ import { rangeRule } from 'src/validations/form-rules/stringRules.util'
 import ViewPost from './components/ViewPost.vue'
 import LoadingFull from 'src/components/loading/LoadingFull.vue'
 import { PostTypeContent } from 'src/enums/post/PostTypeContent.enum'
-import { IPostItem } from 'src/types/post/IPost.type'
 import { QUploader } from 'quasar'
 import { statusOptions } from 'src/constants/status.const'
 import ChipSelect from 'src/components/select/ChipSelect.vue'
@@ -397,9 +410,8 @@ const {
   Loader,
   savePost,
   initState,
-  fetchPost,
   openNewPost,
-  fetchOptions,
+  loadInitialData,
   openEditPost,
   toggleDialog,
   createDialog,
@@ -429,8 +441,8 @@ function handleRemoveFile() {
   state.value.form.thumbnailFile = null
 }
 
-function handleOpen(index: number, item: IPostItem) {
-  if (item.postTypeContent === PostTypeContent.html) openEditPost(index)
+function handleOpen(index: number) {
+  openEditPost(index)
 }
 
 onBeforeMount(() => {
@@ -440,8 +452,7 @@ onBeforeMount(() => {
 onMounted(async () => {
   const postId = route.params?.postId
 
-  if (postId && !Array.isArray(postId)) await fetchPost(postId)
-  await fetchOptions()
+  await loadInitialData(postId && !Array.isArray(postId) ? postId : undefined)
 
   createDialog([
     Dialog.editPost,

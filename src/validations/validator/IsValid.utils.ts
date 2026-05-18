@@ -301,28 +301,31 @@ export class IsValid {
   }
 
   static countArray(
-    value: unknown[],
+    value: unknown,
     min: number,
     max: number,
     error?: boolean,
   ): boolean {
+    const arr = Array.isArray(value) ? value : []
     let isValid = false
-    isValid = value.length >= min && value.length <= max
+    isValid = arr.length >= min && arr.length <= max
     if (!isValid && error) throw new Error(ArrayForm.range(min, max))
 
     return isValid
   }
 
-  static minArray(value: unknown[], min: number, error?: boolean): boolean {
+  static minArray(value: unknown, min: number, error?: boolean): boolean {
+    const arr = Array.isArray(value) ? value : []
     let isValid = false
-    isValid = value.length >= min
+    isValid = arr.length >= min
     if (!isValid && error) throw new Error(ArrayForm.min(min))
 
     return isValid
   }
-  static maxArray(value: unknown[], max: number, error?: boolean): boolean {
+  static maxArray(value: unknown, max: number, error?: boolean): boolean {
+    const arr = Array.isArray(value) ? value : []
     let isValid = false
-    isValid = value.length <= max
+    isValid = arr.length <= max
     if (!isValid && error) throw new Error(ArrayForm.max(max))
 
     return isValid

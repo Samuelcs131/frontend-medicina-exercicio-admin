@@ -1,6 +1,6 @@
 import type { QTableColumn } from 'quasar'
 
-export const subspecialtyGroupTableColumns: QTableColumn[] = [
+export const specialtyTableColumns: QTableColumn[] = [
   {
     label: 'Nome',
     field: 'name',
@@ -9,12 +9,12 @@ export const subspecialtyGroupTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
-    label: 'Área profissional',
+    label: 'Área médica',
     field: 'professionalArea',
     name: 'professionalArea',
-    sortable: true,
+    sortable: false,
     align: 'left',
-    format: (v) => v.name
+    format: (v) => (v?.name ? v.name : '-'),
   },
   {
     label: 'Status',

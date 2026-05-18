@@ -1,4 +1,5 @@
 import { useDialog } from 'src/composables/useDialog'
+import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
 import { Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
@@ -17,6 +18,24 @@ import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import { IVideo } from 'src/types/video/IVideo.type'
 import { ICity } from 'src/types/city/ICity.type'
 import { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
+
+const DEFAULT_SORT = 'name'
+
+/** API pode enviar `string[]` ou `{ id: string }[]` (ex.: estados com `sigla`). */
+function toIdList(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((entry) => {
+      if (typeof entry === 'string' || typeof entry === 'number') {
+        return String(entry)
+      }
+      if (entry && typeof entry === 'object' && 'id' in entry) {
+        return String((entry as { id: string }).id)
+      }
+      return ''
+    })
+    .filter(Boolean)
+}
 
 interface IState {
   form: {
@@ -63,9 +82,9 @@ interface IState {
     professionals: IProfessional[]
   }
   list: IProfessional[]
-  filter: string
   actionType: ActionDialogOptions
   actionsData: IProfessional[]
+  activeOnly: boolean
 }
 
 export function useProfessional() {
@@ -96,8 +115,8 @@ export function useProfessional() {
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
-    filter: '',
     list: [],
+    activeOnly: true,
     options: {
       specialty: [],
       subspecialty: [],
@@ -130,22 +149,50 @@ export function useProfessional() {
   }
 
   const state = ref<IState>(cloneDeep(initState))
+  const editFormLoading = ref(false)
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
-  async function fetchList() {
+  const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
+    useListTableRequest<IProfessional>({
+      defaultOrdertype: DEFAULT_SORT,
+      allowedOrdertypes: ['name'],
+      defaultDescending: true,
+      initialRowsPerPage: 40,
+      loaderListId: loader.list,
+      fetchPage: (q) =>
+        ProfessionalService.getListPaginated({
+          ...q,
+          all: !state.value.activeOnly,
+        }),
+      applyResponse: (res) => {
+        const validStatuses = new Set<Status>([Status.active, Status.inactive])
+        state.value.list = res.data.map((item) => ({
+          ...item,
+          // Em profissional, status é obrigatório; normaliza payload inconsistente.
+          status: validStatuses.has(item.status)
+            ? item.status
+            : state.value.activeOnly
+              ? Status.active
+              : Status.inactive,
+        }))
+      },
+    })
+
+  async function syncProfessionalsOptions() {
+    const professionals = await ProfessionalService.getAll()
+    state.value.optionsData.professionals = professionals
+    state.value.options.professionals = professionals
+  }
+
+  async function loadFormCatalog() {
     await requester.dispatch({
       callback: async () => {
         if (!state.value.options.states.length) await fetchOptions()
-
-        const professionals = await ProfessionalService.getAll()
-        state.value.list = professionals
-        state.value.optionsData.professionals = professionals
-        state.value.options.professionals = professionals
+        await syncProfessionalsOptions()
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
-      loaders: [loader.list],
     })
   }
 
@@ -227,7 +274,8 @@ export function useProfessional() {
       },
       successCallback: async () => {
         toggleDialog(dialog.edit)
-        await fetchList()
+        await refreshCurrentPage()
+        await syncProfessionalsOptions()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
@@ -253,7 +301,8 @@ export function useProfessional() {
       successCallback: async () => {
         toggleDialog(dialog.action)
         state.value.actionsData = []
-        await fetchList()
+        await refreshCurrentPage()
+        await syncProfessionalsOptions()
       },
       successMessageTitle: 'Concluído com sucesso',
       errorMessageTitle: 'Houve um erro',
@@ -262,31 +311,98 @@ export function useProfessional() {
     })
   }
 
-  function openEditDialog(item?: IProfessional) {
-    if (item) {
-      state.value.form = {
-        ...item,
-        imageFile: null,
+  async function toggleActiveOnly(activeOnly: boolean) {
+    state.value.activeOnly = activeOnly
+    pagination.value.page = 1
+    await refreshCurrentPage()
+  }
+
+  function setFormAndOptionsFromProfessional(item: IProfessional) {
+    const rec = item.recomendations
+    state.value.form = {
+      ...item,
+      specialtyIds: item.specialtyIds ?? [],
+      subspecialtyIds: item.subspecialtyIds ?? [],
+      locationService: item.locationService ?? [],
+      imageFile: null,
+      states: toIdList(item.states),
+      cities: toIdList(item.cities),
+      recomendations: {
+        professionalVideoIds: rec?.professionalVideoIds ?? [],
+        informativeContentIds: rec?.informativeContentIds ?? [],
+        otherSpecialtyIds: rec?.otherSpecialtyIds ?? [],
+      },
+    }
+
+    state.value.options.specialty = [...state.value.optionsData.specialty]
+    state.value.options.states = [...state.value.optionsData.states]
+    state.value.options.cities = [...state.value.optionsData.cities]
+    state.value.options.localsService = [
+      ...state.value.optionsData.localsService,
+    ]
+
+    const specIds = state.value.form.specialtyIds
+    const subIds = state.value.form.subspecialtyIds
+    state.value.options.subspecialty = state.value.optionsData.subspecialty.filter(
+      (sub) => {
+        if (subIds.includes(sub.id)) return true
+        const specId =
+          sub.specialty?.id ??
+          (sub as ISubspecialty & { specialtyId?: string }).specialtyId
+        return specId != null && specIds.includes(specId)
+      },
+    )
+
+    state.value.options.videos = state.value.optionsData.videos.filter(
+      (video) =>
+        !video.guests.length
+          ? video.guests.includes(item.id)
+          : video.author == item.id,
+    )
+
+    state.value.options.professionals =
+      state.value.optionsData.professionals.filter(
+        (professional) => item.id != professional.id,
+      )
+  }
+
+  async function openEditDialog(item?: IProfessional) {
+    if (!item) {
+      clearEditDialog()
+      editFormLoading.value = false
+      toggleDialog(dialog.edit)
+      return
+    }
+
+    clearEditDialog()
+    toggleDialog(dialog.edit)
+    editFormLoading.value = true
+
+    let loaded: IProfessional | null = null
+    try {
+      if (!state.value.optionsData.subspecialty.length) {
+        await fetchOptions()
       }
 
-      state.value.options.videos = state.value.optionsData.videos.filter(
-        (video) =>
-          !video.guests.length
-            ? video.guests.includes(item.id)
-            : video.author == item.id,
-      )
+      await requester.dispatch({
+        callback: async () => {
+          loaded = await ProfessionalService.getById(item.id)
+        },
+        errorMessageTitle: 'Houve um erro',
+        errorMessage: 'Não foi possível carregar o profissional',
+      })
 
-      state.value.options.professionals =
-        state.value.optionsData.professionals.filter(
-          (professional) => item.id != professional.id,
-        )
-    } else clearEditDialog()
-
-    toggleDialog(dialog.edit)
+      if (loaded) {
+        setFormAndOptionsFromProfessional(loaded)
+      }
+    } finally {
+      editFormLoading.value = false
+    }
   }
 
   function clearEditDialog() {
     state.value.form = cloneDeep(initState.form)
+    editFormLoading.value = false
   }
 
   function openActionDialog(action: ActionDialogOptions) {
@@ -305,11 +421,16 @@ export function useProfessional() {
 
   return {
     state,
+    editFormLoading,
+    filter,
+    pagination,
+    tableLoading,
     dialog,
     loader,
     save,
     addFile,
-    fetchList,
+    loadFormCatalog,
+    onRequest,
     removeFile,
     toggleDialog,
     dialogIsOpen,
@@ -319,5 +440,6 @@ export function useProfessional() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
+    toggleActiveOnly,
   }
 }

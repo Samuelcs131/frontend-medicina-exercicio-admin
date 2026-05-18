@@ -1,7 +1,18 @@
 import { api } from 'src/boot/axios'
 import { Roles } from 'src/enums/Roles.enum'
 import { Status } from 'src/enums/Status.enum'
+import type { IListResponse } from 'src/types/api/IListResponse.type'
 import type { IUser } from 'src/types/user/IUser.type'
+import { buildListParams, type IListQuery } from 'src/utils/listQuery.util'
+
+export async function getListPaginated(
+  params: IListQuery,
+): Promise<IListResponse<IUser>> {
+  const { data } = await api.get<IListResponse<IUser>>('/users', {
+    params: buildListParams(params),
+  })
+  return data
+}
 
 export async function getAll(): Promise<IUser[]> {
   const { data } = await api.get('/users')

@@ -1,9 +1,35 @@
 import { api } from 'src/boot/axios'
-import type { IPost, IPostResume } from 'src/types/post/IPost.type'
+import type { IListResponse } from 'src/types/api/IListResponse.type'
+import type { IPost, IPostNameListItem, IPostResume } from 'src/types/post/IPost.type'
+import type { IBasicEntity } from 'src/types/IBasicEntity.type'
+import { buildListParams, type IListQuery } from 'src/utils/listQuery.util'
 import { fakePromise } from 'src/utils/fakePromise.util'
 
 export async function getAllPostResume(): Promise<IPostResume[]> {
-  const { data } = await api.get('/post')
+  const { data } = await api.get<IPostResume[]>('/post')
+  return data
+}
+
+export async function getAllPostNames(): Promise<IBasicEntity<string>[]> {
+  const { data } =
+    await api.get<Array<{ id: string; name?: string; title?: string }>>(
+      '/post/names',
+    )
+  return data.map((post) => ({
+    id: post.id,
+    name: post.name ?? post.title ?? '',
+  }))
+}
+
+export async function getListPaginated(
+  params: IListQuery,
+): Promise<IListResponse<IPostNameListItem>> {
+  const { data } = await api.get<IListResponse<IPostNameListItem>>(
+    '/post/names',
+    {
+      params: buildListParams(params),
+    },
+  )
 
   return data
 }

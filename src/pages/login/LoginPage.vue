@@ -61,8 +61,8 @@ enum Loader {
 }
 
 const state = ref({
-  email: 'dev@leadmedia.com.br',
-  password: 'soeuseiasenha123',
+  email: '',
+  password: '',
 } as IState)
 
 const { login } = useAuth()

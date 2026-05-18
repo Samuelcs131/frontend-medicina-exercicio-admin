@@ -1,4 +1,5 @@
 import { useDialog } from 'src/composables/useDialog'
+import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
 import { Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
@@ -9,6 +10,8 @@ import * as SpecialtyService from 'src/services/speciality/specialty.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
+
+const DEFAULT_SORT = 'name'
 
 interface IState {
   form: {
@@ -24,9 +27,9 @@ interface IState {
     specialty: ISpecialty[]
   }
   list: ISubspecialty[]
-  filter: string
   actionType: ActionDialogOptions
   actionsData: ISubspecialty[]
+  activeOnly: boolean
 }
 
 export function useSubspecialty() {
@@ -44,8 +47,8 @@ export function useSubspecialty() {
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
-    filter: '',
     list: [],
+    activeOnly: true,
   }
 
   const dialog = {
@@ -63,18 +66,22 @@ export function useSubspecialty() {
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
-  async function fetchList() {
-    await requester.dispatch({
-      callback: async () => {
-        if (!state.value.options.specialty.length) await fetchOptions()
-
-        state.value.list = await SubspecialtyService.getAll()
+  const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
+    useListTableRequest<ISubspecialty>({
+      defaultOrdertype: DEFAULT_SORT,
+      allowedOrdertypes: ['name', 'status'],
+      defaultDescending: true,
+      initialRowsPerPage: 40,
+      loaderListId: loader.list,
+      fetchPage: (q) =>
+        SubspecialtyService.getListPaginated({
+          ...q,
+          all: !state.value.activeOnly,
+        }),
+      applyResponse: (res) => {
+        state.value.list = res.data
       },
-      errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar os dados',
-      loaders: [loader.list],
     })
-  }
 
   async function fetchOptions() {
     await requester.dispatch({
@@ -113,7 +120,7 @@ export function useSubspecialty() {
       },
       successCallback: async () => {
         toggleDialog(dialog.edit)
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
@@ -139,7 +146,7 @@ export function useSubspecialty() {
       successCallback: async () => {
         toggleDialog(dialog.action)
         state.value.actionsData = []
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: 'Concluído com sucesso',
       errorMessageTitle: 'Houve um erro',
@@ -149,12 +156,10 @@ export function useSubspecialty() {
   }
 
   async function openEditDialog(item?: ISubspecialty) {
-    // Garante que as opções estejam carregadas
     if (!state.value.optionsData.specialty.length) {
       await fetchOptions()
     }
 
-    // Garante que as opções sejam resetadas para mostrar todas as especialidades
     if (state.value.optionsData.specialty.length) {
       state.value.options.specialty = [...state.value.optionsData.specialty]
     }
@@ -162,7 +167,7 @@ export function useSubspecialty() {
     if (item)
       state.value.form = {
         ...item,
-        specialtyId: item.specialty.id,
+        specialtyId: item.specialty?.id ?? '',
       }
     else clearEditDialog()
 
@@ -178,12 +183,23 @@ export function useSubspecialty() {
     toggleDialog(dialog.action)
   }
 
+  async function toggleActiveOnly(activeOnly: boolean) {
+    state.value.activeOnly = activeOnly
+    pagination.value.page = 1
+    await refreshCurrentPage()
+  }
+
   return {
     state,
+    filter,
+    pagination,
+    tableLoading,
     dialog,
     loader,
     save,
-    fetchList,
+    fetchOptions,
+    onRequest,
+    refreshCurrentPage,
     toggleDialog,
     dialogIsOpen,
     createDialog,
@@ -192,5 +208,6 @@ export function useSubspecialty() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
+    toggleActiveOnly,
   }
 }

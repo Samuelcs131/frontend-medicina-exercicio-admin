@@ -10,12 +10,13 @@ import * as ProfessionalService from 'src/services/professional/professional.ser
 import { useRouter } from 'vue-router'
 import { IPost, IPostItem } from 'src/types/post/IPost.type'
 import { slugify } from 'src/utils/text.util'
+import { uniqueId } from 'src/utils/random.util'
 import { useLocalStorage } from 'src/composables/useLocalStorage'
 import { LocalStorageKey } from 'src/enums/LocalStorageKey.enum'
 import { Roles } from 'src/enums/Roles.enum'
 import { Status } from 'src/enums/Status.enum'
-import { IBasicEntity } from 'src/types/IBasicEntity.type'
-import { ISpecialty } from 'src/types/specialty/ISpecialty.type'
+
+import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 
 interface IForm extends IPost {
   thumbnailFile: File | null
@@ -35,12 +36,12 @@ interface IState {
     height: number
   }
   options: {
-    specialties: ISpecialty[]
+    specialties: IBasicEntity<string>[]
     professional: IBasicEntity<string>[]
     posts: IBasicEntity<string>[]
   }
   optionsData: {
-    specialties: ISpecialty[]
+    specialties: IBasicEntity<string>[]
     professional: IBasicEntity<string>[]
     posts: IBasicEntity<string>[]
   }
@@ -96,6 +97,13 @@ const initializeState: IState = {
 }
 
 const state = ref(cloneDeep(initializeState))
+
+function normalizePostTypeContent(value: unknown): PostTypeContent {
+  if (value === PostTypeContent.html || value === 'richtext') {
+    return PostTypeContent.html
+  }
+  return PostTypeContent.html
+}
 
 enum Loader {
   fetch = 'p-fetch',
@@ -168,6 +176,92 @@ export function usePostEditPage() {
     state.value.form.tagTitle = input
   }
 
+  function toBasicEntityList(items: { id: string; name: string }[]) {
+    return items.map((item) => ({
+      id: item.id,
+      name: item.name,
+    }))
+  }
+
+  function getMissingIds(selectedIds: string[], options: IBasicEntity<string>[]) {
+    const optionIds = new Set(options.map((item) => item.id))
+    return [...new Set(selectedIds)].filter((id) => id && !optionIds.has(id))
+  }
+
+  async function ensureSelectedOptionsAvailable() {
+    let specialties = [...state.value.optionsData.specialties]
+    let professionals = [...state.value.optionsData.professional]
+    const posts = [...state.value.optionsData.posts]
+
+    const selectedSpecialtyIds = [
+      ...state.value.form.specialtyIds,
+      ...state.value.form.recomendations.specialtyIds,
+      ...state.value.form.recomendations.outherContentIds,
+    ]
+    const missingSpecialtyIds = getMissingIds(selectedSpecialtyIds, specialties)
+    const missingProfessionalIds = getMissingIds(
+      [state.value.form.professionalId],
+      professionals,
+    )
+    const missingPostIds = getMissingIds(
+      state.value.form.recomendations.readMorePostIds,
+      posts,
+    )
+
+    if (missingSpecialtyIds.length) {
+      const allSpecialties = await SpecialityService.getAll()
+      const missingSpecialties = toBasicEntityList(
+        allSpecialties.filter((item) => missingSpecialtyIds.includes(item.id)),
+      )
+      specialties = [...specialties, ...missingSpecialties]
+    }
+
+    if (missingProfessionalIds.length) {
+      const allProfessionals = await ProfessionalService.getAll()
+      const missingProfessionals = toBasicEntityList(
+        allProfessionals.filter((item) => missingProfessionalIds.includes(item.id)),
+      )
+      professionals = [...professionals, ...missingProfessionals]
+    }
+
+    if (missingPostIds.length) {
+      state.value.form.recomendations.readMorePostIds =
+        state.value.form.recomendations.readMorePostIds.filter(
+          (id) => !missingPostIds.includes(id),
+        )
+    }
+
+    state.value.options = {
+      specialties,
+      professional: professionals,
+      posts,
+    }
+
+    state.value.optionsData = {
+      specialties,
+      professional: professionals,
+      posts,
+    }
+  }
+
+  function syncSelectModels() {
+    state.value.form = {
+      ...state.value.form,
+      professionalId: state.value.form.professionalId || '',
+      specialtyIds: [...(state.value.form.specialtyIds || [])],
+      recomendations: {
+        ...state.value.form.recomendations,
+        specialtyIds: [...(state.value.form.recomendations.specialtyIds || [])],
+        readMorePostIds: [
+          ...(state.value.form.recomendations.readMorePostIds || []),
+        ],
+        outherContentIds: [
+          ...(state.value.form.recomendations.outherContentIds || []),
+        ],
+      },
+    }
+  }
+
   function isAdmin() {
     const { getLocalStorage } = useLocalStorage()
 
@@ -177,37 +271,49 @@ export function usePostEditPage() {
     return userRoles.includes(Roles.admin)
   }
 
+  async function fetchPostData(id: string) {
+    const post = await PostService.getPostById(id)
+    // Interface para lidar com possível resposta do backend com formato antigo
+    interface IPostLegacy {
+      specialtyId?: string
+    }
+    const postWithLegacy = post as IPost & IPostLegacy
+
+    const recomendations = post.recomendations || {
+      specialtyIds: [],
+      readMorePostIds: [],
+      outherContentIds: [],
+    }
+
+    const formData: IForm = {
+      ...post,
+      thumbnailFile: null,
+      specialtyIds: post.specialtyIds?.length
+        ? post.specialtyIds
+        : postWithLegacy.specialtyId
+          ? [postWithLegacy.specialtyId]
+          : [],
+      recomendations: {
+        specialtyIds: recomendations.specialtyIds || [],
+        readMorePostIds: recomendations.readMorePostIds || [],
+        outherContentIds: recomendations.outherContentIds || [],
+      },
+    }
+    state.value.form = formData
+    // Garante que cada postItem tenha um key para edição atualizar no lugar (e não criar novo)
+    state.value.form.postItems = (state.value.form.postItems || []).map((item) => ({
+      ...item,
+      key: item.key || uniqueId(),
+      postTypeContent: normalizePostTypeContent(item.postTypeContent),
+    }))
+    await ensureSelectedOptionsAvailable()
+    syncSelectModels()
+  }
+
   async function fetchPost(id: string) {
     await requester.dispatch({
       callback: async () => {
-        const post = await PostService.getPostById(id)
-        // Interface para lidar com possível resposta do backend com formato antigo
-        interface IPostLegacy {
-          specialtyId?: string
-        }
-        const postWithLegacy = post as IPost & IPostLegacy
-
-        const recomendations = post.recomendations || {
-          specialtyIds: [],
-          readMorePostIds: [],
-          outherContentIds: [],
-        }
-
-        const formData: IForm = {
-          ...post,
-          thumbnailFile: null,
-          specialtyIds: post.specialtyIds?.length
-            ? post.specialtyIds
-            : postWithLegacy.specialtyId
-              ? [postWithLegacy.specialtyId]
-              : [],
-          recomendations: {
-            specialtyIds: recomendations.specialtyIds || [],
-            readMorePostIds: recomendations.readMorePostIds || [],
-            outherContentIds: recomendations.outherContentIds || [],
-          },
-        }
-        state.value.form = formData
+        await fetchPostData(id)
       },
       errorMessageTitle: 'Houve um erro!',
       errorMessage: 'Não foi possível carregar a postagem',
@@ -215,49 +321,51 @@ export function usePostEditPage() {
     })
   }
 
+  async function fetchOptionsData() {
+    if (state.value.options.professional.length > 0) return
+
+    const [specialties, professionals, posts] = await Promise.all([
+      SpecialityService.getAllNames(),
+      ProfessionalService.getAllNames(),
+      PostService.getAllPostNames(),
+    ])
+
+    const professionalsFilter = professionals
+    const postsFilter = posts.filter((post) => post.id !== state.value.form.id)
+
+    state.value.options = {
+      specialties,
+      professional: professionalsFilter,
+      posts: postsFilter,
+    }
+
+    state.value.optionsData = {
+      specialties,
+      professional: professionalsFilter,
+      posts: postsFilter,
+    }
+  }
+
   async function fetchOptions() {
     await requester.dispatch({
       callback: async () => {
-        if (state.value.options.professional.length > 0) return
-
-        const [specialties, professionals, posts] = await Promise.all([
-          SpecialityService.getAll(),
-          ProfessionalService.getAll(),
-          PostService.getAllPostResume(),
-        ])
-
-        const postsFilter: IBasicEntity<string>[] = []
-        const professionalsFilter: IBasicEntity<string>[] = []
-
-        posts.forEach((post) => {
-          if (post.id != state.value.form.id)
-            postsFilter.push({
-              id: post.id,
-              name: post.title,
-            })
-        })
-
-        professionals.forEach((professional) => {
-          professionalsFilter.push({
-            id: professional.id,
-            name: professional.name,
-          })
-        })
-
-        state.value.options = {
-          specialties,
-          professional: professionalsFilter,
-          posts: postsFilter,
-        }
-
-        state.value.optionsData = {
-          specialties,
-          professional: professionalsFilter,
-          posts: postsFilter,
-        }
+        await fetchOptionsData()
       },
       errorMessageTitle: 'Houve um erro!',
       errorMessage: 'Não foi possível carregar a postagem',
+      loaders: [Loader.fetch],
+    })
+  }
+
+  async function loadInitialData(postId?: string) {
+    await requester.dispatch({
+      callback: async () => {
+        await fetchOptionsData()
+        if (postId) await fetchPostData(postId)
+      },
+      errorMessageTitle: 'Houve um erro!',
+      errorMessage: 'Não foi possível carregar a postagem',
+      loaders: [Loader.fetch],
     })
   }
 
@@ -290,6 +398,7 @@ export function usePostEditPage() {
     savePost,
     openEdit,
     fetchPost,
+    loadInitialData,
     initState,
     openNewPost,
     dialogIsOpen,

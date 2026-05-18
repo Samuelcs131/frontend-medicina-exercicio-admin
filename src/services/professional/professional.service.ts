@@ -1,9 +1,34 @@
 import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
+import type { IListResponse } from 'src/types/api/IListResponse.type'
+import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import type { IProfessional } from 'src/types/professional/IProfessional.type'
+import { buildListParams, type IListQuery } from 'src/utils/listQuery.util'
+
+export async function getListPaginated(
+  params: IListQuery,
+): Promise<IListResponse<IProfessional>> {
+  const { data } = await api.get<IListResponse<IProfessional>>(
+    '/professional?front=true',
+    {
+      params: buildListParams(params),
+    },
+  )
+  return data
+}
 
 export async function getAll(): Promise<IProfessional[]> {
   const { data } = await api.get('/professional')
+  return data
+}
+
+export async function getAllNames(): Promise<IBasicEntity<string>[]> {
+  const { data } = await api.get<IBasicEntity<string>[]>('/professional/names')
+  return data
+}
+
+export async function getById(id: string): Promise<IProfessional> {
+  const { data } = await api.get<IProfessional>(`/professional/${id}`)
   return data
 }
 

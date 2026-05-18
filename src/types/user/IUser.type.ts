@@ -7,4 +7,6 @@ export interface IUser {
   email: string
   status: Status
   roles: Roles[]
+  createdAt?: string | null
+  updatedAt?: string | null
 }

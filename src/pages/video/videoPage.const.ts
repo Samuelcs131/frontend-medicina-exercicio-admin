@@ -1,4 +1,5 @@
 import type { QTableColumn } from 'quasar'
+import { formatDate } from 'src/utils/date.util'
 
 export const videoPageTableColumns: QTableColumn[] = [
   {
@@ -16,11 +17,12 @@ export const videoPageTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
-    label: 'Data da publicação',
-    field: 'createdAt',
-    name: 'createdAt',
+    label: 'Atualizado em',
+    field: 'updatedAt',
+    name: 'updatedAt',
     sortable: true,
     align: 'left',
+    format: (v) => (v ? formatDate(v) : '-'),
   },
   {
     label: 'Imagem',

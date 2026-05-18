@@ -38,9 +38,9 @@
         <q-input
           outlined
           dense
-          debounce="300"
+          debounce="500"
           placeholder="Pesquisar"
-          v-model="state.filter"
+          v-model="filter"
           style="flex: 1"
         >
           <template #append>
@@ -64,26 +64,38 @@
     </div>
     <!-- Tabela normal -->
     <q-table
+      ref="tableRef"
       flat
       dense
       bordered
+      :class="{ 'subspecialty-group-table--transition': tableLoading }"
       selection="multiple"
       v-model:selected="state.actionsData"
-      :rows="state.filteredList"
+      v-model:pagination="pagination"
+      :rows="state.list"
       :columns="tableColumns"
-      :filter="state.filter"
-      :loading="loaderStatus(loader.list)"
-      :rows-per-page-options="[20]"
-      :row-key="(row) => row.id"
+      row-key="id"
+      :loading="tableLoading"
+      :filter="filter"
+      :rows-per-page-options="[10, 20, 40, 100]"
+      @request="onRequest"
     >
       <template #top-right>
-        <action-header
-          label-new-entity="Novo grupo de artigos"
-          :has-active="!state.actionsData.length"
-          :loader-id="loader.list"
-          @open-action-dialog="openActionDialog"
-          @open-edit-dialog="openEditDialog"
-        />
+        <div class="row items-center q-gutter-md">
+          <q-checkbox
+            :model-value="state.activeOnly"
+            label="Apenas ativos"
+            :disable="tableLoading"
+            @update:model-value="handleActiveOnlyChange"
+          />
+          <action-header
+            label-new-entity="Novo grupo de artigos"
+            :has-active="!state.actionsData.length"
+            :loader-id="loader.list"
+            @open-action-dialog="openActionDialog"
+            @open-edit-dialog="openEditDialog"
+          />
+        </div>
       </template>
       <template #body-cell-imageURL="props">
         <image-row :props="props" label="imageURL" />
@@ -206,6 +218,7 @@
       :name-items="state.actionsData.map((item) => item.name)"
       prefix="os"
       title="grupos de artigos"
+      :message="actionDialogMessage"
       @confirm-action="confirmAction"
     />
 
@@ -281,6 +294,12 @@
                 option-value="id"
                 option-label="name"
                 use-input
+                @update:model-value="
+                  (val) => {
+                    state.form.videoIds = []
+                    fetchVideosBySpecialty(val || '')
+                  }
+                "
                 @filter="
                   (v, update) =>
                     update(
@@ -390,17 +409,25 @@ import { truncateText } from 'src/utils/text.util'
 import ChipSelect from 'src/components/select/ChipSelect.vue'
 import { filterFn } from 'src/utils/filter.util'
 import draggable from 'vuedraggable'
+import type { QTable } from 'quasar'
 import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
 import type { ISubspecialtyGroup } from 'src/types/specialty/ISubspecialtyGroup.type'
+import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
+import { Status } from 'src/enums/Status.enum'
 
 const {
   state,
+  filter,
+  pagination,
+  tableLoading,
   dialog,
   loader,
   save,
   addFile,
-  fetchList,
+  fetchOptions,
+  fetchVideosBySpecialty,
   removeFile,
+  onRequest,
   loaderStatus,
   toggleDialog,
   confirmAction,
@@ -409,14 +436,31 @@ const {
   openActionDialog,
   updatePostOrder,
   onSpecialtyChange,
-  onOrderChange,
+  toggleActiveOnly,
   saveOrder,
+  fetchGroupsForOrderDialog,
 } = useSubspecialtyGroup()
+
+const tableRef = ref<QTable | null>(null)
 
 const filteredSpecialties = ref<ISpecialty[]>([])
 const selectedSpecialty = ref<{ id: string | null; name: string } | null>(null)
 const orderDialogOpen = ref(false)
 const orderDialogList = ref<ISubspecialtyGroup[]>([])
+
+const actionDialogMessage = computed(() => {
+  if (!state.value.actionsData.length) return ''
+
+  if (state.value.actionType === ActionDialogOptions.disable) {
+    const allActive = state.value.actionsData.every(
+      (item) => item.status === Status.active,
+    )
+    const verb = allActive ? 'desativar' : 'ativar'
+    return `Você deseja realmente ${verb} esse grupo de artigos?`
+  }
+
+  return ''
+})
 
 const specialtyOptions = computed(() => {
   const options = [{ id: null, name: 'Todos' }]
@@ -455,9 +499,8 @@ const tableColumns = computed<QTableColumn[]>(() => {
   return columns
 })
 
-function openOrderDialog() {
-  // Cria uma cópia da lista filtrada para o dialog
-  orderDialogList.value = [...state.value.filteredList]
+async function openOrderDialog() {
+  orderDialogList.value = await fetchGroupsForOrderDialog()
   orderDialogOpen.value = true
 }
 
@@ -468,11 +511,7 @@ function closeOrderDialog() {
 }
 
 async function saveOrderFromDialog() {
-  // Atualiza a lista filtrada com a nova ordem do dialog
-  onOrderChange(orderDialogList.value)
-  // Salva a ordem
-  await saveOrder()
-  // Fecha o dialog
+  await saveOrder(orderDialogList.value)
   closeOrderDialog()
 }
 
@@ -481,6 +520,10 @@ async function handleSpecialtyChange(
 ) {
   selectedSpecialty.value = value
   await onSpecialtyChange(value?.id ?? null)
+}
+
+async function handleActiveOnlyChange(value: boolean) {
+  await toggleActiveOnly(value)
 }
 
 const selectedPosts = computed({
@@ -504,12 +547,27 @@ const selectedPosts = computed({
 })
 
 onMounted(async () => {
-  await fetchList()
+  await fetchOptions()
   filteredSpecialties.value = state.value.optionsData.specialties
+  tableRef.value?.requestServerInteraction()
 })
 </script>
 
 <style scoped>
+.subspecialty-group-table--transition :deep(.q-table tbody) {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+.subspecialty-group-table--transition :deep(.q-table tbody td) {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.subspecialty-group-table--transition :deep(.q-table__bottom .q-btn) {
+  pointer-events: none;
+  opacity: 0.55;
+}
+
 .posts-order-list {
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 4px;

@@ -15,6 +15,7 @@ import type { IVideo } from 'src/types/video/IVideo.type'
 import { IPostResume } from 'src/types/post/IPost.type'
 import { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 import { IProfessional } from 'src/types/professional/IProfessional.type'
+import { QTable } from 'quasar'
 
 interface IState {
   form: {
@@ -51,10 +52,21 @@ interface IState {
     videos: IVideo[]
   }
   list: IVideo[]
-  filter: string
   actionType: ActionDialogOptions
   actionsData: IVideo[]
+  activeOnly: boolean
+  filter: string
 }
+
+export interface IRequestTable {
+  pagination: {
+    sortBy: string
+    descending: boolean
+    page: number
+    rowsPerPage: number
+  }
+}
+
 
 export function useVideoPage() {
   const initState: IState = {
@@ -93,8 +105,9 @@ export function useVideoPage() {
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
-    filter: '',
     list: [],
+    activeOnly: true,
+    filter: '',
   }
 
   const dialog = {
@@ -112,7 +125,45 @@ export function useVideoPage() {
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
-  async function fetchList() {
+  const tableRef = ref<QTable | null>(null)
+
+  const pagination = ref({
+    sortBy: 'updatedAt',
+    descending: true,
+    page: 1,
+    rowsPerPage: 40,
+    rowsNumber: 0
+  })
+
+  async function fetchData(props: IRequestTable) {
+    const { page, rowsPerPage, sortBy, descending } = props.pagination
+
+    await requester.dispatch({
+      callback: async () => {
+        const videos = await VideoService.getListPaginated({
+          limit: rowsPerPage,
+          page,
+          orderby: descending ? 'desc' : 'asc',
+          ordertype: sortBy,
+          all: !state.value.activeOnly,
+          search: state.value.filter,
+        })
+
+        state.value.list = videos.data
+
+        pagination.value = {
+          ...props.pagination,
+          rowsNumber: videos.pagination.totalPages,
+        }
+      },
+      errorMessageTitle: 'Houve um erro',
+      errorMessage: 'Não foi possível buscar os dados',
+      loaders: [loader.list],
+    })
+
+  }
+
+  async function fetchOptionsData() {
     await requester.dispatch({
       callback: async () => {
         const [professionals, specialties, subspecialties, videos] =
@@ -139,16 +190,13 @@ export function useVideoPage() {
           ...state.value.options,
           ...cloneDeep(options),
         }
-
-        state.value.list = videos
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
-      loaders: [loader.list],
     })
   }
 
-  async function fetchOptionsData(guestIds: string[]) {
+  async function fetchGuestsData(guestIds: string[]) {
     await requester.dispatch({
       callback: async () => {
         if (guestIds.length > 0) {
@@ -164,7 +212,7 @@ export function useVideoPage() {
         )
 
         const guestSpecialties = new Set<string>([])
- 
+
         state.value.optionsData.professionals.forEach((p) => {
           if (!guestIds.includes(p.id)) return
 
@@ -180,6 +228,7 @@ export function useVideoPage() {
           state.value.optionsData.specialties.filter((specialty) =>
             guestSpecialties.has(specialty.id),
           )
+        console.log(guestSpecialties)
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
@@ -217,15 +266,14 @@ export function useVideoPage() {
             state.value.form.recomendations,
           )
       },
-      successCallback: async () => {
+      successCallback: () => {
         toggleDialog(dialog.edit)
-        await fetchList()
+        tableRef.value?.requestServerInteraction()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
-      errorMessage: `Não foi possível ${
-        state.value.form.id ? 'editar' : 'salvar'
-      }`,
+      errorMessage: `Não foi possível ${state.value.form.id ? 'editar' : 'salvar'
+        }`,
       loaders: [loader.edit],
     })
   }
@@ -242,10 +290,10 @@ export function useVideoPage() {
         if (actionType == ActionDialogOptions.disable)
           await VideoService.disable(ids)
       },
-      successCallback: async () => {
+      successCallback: () => {
         toggleDialog(dialog.action)
         state.value.actionsData = []
-        await fetchList()
+        tableRef.value?.requestServerInteraction()
       },
       successMessageTitle: 'Concluído com sucesso',
       errorMessageTitle: 'Houve um erro',
@@ -255,10 +303,13 @@ export function useVideoPage() {
   }
 
   async function openEditDialog(item?: IVideo) {
+
+    if (state.value.optionsData.professionals.length === 0) await fetchOptionsData()
+
     if (item) {
       state.value.form = { ...item }
 
-      await fetchOptionsData(!item.guests.length ? [item.author] : item.guests)
+      await fetchGuestsData(!item.guests.length ? [item.author] : item.guests)
     } else clearEditDialog()
 
     toggleDialog(dialog.edit)
@@ -273,12 +324,21 @@ export function useVideoPage() {
     toggleDialog(dialog.action)
   }
 
+  function toggleActiveOnly(activeOnly: boolean) {
+    state.value.activeOnly = activeOnly
+    pagination.value.page = 1
+    tableRef.value?.requestServerInteraction()
+  }
+
   return {
     state,
+    tableRef,
+    pagination,
     dialog,
     loader,
     save,
-    fetchList,
+    fetchData,
+    fetch,
     toggleDialog,
     dialogIsOpen,
     createDialog,
@@ -286,7 +346,9 @@ export function useVideoPage() {
     confirmAction,
     openEditDialog,
     clearEditDialog,
-    fetchOptionsData,
+    fetchGuestsData,
     openActionDialog,
+    toggleActiveOnly,
+    fetchOptionsData
   }
 }

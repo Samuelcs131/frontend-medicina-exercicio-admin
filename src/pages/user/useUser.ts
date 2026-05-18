@@ -1,4 +1,5 @@
 import { useDialog } from 'src/composables/useDialog'
+import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
 import type { Roles } from 'src/enums/Roles.enum'
 import type { Status } from 'src/enums/Status.enum'
@@ -8,6 +9,8 @@ import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
 import * as UserService from 'src/services/user/user.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
+
+const DEFAULT_SORT = 'name'
 
 interface IState {
   visiblePassword: boolean
@@ -22,9 +25,9 @@ interface IState {
     confirmPassword: string
   }
   list: IUser[]
-  filter: string
   actionType: ActionDialogOptions
   actionsData: IUser[]
+  activeOnly: boolean
 }
 
 export function useUser() {
@@ -39,8 +42,8 @@ export function useUser() {
     alterPassword: false,
     actionsData: [],
     actionType: ActionDialogOptions.delete,
-    filter: '',
     list: [],
+    activeOnly: true,
   }
 
   const dialog = {
@@ -58,16 +61,21 @@ export function useUser() {
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
-  async function fetchList() {
-    await requester.dispatch({
-      callback: async () => {
-        state.value.list = await UserService.getAll()
+  const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
+    useListTableRequest<IUser>({
+      defaultOrdertype: DEFAULT_SORT,
+      defaultDescending: true,
+      initialRowsPerPage: 40,
+      loaderListId: loader.list,
+      fetchPage: (q) =>
+        UserService.getListPaginated({
+          ...q,
+          all: !state.value.activeOnly,
+        }),
+      applyResponse: (res) => {
+        state.value.list = res.data
       },
-      errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar os dados',
-      loaders: [loader.list],
     })
-  }
 
   async function save() {
     const id = state.value.form.id
@@ -92,7 +100,7 @@ export function useUser() {
           )
       },
       successCallback: async () => {
-        await fetchList()
+        await refreshCurrentPage()
         toggleDialog(dialog.edit)
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
@@ -119,7 +127,7 @@ export function useUser() {
       successCallback: async () => {
         toggleDialog(dialog.action)
         state.value.actionsData = []
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: 'Concluído com sucesso',
       errorMessageTitle: 'Houve um erro',
@@ -149,12 +157,21 @@ export function useUser() {
     toggleDialog(dialog.action)
   }
 
+  async function toggleActiveOnly(activeOnly: boolean) {
+    state.value.activeOnly = activeOnly
+    pagination.value.page = 1
+    await refreshCurrentPage()
+  }
+
   return {
     state,
+    filter,
+    pagination,
+    tableLoading,
     dialog,
     loader,
     save,
-    fetchList,
+    onRequest,
     toggleDialog,
     dialogIsOpen,
     createDialog,
@@ -163,5 +180,6 @@ export function useUser() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
+    toggleActiveOnly,
   }
 }

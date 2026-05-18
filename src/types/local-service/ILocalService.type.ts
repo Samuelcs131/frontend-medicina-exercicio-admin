@@ -11,4 +11,6 @@ export interface ILocalService {
   street: string
   coordinates: string
   status: Status
+  createdAt?: string | null
+  updatedAt?: string | null
 }

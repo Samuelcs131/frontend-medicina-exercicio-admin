@@ -1,11 +1,19 @@
-export function formatDate(date: string, options?: Intl.DateTimeFormatOptions) {
+export function formatDate(
+  date: string | null | undefined,
+  options?: Intl.DateTimeFormatOptions,
+): string {
+  if (date == null || String(date).trim() === '') return '-'
+
+  const parsed = new Date(date)
+  if (Number.isNaN(parsed.getTime())) return '-'
+
   return new Intl.DateTimeFormat(
     'pt-BR',
     options || {
       dateStyle: 'short',
       timeStyle: 'short',
     },
-  ).format(new Date(date))
+  ).format(parsed)
 }
 
 export function parsePtBrToISO(dateStr: string): string {

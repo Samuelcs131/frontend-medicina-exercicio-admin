@@ -6,9 +6,10 @@
       <q-input
         outlined
         dense
-        debounce="300"
+        debounce="500"
         placeholder="Pesquisar"
-        v-model="state.filter"
+        v-model="filter"
+        style="min-width: 240px"
       >
         <template #append>
           <q-icon name="search" />
@@ -16,25 +17,38 @@
       </q-input>
     </div>
     <q-table
+      ref="tableRef"
       flat
       dense
       bordered
+      :class="{ 'subspecialty-table--transition': tableLoading }"
       selection="multiple"
       v-model:selected="state.actionsData"
+      v-model:pagination="pagination"
       :rows="state.list"
       :columns="subspecialtyTableColumns"
-      :filter="state.filter"
-      :loading="loaderStatus(loader.list)"
-      :rows-per-page-options="[20]"
+      row-key="id"
+      :loading="tableLoading"
+      :filter="filter"
+      :rows-per-page-options="[10, 20, 40, 100]"
+      @request="onRequest"
     >
       <template #top-right>
-        <action-header
-          label-new-entity="Nova especialidade"
-          :has-active="!state.actionsData.length"
-          :loader-id="loader.list"
-          @open-action-dialog="openActionDialog"
-          @open-edit-dialog="handleOpenEditDialog"
-        />
+        <div class="row items-center q-gutter-md">
+          <q-checkbox
+            :model-value="state.activeOnly"
+            label="Apenas ativos"
+            :disable="tableLoading"
+            @update:model-value="handleActiveOnlyChange"
+          />
+          <action-header
+            label-new-entity="Nova especialidade"
+            :has-active="!state.actionsData.length"
+            :loader-id="loader.list"
+            @open-action-dialog="openActionDialog"
+            @open-edit-dialog="handleOpenEditDialog"
+          />
+        </div>
       </template>
       <template #body-cell-status="props">
         <status-row :props="props" />
@@ -54,6 +68,15 @@
       <template #body-cell-name="props">
         <q-td :props="props" :title="props.row.name">
           {{ truncateText(props.row.name, 30) }}
+        </q-td>
+      </template>
+      <template #body-cell-specialty="props">
+        <q-td :props="props" :title="props.row.specialty?.name ?? ''">
+          {{
+            props.row.specialty?.name
+              ? truncateText(props.row.specialty.name, 30)
+              : '-'
+          }}
         </q-td>
       </template>
     </q-table>
@@ -192,6 +215,7 @@ import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
 import { onMounted, ref, computed } from 'vue'
+import type { QTable } from 'quasar'
 import { useSubspecialty } from './useSubspecialty'
 import { subspecialtyTableColumns } from './specialty.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
@@ -204,17 +228,24 @@ import type { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 
 const {
   state,
+  filter,
+  pagination,
+  tableLoading,
   dialog,
   loader,
   save,
-  fetchList,
+  fetchOptions,
+  onRequest,
   loaderStatus,
   toggleDialog,
   confirmAction,
   openEditDialog,
   clearEditDialog,
   openActionDialog,
+  toggleActiveOnly,
 } = useSubspecialty()
+
+const tableRef = ref<QTable | null>(null)
 
 const filteredSpecialties = ref<ISpecialty[]>([])
 const selectedSpecialty = ref<{ id: string | null; name: string } | null>(null)
@@ -252,8 +283,29 @@ async function handleOpenEditDialog(item?: ISubspecialty) {
   }
 }
 
+async function handleActiveOnlyChange(value: boolean) {
+  await toggleActiveOnly(value)
+}
+
 onMounted(async () => {
-  await fetchList()
+  await fetchOptions()
   filteredSpecialties.value = state.value.optionsData.specialty
+  tableRef.value?.requestServerInteraction()
 })
 </script>
+
+<style scoped>
+.subspecialty-table--transition :deep(.q-table tbody) {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+.subspecialty-table--transition :deep(.q-table tbody td) {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.subspecialty-table--transition :deep(.q-table__bottom .q-btn) {
+  pointer-events: none;
+  opacity: 0.55;
+}
+</style>

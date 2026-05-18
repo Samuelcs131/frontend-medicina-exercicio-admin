@@ -1,4 +1,5 @@
 import { useDialog } from 'src/composables/useDialog'
+import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
 import { Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
@@ -11,6 +12,8 @@ import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { ILocalService } from 'src/types/local-service/ILocalService.type'
 import { ICity } from 'src/types/city/ICity.type'
 import { IBasicEntity } from 'src/types/IBasicEntity.type'
+
+const DEFAULT_SORT = 'name'
 
 interface IState {
   form: {
@@ -33,9 +36,9 @@ interface IState {
     states: IBasicEntity<string>[]
   }
   list: ILocalService[]
-  filter: string
   actionType: ActionDialogOptions
   actionsData: ILocalService[]
+  activeOnly: boolean
 }
 
 export function useLocalService() {
@@ -60,8 +63,8 @@ export function useLocalService() {
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
-    filter: '',
     list: [],
+    activeOnly: true,
   }
 
   const dialog = {
@@ -80,18 +83,21 @@ export function useLocalService() {
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
-  async function fetchList() {
-    await requester.dispatch({
-      callback: async () => {
-        if (!state.value.options.cities.length) await fetchOptions()
-
-        state.value.list = await LocalServiceService.getAll()
+  const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
+    useListTableRequest<ILocalService>({
+      defaultOrdertype: DEFAULT_SORT,
+      defaultDescending: true,
+      initialRowsPerPage: 40,
+      loaderListId: loader.list,
+      fetchPage: (q) =>
+        LocalServiceService.getListPaginated({
+          ...q,
+          all: !state.value.activeOnly,
+        }),
+      applyResponse: (res) => {
+        state.value.list = res.data
       },
-      errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar os dados',
-      loaders: [loader.list],
     })
-  }
 
   async function fetchOptions() {
     await requester.dispatch({
@@ -141,7 +147,7 @@ export function useLocalService() {
       },
       successCallback: async () => {
         toggleDialog(dialog.edit)
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
@@ -167,7 +173,7 @@ export function useLocalService() {
       successCallback: async () => {
         toggleDialog(dialog.action)
         state.value.actionsData = []
-        await fetchList()
+        await refreshCurrentPage()
       },
       successMessageTitle: 'Concluído com sucesso',
       errorMessageTitle: 'Houve um erro',
@@ -202,12 +208,22 @@ export function useLocalService() {
     window.open(url, '_blank')
   }
 
+  async function toggleActiveOnly(activeOnly: boolean) {
+    state.value.activeOnly = activeOnly
+    pagination.value.page = 1
+    await refreshCurrentPage()
+  }
+
   return {
     state,
+    filter,
+    pagination,
+    tableLoading,
     dialog,
     loader,
     save,
-    fetchList,
+    fetchOptions,
+    onRequest,
     toggleDialog,
     dialogIsOpen,
     createDialog,
@@ -217,5 +233,6 @@ export function useLocalService() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
+    toggleActiveOnly,
   }
 }

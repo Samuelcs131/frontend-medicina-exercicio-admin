@@ -4,6 +4,8 @@ import type { IProfissionalArea } from './IProfissionalArea.type'
 export interface ISpecialty {
   id: string
   name: string
-  professionalArea: IProfissionalArea
+  professionalArea: IProfissionalArea | null
   status: Status
+  createdAt?: string | null
+  updatedAt?: string | null
 }

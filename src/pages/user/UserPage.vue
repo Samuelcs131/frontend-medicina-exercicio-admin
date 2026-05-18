@@ -6,9 +6,10 @@
       <q-input
         outlined
         dense
-        debounce="300"
+        debounce="500"
         placeholder="Pesquisar"
-        v-model="state.filter"
+        v-model="filter"
+        style="min-width: 240px"
       >
         <template #append>
           <q-icon name="search" />
@@ -17,25 +18,38 @@
     </div>
 
     <q-table
+      ref="tableRef"
       flat
       dense
       bordered
+      :class="{ 'user-table--transition': tableLoading }"
       selection="multiple"
       v-model:selected="state.actionsData"
+      v-model:pagination="pagination"
       :rows="state.list"
       :columns="userTableColumns"
-      :filter="state.filter"
-      :loading="loaderStatus(loader.list)"
-      :rows-per-page-options="[20]"
+      row-key="id"
+      :loading="tableLoading"
+      :filter="filter"
+      :rows-per-page-options="[10, 20, 40, 100]"
+      @request="onRequest"
     >
       <template #top-right>
-        <action-header
-          label-new-entity="Novo usuário"
-          :has-active="!state.actionsData.length"
-          :loader-id="loader.list"
-          @open-action-dialog="openActionDialog"
-          @open-edit-dialog="openEditDialog"
-        />
+        <div class="row items-center q-gutter-md">
+          <q-checkbox
+            :model-value="state.activeOnly"
+            label="Apenas ativos"
+            :disable="tableLoading"
+            @update:model-value="handleActiveOnlyChange"
+          />
+          <action-header
+            label-new-entity="Novo usuário"
+            :has-active="!state.actionsData.length"
+            :loader-id="loader.list"
+            @open-action-dialog="openActionDialog"
+            @open-edit-dialog="openEditDialog"
+          />
+        </div>
       </template>
       <template #body-cell-status="props">
         <status-row :props="props" />
@@ -176,7 +190,8 @@ import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
 import EditDialog from 'src/components/dialog/EditDialog.vue'
 import ChipSelect from 'src/components/select/ChipSelect.vue'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+import type { QTable } from 'quasar'
 import { useUser } from './useUser'
 import { userTableColumns } from './user.const'
 import {
@@ -190,20 +205,45 @@ import { emailRule } from 'src/validations/form-rules/stringRules.util'
 
 const {
   state,
+  filter,
+  pagination,
+  tableLoading,
   dialog,
   loader,
   save,
-  fetchList,
-  loaderStatus,
+  onRequest,
   createDialog,
   confirmAction,
   openEditDialog,
   clearEditDialog,
   openActionDialog,
+  toggleActiveOnly,
 } = useUser()
 
-onMounted(async () => {
-  await fetchList()
+const tableRef = ref<QTable | null>(null)
+
+onMounted(() => {
   createDialog([dialog.edit])
+  tableRef.value?.requestServerInteraction()
 })
+
+async function handleActiveOnlyChange(value: boolean) {
+  await toggleActiveOnly(value)
+}
 </script>
+
+<style scoped>
+.user-table--transition :deep(.q-table tbody) {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+.user-table--transition :deep(.q-table tbody td) {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.user-table--transition :deep(.q-table__bottom .q-btn) {
+  pointer-events: none;
+  opacity: 0.55;
+}
+</style>
