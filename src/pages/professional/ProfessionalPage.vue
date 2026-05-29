@@ -2,7 +2,7 @@
   <q-page class="container q-layout-padding">
     <h1 class="text-h5">Profissionais</h1>
 
-    <div class="flex justify-between gap-md q-mb-lg">
+    <div class="flex gap-md q-mb-lg">
       <q-input
         outlined
         dense
@@ -15,6 +15,20 @@
           <q-icon name="search" />
         </template>
       </q-input>
+      <q-select
+        outlined
+        dense
+        clearable
+        label="Especialidade"
+        v-model="state.filterSpecialtyId"
+        :options="state.options.specialty"
+        option-value="id"
+        option-label="name"
+        emit-value
+        map-options
+        style="min-width: 240px"
+        @update:model-value="handleSpecialtyFilterChange"
+      />
     </div>
     <q-table
       ref="tableRef"
@@ -81,7 +95,11 @@
     />
 
     <v-dialog :dialog-id="dialog.edit" @hide-before="clearEditDialog">
-      <q-card v-bind="$vCard" class="relative-position" style="max-width: 600px">
+      <q-card
+        v-bind="$vCard"
+        class="relative-position"
+        style="max-width: 600px"
+      >
         <q-inner-loading :showing="editFormLoading" color="primary" />
         <q-form @submit="save">
           <q-card-section class="q-py-none q-pt-sm">
@@ -477,6 +495,7 @@ const {
   addFile,
   loadFormCatalog,
   onRequest,
+  refreshCurrentPage,
   removeFile,
   loaderStatus,
   toggleDialog,
@@ -496,6 +515,12 @@ onMounted(() => {
 
 async function handleActiveOnlyChange(value: boolean) {
   await toggleActiveOnly(value)
+}
+
+async function handleSpecialtyFilterChange(value: string) {
+  state.value.filterSpecialtyId = value
+  pagination.value.page = 1
+  await refreshCurrentPage()
 }
 </script>
 

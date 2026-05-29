@@ -30,6 +30,7 @@ interface IState {
   actionType: ActionDialogOptions
   actionsData: ISubspecialty[]
   activeOnly: boolean
+  filterSpecialtyId: string
 }
 
 export function useSubspecialty() {
@@ -49,6 +50,7 @@ export function useSubspecialty() {
     actionType: ActionDialogOptions.delete,
     list: [],
     activeOnly: true,
+    filterSpecialtyId: '',
   }
 
   const dialog = {
@@ -77,6 +79,7 @@ export function useSubspecialty() {
         SubspecialtyService.getListPaginated({
           ...q,
           all: !state.value.activeOnly,
+          specialtyId: state.value.filterSpecialtyId,
         }),
       applyResponse: (res) => {
         state.value.list = res.data
@@ -124,9 +127,8 @@ export function useSubspecialty() {
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
-      errorMessage: `Não foi possível ${
-        state.value.form.id ? 'editar' : 'salvar'
-      }`,
+      errorMessage: `Não foi possível ${state.value.form.id ? 'editar' : 'salvar'
+        }`,
       loaders: [loader.edit],
     })
   }

@@ -2,7 +2,7 @@
   <q-page class="container q-layout-padding">
     <h1 class="text-h5">Vídeos</h1>
 
-    <div class="flex justify-between gap-md q-mb-lg">
+    <div class="flex gap-md q-mb-lg">
       <q-input
         outlined
         dense
@@ -15,6 +15,20 @@
           <q-icon name="search" />
         </template>
       </q-input>
+
+      <q-select
+        outlined
+        dense
+        v-model="state.filterSpecialtyId"
+        :options="state.optionsData.specialties"
+        option-label="name"
+        option-value="id"
+        emit-value
+        map-options
+        clearable
+        label="Especialidade"
+        style="min-width: 200px"
+      />
     </div>
     <q-table
       ref="tableRef"
@@ -23,14 +37,12 @@
       bordered
       selection="multiple"
       v-model:selected="state.actionsData"
-      v-model:pagination="pagination"
-      :rows="state.list"
+      :rows="currentList"
       :columns="videoPageTableColumns"
       row-key="id"
       :loading="loaderStatus(loader.list)"
       :filter="state.filter"
       :rows-per-page-options="[10, 20, 40, 100]"
-      @request="fetchData"
     >
       <template #top-right>
         <div class="row items-center q-gutter-md">
@@ -38,7 +50,6 @@
             v-model="state.activeOnly"
             label="Apenas ativos"
             :disable="loaderStatus(loader.list)"
-            @update:model-value="handleActiveOnlyChange"
           />
           <action-header
             label-new-entity="Novo vídeo"
@@ -64,7 +75,13 @@
       </template>
       <template #body-cell-actions="props">
         <q-td :props="props">
-          <q-btn icon="edit" flat round @click="openEditDialog(props.row)">
+          <q-btn
+            :disable="loaderStatus(loader.list)"
+            icon="edit"
+            flat
+            round
+            @click="openEditDialog(props.row)"
+          >
             <q-tooltip> Editar </q-tooltip>
           </q-btn>
         </q-td>
@@ -75,11 +92,8 @@
         </q-td>
       </template>
       <template #body-cell-specialtyIds="props">
-        <q-td
-          :props="props"
-          :title="getSpecialtiesText(props.row.specialtyIds)"
-        >
-          {{ truncateText(getSpecialtiesText(props.row.specialtyIds), 30) }}
+        <q-td :props="props" :title="props.row.specialtyNames.join(', ')">
+          {{ truncateText(props.row.specialtyNames.join(', '), 30) }}
         </q-td>
       </template>
       <template #body-cell-updatedAt="props">
@@ -149,6 +163,8 @@
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.author"
+                map-options
+                option-label="name"
                 :options="state.optionsData.professionals"
                 option-value="id"
               />
@@ -289,7 +305,7 @@
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.moreVideosIds"
                 multiple
-                :options="state.options.videos"
+                :options="state.optionsData.videos"
                 option-value="id"
                 use-chips
               >
@@ -392,32 +408,26 @@ import { filterFn } from 'src/utils/filter.util'
 import { truncateText } from 'src/utils/text.util'
 import { useDialog } from 'src/composables/useDialog'
 import { formatDate } from 'src/utils/date.util'
+import { Status } from 'src/enums/Status.enum'
 
 const {
   state,
-  tableRef,
-  pagination,
   dialog,
   loader,
   save,
-  fetchData,
+  fetchList,
   loaderStatus,
   toggleDialog,
+  fetchFilter,
+  fetchOptions,
   confirmAction,
   openEditDialog,
   clearEditDialog,
-  fetchGuestsData,
+  filterByGuests,
   openActionDialog,
 } = useVideoPage()
 
 const { dialogIsOpen } = useDialog()
-
-function getSpecialtiesText(specialtyIds: string[]) {
-  return state.value.optionsData.specialties
-    .filter((s) => specialtyIds.includes(s.id))
-    .map((s) => s.name)
-    .join(', ')
-}
 
 const subspecialtyOptions = computed(() => {
   return state.value.optionsData.subspecialties.filter(
@@ -427,11 +437,25 @@ const subspecialtyOptions = computed(() => {
   )
 })
 
+const currentList = computed(() => {
+  return state.value.list.filter((video) => {
+    const matchesActiveOnly = state.value.activeOnly
+      ? video.status === Status.active
+      : true
+
+    const matchesSpecialtyFilter = state.value.filterSpecialtyId
+      ? video.specialtyIds.includes(state.value.filterSpecialtyId)
+      : true
+
+    return matchesActiveOnly && matchesSpecialtyFilter
+  })
+})
+
 watch(
   () => [state.value.form.guests, state.value.form.author],
   async ([guests, author]) => {
     if (dialogIsOpen(dialog.edit) && (author || guests?.length))
-      await fetchGuestsData(
+      await filterByGuests(
         !state.value.form.guests.length
           ? [state.value.form.author]
           : state.value.form.guests,
@@ -439,11 +463,9 @@ watch(
   },
 )
 
-onMounted(() => {
-  tableRef.value?.requestServerInteraction()
+onMounted(async () => {
+  await fetchList()
+  await fetchOptions()
+  await fetchFilter()
 })
-
-function handleActiveOnlyChange() {
-  tableRef.value?.requestServerInteraction()
-}
 </script>

@@ -2,7 +2,7 @@
   <q-page class="container q-layout-padding">
     <h1 class="text-h5">Subespecialidades</h1>
 
-    <div class="flex justify-between gap-md q-mb-lg">
+    <div class="flex gap-md q-mb-lg">
       <q-input
         outlined
         dense
@@ -15,6 +15,20 @@
           <q-icon name="search" />
         </template>
       </q-input>
+      <q-select
+        outlined
+        dense
+        clearable
+        label="Especialidade"
+        v-model="state.filterSpecialtyId"
+        :options="state.options.specialty"
+        option-value="id"
+        option-label="name"
+        emit-value
+        map-options
+        style="min-width: 240px"
+        @update:model-value="handleSpecialtyFilterChange"
+      />
     </div>
     <q-table
       ref="tableRef"
@@ -236,6 +250,7 @@ const {
   save,
   fetchOptions,
   onRequest,
+  refreshCurrentPage,
   loaderStatus,
   toggleDialog,
   confirmAction,
@@ -285,6 +300,12 @@ async function handleOpenEditDialog(item?: ISubspecialty) {
 
 async function handleActiveOnlyChange(value: boolean) {
   await toggleActiveOnly(value)
+}
+
+async function handleSpecialtyFilterChange(value: string) {
+  state.value.filterSpecialtyId = value
+  pagination.value.page = 1
+  await refreshCurrentPage()
 }
 
 onMounted(async () => {

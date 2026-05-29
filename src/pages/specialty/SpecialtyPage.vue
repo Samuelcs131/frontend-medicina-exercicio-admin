@@ -2,7 +2,7 @@
   <q-page class="container q-layout-padding">
     <h1 class="text-h5">Especialidades</h1>
 
-    <div class="flex justify-between gap-md q-mb-lg">
+    <div class="flex gap-md q-mb-lg">
       <q-input
         outlined
         dense
@@ -15,6 +15,20 @@
           <q-icon name="search" />
         </template>
       </q-input>
+      <q-select
+        outlined
+        dense
+        clearable
+        label="Área médica"
+        v-model="state.filterProfessionalAreaId"
+        :options="state.options.professionalAreas"
+        option-value="id"
+        option-label="name"
+        emit-value
+        map-options
+        style="min-width: 240px"
+        @update:model-value="handleProfessionalAreaChange"
+      />
     </div>
     <q-table
       ref="tableRef"
@@ -66,10 +80,7 @@
         </q-td>
       </template>
       <template #body-cell-professionalArea="props">
-        <q-td
-          :props="props"
-          :title="props.row.professionalArea?.name ?? ''"
-        >
+        <q-td :props="props" :title="props.row.professionalArea?.name ?? ''">
           {{
             props.row.professionalArea?.name
               ? truncateText(props.row.professionalArea.name, 30)
@@ -174,6 +185,7 @@ const {
   save,
   fetchOptions,
   onRequest,
+  refreshCurrentPage,
   loaderStatus,
   toggleDialog,
   confirmAction,
@@ -192,6 +204,12 @@ onMounted(async () => {
 
 async function handleActiveOnlyChange(value: boolean) {
   await toggleActiveOnly(value)
+}
+
+async function handleProfessionalAreaChange(value: string) {
+  state.value.filterProfessionalAreaId = value
+  pagination.value.page = 1
+  await refreshCurrentPage()
 }
 </script>
 

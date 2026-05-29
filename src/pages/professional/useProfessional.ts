@@ -85,6 +85,7 @@ interface IState {
   actionType: ActionDialogOptions
   actionsData: IProfessional[]
   activeOnly: boolean
+  filterSpecialtyId: string
 }
 
 export function useProfessional() {
@@ -117,6 +118,7 @@ export function useProfessional() {
     actionType: ActionDialogOptions.delete,
     list: [],
     activeOnly: true,
+    filterSpecialtyId: '',
     options: {
       specialty: [],
       subspecialty: [],
@@ -164,6 +166,7 @@ export function useProfessional() {
         ProfessionalService.getListPaginated({
           ...q,
           all: !state.value.activeOnly,
+          specialtyId: state.value.filterSpecialtyId,
         }),
       applyResponse: (res) => {
         const validStatuses = new Set<Status>([Status.active, Status.inactive])
@@ -279,9 +282,8 @@ export function useProfessional() {
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
-      errorMessage: `Não foi possível ${
-        state.value.form.id ? 'editar' : 'salvar'
-      }`,
+      errorMessage: `Não foi possível ${state.value.form.id ? 'editar' : 'salvar'
+        }`,
       loaders: [loader.edit],
     })
   }
@@ -431,6 +433,7 @@ export function useProfessional() {
     addFile,
     loadFormCatalog,
     onRequest,
+    refreshCurrentPage,
     removeFile,
     toggleDialog,
     dialogIsOpen,

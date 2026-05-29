@@ -7,6 +7,7 @@ export interface IListQuery {
   search?: string
   orderby: OrderBy
   ordertype: string
+  [key: string]: string | number | boolean | undefined
 }
 
 /** Parâmetros extras (ex.: specialtyId) enviados na query string. */
@@ -23,6 +24,21 @@ export function buildListParams(
   }
   const s = base.search?.trim()
   if (s) p.search = s
+
+  const standardKeys = new Set([
+    'all',
+    'page',
+    'limit',
+    'search',
+    'orderby',
+    'ordertype',
+  ])
+
+  for (const [key, value] of Object.entries(base)) {
+    if (standardKeys.has(key)) continue
+    if (value !== undefined && value !== null && value !== '') p[key] = value
+  }
+
   if (extra) {
     for (const [k, v] of Object.entries(extra)) {
       if (v !== undefined && v !== null && v !== '') p[k] = v

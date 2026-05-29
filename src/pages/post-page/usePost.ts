@@ -20,6 +20,7 @@ interface IState {
   specialties: ISpecialty[]
   selectedSpecialties: ISpecialty[]
   activeOnly: boolean
+  filterSpecialtyId: string
 }
 
 export function usePost() {
@@ -30,6 +31,7 @@ export function usePost() {
     specialties: [],
     selectedSpecialties: [],
     activeOnly: true,
+    filterSpecialtyId: '',
   }
 
   const router = useRouter()
@@ -66,6 +68,7 @@ export function usePost() {
           PostService.getListPaginated({
             ...q,
             all: !state.value.activeOnly,
+            specialtyId: state.value.filterSpecialtyId,
           }),
           specialtiesPromise,
         ])
@@ -142,6 +145,7 @@ export function usePost() {
     dialog,
     loader,
     onRequest,
+    refreshCurrentPage,
     toggleDialog,
     dialogIsOpen,
     createDialog,
