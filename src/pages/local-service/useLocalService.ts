@@ -8,6 +8,7 @@ import requester from 'src/helpers/requester/Requester.helper'
 import * as LocalServiceService from 'src/services/local-service/localService.service'
 import * as StateService from 'src/services/location/state.service'
 import * as CityService from 'src/services/location/city.service'
+import * as CEPService from 'src/services/cep.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { ILocalService } from 'src/types/local-service/ILocalService.type'
 import { ICity } from 'src/types/city/ICity.type'
@@ -19,13 +20,14 @@ interface IState {
   form: {
     id?: string
     name: string
-    contact: string
-    hasWhatsapp: boolean
-    stateId: string
-    cityId: string
     street: string
+    state: string
+    city: string
+    number: number
     coordinates: string
     status: Status
+    cep: string
+    linkGoogleMaps: string
   }
   options: {
     states: IBasicEntity<string>[]
@@ -46,12 +48,13 @@ export function useLocalService() {
     form: {
       status: Status.active,
       name: '',
-      cityId: '',
-      contact: '',
+      city: '',
       coordinates: '',
-      hasWhatsapp: false,
-      stateId: '',
+      state: '',
       street: '',
+      number: 0,
+      cep: '',
+      linkGoogleMaps: '',
     },
     options: {
       cities: [],
@@ -99,6 +102,23 @@ export function useLocalService() {
       },
     })
 
+  async function getLocationByCEP() {
+
+    if (state.value.form.cep.length !== 8) return
+
+    await requester.dispatch({
+      callback: async () => {
+        const location = await CEPService.getLocationByCEP(state.value.form.cep)
+
+        state.value.form.state = location.state
+        state.value.form.city = location.city
+        state.value.form.street = location.street
+      },
+      errorMessageTitle: 'Houve um erro',
+      errorMessage: 'Não foi possível buscar os dados',
+    })
+  }
+
   async function fetchOptions() {
     await requester.dispatch({
       callback: async () => {
@@ -126,23 +146,26 @@ export function useLocalService() {
           await LocalServiceService.save(
             id,
             state.value.form.name,
-            state.value.form.cityId,
-            state.value.form.stateId,
-            state.value.form.hasWhatsapp,
+            state.value.form.state,
+            state.value.form.city,
             state.value.form.street,
-            state.value.form.contact,
             state.value.form.coordinates,
+            state.value.form.cep,
+            state.value.form.number,
+            state.value.form.linkGoogleMaps,
             state.value.form.status,
           )
         else
           await LocalServiceService.create(
             state.value.form.name,
-            state.value.form.cityId,
-            state.value.form.stateId,
-            state.value.form.hasWhatsapp,
+            state.value.form.state,
+            state.value.form.city,
             state.value.form.street,
-            state.value.form.contact,
             state.value.form.coordinates,
+            state.value.form.cep,
+            state.value.form.number,
+            state.value.form.linkGoogleMaps,
+            state.value.form.status,
           )
       },
       successCallback: async () => {
@@ -151,9 +174,8 @@ export function useLocalService() {
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
-      errorMessage: `Não foi possível ${
-        state.value.form.id ? 'editar' : 'salvar'
-      }`,
+      errorMessage: `Não foi possível ${state.value.form.id ? 'editar' : 'salvar'
+        }`,
       loaders: [loader.edit],
     })
   }
@@ -184,11 +206,7 @@ export function useLocalService() {
 
   function openEditDialog(item?: ILocalService) {
     if (item)
-      state.value.form = {
-        ...item,
-        cityId: item.city.id,
-        stateId: item.state.id,
-      }
+      state.value.form = { ...item }
     else clearEditDialog()
 
     toggleDialog(dialog.edit)
@@ -222,8 +240,8 @@ export function useLocalService() {
     dialog,
     loader,
     save,
-    fetchOptions,
     onRequest,
+    fetchOptions,
     toggleDialog,
     dialogIsOpen,
     createDialog,
@@ -234,5 +252,6 @@ export function useLocalService() {
     clearEditDialog,
     openActionDialog,
     toggleActiveOnly,
+    getLocationByCEP,
   }
 }

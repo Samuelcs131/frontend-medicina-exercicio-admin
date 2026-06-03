@@ -21,7 +21,6 @@
       flat
       dense
       bordered
-      :class="{ 'local-service-table--transition': tableLoading }"
       selection="multiple"
       v-model:selected="state.actionsData"
       v-model:pagination="pagination"
@@ -105,22 +104,12 @@
             </h6>
           </q-card-section>
           <q-card-section class="row q-col-gutter-md">
-            <div class="col-12 col-md-6">
+            <div class="col-12">
               <q-input
                 label="Nome da clínica ou hospital"
                 :rules="[requiredRule]"
                 v-model="state.form.name"
                 v-bind="$vInput"
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <input-telephone label="Contato" v-model="state.form.contact" />
-            </div>
-            <div class="col-12 q-pt-none">
-              <q-toggle
-                label="O contato possui whatsapp?"
-                :rules="[requiredRule]"
-                v-model="state.form.hasWhatsapp"
               />
             </div>
             <div class="col-12" v-if="state.form.id">
@@ -132,49 +121,42 @@
                 :options="statusOptions"
               />
             </div>
+
             <div class="col-12 col-md-6">
-              <q-select
-                label="Estado"
+              <q-input
+                label="CEP"
                 :rules="[requiredRule]"
-                v-bind="$vSelect"
-                v-model="state.form.stateId"
-                :options="state.options.states"
-                option-value="id"
-                use-input
-                @update:model-value="resetCityIds"
-                @filter="
-                  (v, update) =>
-                    update(
-                      () =>
-                        (state.options.states = filterFn(
-                          v,
-                          'name',
-                          state.optionsData.states,
-                        )),
-                    )
-                "
+                v-model="state.form.cep"
+                v-bind="$vInput"
+                @update:model-value="getLocationByCEP"
+              />
+            </div>
+
+            <div class="col-12 col-md-6">
+              <q-input
+                label="Número"
+                :rules="[requiredRule]"
+                v-model="state.form.number"
+                v-bind="$vInput"
+              />
+            </div>
+
+            <div class="col-12 col-md-6">
+              <q-input
+                label="Estado"
+                v-bind="$vInput"
+                :rules="[requiredRule]"
+                v-model="state.form.state"
+                readonly
               />
             </div>
             <div class="col-12 col-md-6">
-              <q-select
+              <q-input
                 label="Cidade"
+                v-bind="$vInput"
                 :rules="[requiredRule]"
-                v-bind="$vSelect"
-                v-model="state.form.cityId"
-                :options="state.options.cities"
-                option-value="id"
-                use-input
-                @filter="
-                  (v, update) =>
-                    update(
-                      () =>
-                        (state.options.cities = filterFn(
-                          v,
-                          'name',
-                          citiesOptions,
-                        )),
-                    )
-                "
+                v-model="state.form.city"
+                readonly
               />
             </div>
             <div class="col-12">
@@ -183,8 +165,17 @@
                 :rules="[requiredRule]"
                 v-model="state.form.street"
                 v-bind="$vInput"
+                readonly
               />
             </div>
+
+            <q-input
+              label="Link do Google Maps"
+              v-model="state.form.linkGoogleMaps"
+              v-bind="$vInput"
+              class="full-width"
+            />
+
             <div class="col-12">
               <div class="flex gap-md no-wrap items-start">
                 <q-input
@@ -192,7 +183,6 @@
                   v-model="state.form.coordinates"
                   v-bind="$vInput"
                   class="full-width"
-                  :rules="[requiredRule]"
                 >
                   <template v-slot:after>
                     <q-btn
@@ -239,7 +229,7 @@
 import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import type { QTable } from 'quasar'
 import { useLocalService } from './useLocalService'
 import { localServiceTableColumns } from './localService.const'
@@ -248,8 +238,6 @@ import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import exampleCoordinates from 'src/assets/placeholder/example-coordinates.png'
 import { truncateText } from 'src/utils/text.util'
-import InputTelephone from 'src/components/input-telephone/InputTelephone.vue'
-import { filterFn } from 'src/utils/filter.util'
 
 const {
   state,
@@ -269,19 +257,10 @@ const {
   clearEditDialog,
   openActionDialog,
   toggleActiveOnly,
+  getLocationByCEP,
 } = useLocalService()
 
 const tableRef = ref<QTable | null>(null)
-
-const citiesOptions = computed(() => {
-  return state.value.optionsData.cities.filter(
-    (city) => state.value.form.stateId == city.stateId,
-  )
-})
-
-function resetCityIds() {
-  state.value.form.cityId = ''
-}
 
 async function handleActiveOnlyChange(value: boolean) {
   await toggleActiveOnly(value)
@@ -292,19 +271,3 @@ onMounted(async () => {
   tableRef.value?.requestServerInteraction()
 })
 </script>
-
-<style scoped>
-.local-service-table--transition :deep(.q-table tbody) {
-  opacity: 0.55;
-  transition: opacity 0.2s ease;
-}
-
-.local-service-table--transition :deep(.q-table tbody td) {
-  color: rgba(0, 0, 0, 0.55);
-}
-
-.local-service-table--transition :deep(.q-table__bottom .q-btn) {
-  pointer-events: none;
-  opacity: 0.55;
-}
-</style>

@@ -39,44 +39,50 @@ export async function getAll(): Promise<ILocalService[]> {
 
 export async function create(
   name: string,
-  cityId: string,
-  stateId: string,
-  hasWhatsapp: boolean,
+  state: string,
+  city: string,
   street: string,
-  contact: string,
   coordinates: string,
+  cep: string,
+  number: number,
+  linkGoogleMaps: string,
+  status: Status,
 ) {
   await api.post('/local-service', {
     name,
-    cityId,
-    stateId,
-    hasWhatsapp,
+    cep,
+    state,
+    city,
     street,
-    contact,
     coordinates,
+    number,
+    linkGoogleMaps,
+    status
   })
 }
 
 export async function save(
   id: string,
   name: string,
-  cityId: string,
-  stateId: string,
-  hasWhatsapp: boolean,
+  state: string,
+  city: string,
   street: string,
-  contact: string,
   coordinates: string,
+  cep: string,
+  number: number,
+  linkGoogleMaps: string,
   status: Status,
 ) {
   await api.put(`/local-service/${id}`, {
     name,
-    cityId,
-    stateId,
-    hasWhatsapp,
+    city,
+    state,
     street,
-    contact,
     coordinates,
-    status,
+    cep,
+    number,
+    linkGoogleMaps,
+    status
   })
 }
 

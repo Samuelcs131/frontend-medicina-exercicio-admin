@@ -27,7 +27,7 @@ export function useListTableRequest<T>(options: {
   })
 
   function normalizeSortBy(sortBy: string | null | undefined): string {
-    if (!sortBy) return options.defaultOrdertype
+    if (!sortBy) return ''
     if (!options.allowedOrdertypes?.length) return sortBy
     return options.allowedOrdertypes.includes(sortBy)
       ? sortBy
