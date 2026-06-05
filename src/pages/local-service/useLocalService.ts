@@ -6,8 +6,6 @@ import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
 import * as LocalServiceService from 'src/services/local-service/localService.service'
-import * as StateService from 'src/services/location/state.service'
-import * as CityService from 'src/services/location/city.service'
 import * as CEPService from 'src/services/cep.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { ILocalService } from 'src/types/local-service/ILocalService.type'
@@ -22,12 +20,13 @@ interface IState {
     name: string
     street: string
     state: string
+    neighborhood: string
     city: string
     number: number
     coordinates: string
     status: Status
-    cep: string
-    linkGoogleMaps: string
+    zipCode: string
+    googleMapsLink: string
   }
   options: {
     states: IBasicEntity<string>[]
@@ -49,12 +48,13 @@ export function useLocalService() {
       status: Status.active,
       name: '',
       city: '',
+      neighborhood: '',
       coordinates: '',
       state: '',
       street: '',
       number: 0,
-      cep: '',
-      linkGoogleMaps: '',
+      zipCode: '',
+      googleMapsLink: '',
     },
     options: {
       cities: [],
@@ -104,33 +104,16 @@ export function useLocalService() {
 
   async function getLocationByCEP() {
 
-    if (state.value.form.cep.length !== 8) return
+    if (state.value.form.zipCode.length !== 8) return
 
     await requester.dispatch({
       callback: async () => {
-        const location = await CEPService.getLocationByCEP(state.value.form.cep)
+        const location = await CEPService.getLocationByCEP(state.value.form.zipCode)
 
         state.value.form.state = location.state
         state.value.form.city = location.city
         state.value.form.street = location.street
-      },
-      errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar os dados',
-    })
-  }
-
-  async function fetchOptions() {
-    await requester.dispatch({
-      callback: async () => {
-        const [states, cities] = await Promise.all([
-          StateService.getAll(),
-          CityService.getAll(),
-        ])
-
-        const options = { states, cities }
-
-        state.value.options = cloneDeep(options)
-        state.value.optionsData = cloneDeep(options)
+        state.value.form.neighborhood = location.neighborhood
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
@@ -148,11 +131,12 @@ export function useLocalService() {
             state.value.form.name,
             state.value.form.state,
             state.value.form.city,
+            state.value.form.neighborhood,
             state.value.form.street,
             state.value.form.coordinates,
-            state.value.form.cep,
+            state.value.form.zipCode,
             state.value.form.number,
-            state.value.form.linkGoogleMaps,
+            state.value.form.googleMapsLink,
             state.value.form.status,
           )
         else
@@ -160,11 +144,12 @@ export function useLocalService() {
             state.value.form.name,
             state.value.form.state,
             state.value.form.city,
+            state.value.form.neighborhood,
             state.value.form.street,
             state.value.form.coordinates,
-            state.value.form.cep,
+            state.value.form.zipCode,
             state.value.form.number,
-            state.value.form.linkGoogleMaps,
+            state.value.form.googleMapsLink,
             state.value.form.status,
           )
       },
@@ -241,7 +226,6 @@ export function useLocalService() {
     loader,
     save,
     onRequest,
-    fetchOptions,
     toggleDialog,
     dialogIsOpen,
     createDialog,

@@ -126,7 +126,7 @@
               <q-input
                 label="CEP"
                 :rules="[requiredRule]"
-                v-model="state.form.cep"
+                v-model="state.form.zipCode"
                 v-bind="$vInput"
                 @update:model-value="getLocationByCEP"
               />
@@ -161,6 +161,15 @@
             </div>
             <div class="col-12">
               <q-input
+                label="Bairro"
+                :rules="[requiredRule]"
+                v-model="state.form.neighborhood"
+                v-bind="$vInput"
+                readonly
+              />
+            </div>
+            <div class="col-12">
+              <q-input
                 label="Rua"
                 :rules="[requiredRule]"
                 v-model="state.form.street"
@@ -171,7 +180,7 @@
 
             <q-input
               label="Link do Google Maps"
-              v-model="state.form.linkGoogleMaps"
+              v-model="state.form.googleMapsLink"
               v-bind="$vInput"
               class="full-width"
             />
@@ -247,7 +256,6 @@ const {
   dialog,
   loader,
   save,
-  fetchOptions,
   onRequest,
   loaderStatus,
   toggleDialog,
@@ -266,8 +274,7 @@ async function handleActiveOnlyChange(value: boolean) {
   await toggleActiveOnly(value)
 }
 
-onMounted(async () => {
-  await fetchOptions()
+onMounted(() => {
   tableRef.value?.requestServerInteraction()
 })
 </script>

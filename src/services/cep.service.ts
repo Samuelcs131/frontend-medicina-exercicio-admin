@@ -1,4 +1,4 @@
-import { api } from "src/boot/axios"
+import axios from "axios"
 
 interface ICepResponse {
   cep: string
@@ -12,16 +12,18 @@ interface ILocation {
   state: string
   city: string
   street: string
+  neighborhood: string
 }
 
 export async function getLocationByCEP(cep: string): Promise<ILocation> {
-  const { data } = await api.get<ICepResponse>(`/ws/${cep}/json/`, {
+  const { data } = await axios.get<ICepResponse>(`/ws/${cep}/json/`, {
     baseURL: 'https://viacep.com.br',
   })
 
   return {
     state: data.estado,
     city: data.localidade,
-    street: data.logradouro
+    street: data.logradouro,
+    neighborhood: data.bairro
   }
 }

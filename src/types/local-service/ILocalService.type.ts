@@ -6,11 +6,12 @@ export interface ILocalService {
   state: string
   city: string
   street: string
+  neighborhood: string
   coordinates: string
   status: Status
+  zipCode: string
+  googleMapsLink: string
+  number: number
   createdAt?: string | null
   updatedAt?: string | null
-  cep: string
-  linkGoogleMaps: string  
-  number: number
 }

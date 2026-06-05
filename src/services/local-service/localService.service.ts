@@ -16,25 +16,6 @@ export async function getListPaginated(
 export async function getAll(): Promise<ILocalService[]> {
   const { data } = await api.get('/local-service')
   return data
-  /* return [
-    {
-      id: '1',
-      name: 'Alexandre III',
-      city: {
-        id: '1',
-        name: 'Rio de Janeiro',
-      },
-      state: {
-        id: '1',
-        name: 'Rio de Janeiro',
-      },
-      hasWhatsapp: false,
-      street: 'Rua de souza barros',
-      contact: '21916511',
-      coordinates: '-22.865307226398542, -43.21486019013049',
-      status: Status.active,
-    },
-  ] */
 }
 
 export async function create(
@@ -42,6 +23,7 @@ export async function create(
   state: string,
   city: string,
   street: string,
+  neighborhood: string,
   coordinates: string,
   cep: string,
   number: number,
@@ -53,6 +35,7 @@ export async function create(
     cep,
     state,
     city,
+    neighborhood,
     street,
     coordinates,
     number,
@@ -66,6 +49,7 @@ export async function save(
   name: string,
   state: string,
   city: string,
+  neighborhood: string,
   street: string,
   coordinates: string,
   cep: string,
@@ -77,6 +61,7 @@ export async function save(
     name,
     city,
     state,
+    neighborhood,
     street,
     coordinates,
     cep,
