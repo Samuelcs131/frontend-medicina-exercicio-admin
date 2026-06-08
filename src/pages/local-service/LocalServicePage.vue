@@ -128,6 +128,8 @@
                 :rules="[requiredRule]"
                 v-model="state.form.zipCode"
                 v-bind="$vInput"
+                mask="#####-###"
+                unmasked-value
                 @update:model-value="getLocationByCEP"
               />
             </div>

@@ -10,14 +10,14 @@ export const localServiceTableColumns: QTableColumn[] = [
   },
   {
     label: 'Estado',
-    field: (row) => row.state.name,
+    field: 'state',
     name: 'state',
     sortable: true,
     align: 'left',
   },
   {
     label: 'Cidade',
-    field: (row) => row.city.name,
+    field: 'city',
     name: 'city',
     sortable: true,
     align: 'left',
