@@ -16,6 +16,13 @@ export const professionalTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
+    label: 'Especialidades',
+    field: 'specialtyNames',
+    name: 'specialtyNames',
+    sortable: true,
+    align: 'left',
+  },
+  {
     label: 'Clicks',
     field: 'clicks',
     name: 'clicks',

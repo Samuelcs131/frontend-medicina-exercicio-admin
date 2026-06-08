@@ -67,6 +67,15 @@
       <template #body-cell-status="props">
         <status-row :props="props" />
       </template>
+      <template #body-cell-specialtyNames="props">
+        <q-td
+          v-if="props.row.specialtyNames"
+          :props="props"
+          :title="props.row.specialtyNames.join(', ')"
+        >
+          {{ truncateText(props.row.specialtyNames.join(', '), 30) }}
+        </q-td>
+      </template>
       <template #body-cell-imageURL="props">
         <image-row label="imageURL" :props="props" />
       </template>
@@ -278,8 +287,10 @@
                 multiple
                 :options="state.options.localsService"
                 option-value="id"
+                option-label="name"
                 use-chips
                 use-input
+                @update:model-value="handleLocationServiceChange"
                 @filter="
                   (v, update) =>
                     update(
@@ -292,10 +303,82 @@
                     )
                 "
               >
+                <template v-slot:option="props">
+                  <q-item v-bind="props.itemProps">
+                    <q-item-section>
+                      {{ props.opt.name }}
+                      <div class="text-caption">
+                        {{ props.opt.city }} - {{ props.opt.state }}
+                      </div>
+                    </q-item-section>
+                  </q-item>
+                </template>
                 <template v-slot:selected-item="scope">
-                  <chip-select :scope="scope" />
+                  <q-chip
+                    removable
+                    dense
+                    @remove="scope.removeAtIndex(scope.index)"
+                    :tabindex="scope.tabindex"
+                    color="primary"
+                  >
+                    {{ scope.opt.name }} ({{ scope.opt.city }} -
+                    {{ scope.opt.state }})
+                  </q-chip>
                 </template>
               </q-select>
+            </div>
+
+            <div class="col-12" v-if="selectedLocalServices.length">
+              <div class="text-subtitle2 q-mb-sm">
+                Detalhes do local de atendimento
+              </div>
+              <q-separator />
+
+              <div
+                v-for="local in selectedLocalServices"
+                :key="local.id"
+                class="row q-col-gutter-md q-mt-sm"
+              >
+                <div class="col-12">
+                  <div class="text-subtitle1">
+                    {{ local.name }}
+                    <span class="text-caption">
+                      ({{ local.city }} - {{ local.state }})
+                    </span>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <q-input
+                    label="Contato"
+                    v-model="getInfoLocalService(local.id).number"
+                    class="q-mb-md"
+                    v-bind="$vInput"
+                  />
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <q-toggle
+                    v-model="getInfoLocalService(local.id).hasWhatsapp"
+                    label="WhatsApp?"
+                    class="q-mb-md"
+                    color="primary"
+                  />
+                </div>
+
+                <div class="col-12">
+                  <q-input
+                    label="Complemento"
+                    v-model="getInfoLocalService(local.id).complement"
+                    class="q-mb-md"
+                    v-bind="$vInput"
+                  />
+                </div>
+
+                <div class="col-12">
+                  <q-separator />
+                </div>
+              </div>
             </div>
 
             <div class="col-12">
@@ -475,12 +558,47 @@ const subspecialtyOptions = computed(() => {
   )
 })
 
+const selectedLocalServices = computed(() => {
+  return state.value.form.locationService.map((id) => {
+    const local = state.value.optionsData.localsService.find(
+      (item) => item.id === id,
+    )
+    return {
+      id,
+      name: local?.name ?? 'Local de atendimento',
+      state: local?.state ?? '',
+      city: local?.city ?? '',
+    }
+  })
+})
+
+function getInfoLocalService(localServiceId: string) {
+  let info = state.value.form.infoLocalService.find(
+    (entry) => entry.localServiceId === localServiceId,
+  )
+  if (!info) {
+    info = {
+      localServiceId,
+      number: '',
+      hasWhatsapp: false,
+      complement: '',
+    }
+    state.value.form.infoLocalService.push(info)
+  }
+  return info
+}
+
 function resetCityIds() {
   state.value.form.cities = []
 }
 
 function resetSubspecialty() {
   state.value.form.subspecialtyIds = []
+}
+
+function handleLocationServiceChange(value: string[]) {
+  state.value.form.locationService = value
+  syncInfoLocalService()
 }
 
 const {
@@ -504,6 +622,7 @@ const {
   clearEditDialog,
   openActionDialog,
   toggleActiveOnly,
+  syncInfoLocalService,
 } = useProfessional()
 
 const tableRef = ref<QTable | null>(null)

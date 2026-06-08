@@ -13,10 +13,11 @@ import * as StateService from 'src/services/location/state.service'
 import * as CityService from 'src/services/location/city.service'
 import * as VideoService from 'src/services/video/video.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
-import type { IProfessional } from 'src/types/professional/IProfessional.type'
+import type { IProfessional, IProfessionalLocalServiceInfo } from 'src/types/professional/IProfessional.type'
 import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import { IVideo } from 'src/types/video/IVideo.type'
 import { ICity } from 'src/types/city/ICity.type'
+import { ILocalService } from 'src/types/local-service/ILocalService.type'
 import { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 
 const DEFAULT_SORT = 'name'
@@ -50,6 +51,7 @@ interface IState {
     subspecialtyIds: string[]
     aboutMy: string
     locationService: string[]
+    infoLocalService: IProfessionalLocalServiceInfo[]
     instagram: string
     site: string
     teleconsultation: boolean
@@ -66,7 +68,7 @@ interface IState {
   options: {
     specialty: IBasicEntity<string>[]
     subspecialty: ISubspecialty[]
-    localsService: IBasicEntity<string>[]
+    localsService: ILocalService[]
     states: IBasicEntity<string>[]
     cities: ICity[]
     videos: IVideo[]
@@ -75,7 +77,7 @@ interface IState {
   optionsData: {
     specialty: IBasicEntity<string>[]
     subspecialty: ISubspecialty[]
-    localsService: IBasicEntity<string>[]
+    localsService: ILocalService[]
     states: IBasicEntity<string>[]
     cities: ICity[]
     videos: IVideo[]
@@ -101,6 +103,7 @@ export function useProfessional() {
       subspecialtyIds: [],
       aboutMy: '',
       locationService: [],
+      infoLocalService: [],
       instagram: '',
       site: '',
       curriculumLattes: '',
@@ -245,6 +248,7 @@ export function useProfessional() {
             state.value.form.subspecialtyIds,
             state.value.form.aboutMy,
             state.value.form.locationService,
+            state.value.form.infoLocalService,
             state.value.form.instagram,
             state.value.form.site,
             state.value.form.teleconsultation,
@@ -265,6 +269,7 @@ export function useProfessional() {
             state.value.form.subspecialtyIds,
             state.value.form.aboutMy,
             state.value.form.locationService,
+            state.value.form.infoLocalService,
             state.value.form.instagram,
             state.value.form.site,
             state.value.form.teleconsultation,
@@ -326,6 +331,7 @@ export function useProfessional() {
       specialtyIds: item.specialtyIds ?? [],
       subspecialtyIds: item.subspecialtyIds ?? [],
       locationService: item.locationService ?? [],
+      infoLocalService: item.infoLocalService ?? [],
       imageFile: null,
       states: toIdList(item.states),
       cities: toIdList(item.cities),
@@ -335,6 +341,8 @@ export function useProfessional() {
         otherSpecialtyIds: rec?.otherSpecialtyIds ?? [],
       },
     }
+
+    syncInfoLocalService()
 
     state.value.options.specialty = [...state.value.optionsData.specialty]
     state.value.options.states = [...state.value.optionsData.states]
@@ -407,6 +415,25 @@ export function useProfessional() {
     editFormLoading.value = false
   }
 
+  function syncInfoLocalService() {
+    const selectedLocalIds = state.value.form.locationService
+    const existingInfo = state.value.form.infoLocalService ?? []
+
+    state.value.form.infoLocalService = selectedLocalIds.map((localServiceId) => {
+      const current = existingInfo.find(
+        (entry) => entry.localServiceId === localServiceId,
+      )
+      return (
+        current ?? {
+          localServiceId,
+          number: '',
+          hasWhatsapp: false,
+          complement: '',
+        }
+      )
+    })
+  }
+
   function openActionDialog(action: ActionDialogOptions) {
     state.value.actionType = action
     toggleDialog(dialog.action)
@@ -444,5 +471,6 @@ export function useProfessional() {
     clearEditDialog,
     openActionDialog,
     toggleActiveOnly,
+    syncInfoLocalService,
   }
 }
