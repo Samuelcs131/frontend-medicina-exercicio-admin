@@ -25,21 +25,21 @@ export async function create(
   street: string,
   neighborhood: string,
   coordinates: string,
-  cep: string,
+  zipCode: string,
   number: number,
-  linkGoogleMaps: string,
+  googleMapsLink: string,
   status: Status,
 ) {
   await api.post('/local-service', {
     name,
-    cep,
+    zipCode,
     state,
     city,
     neighborhood,
     street,
     coordinates,
     number,
-    linkGoogleMaps,
+    googleMapsLink,
     status
   })
 }
@@ -52,9 +52,9 @@ export async function save(
   neighborhood: string,
   street: string,
   coordinates: string,
-  cep: string,
+  zipCode: string,
   number: number,
-  linkGoogleMaps: string,
+  googleMapsLink: string,
   status: Status,
 ) {
   await api.put(`/local-service/${id}`, {
@@ -64,9 +64,9 @@ export async function save(
     neighborhood,
     street,
     coordinates,
-    cep,
+    zipCode,
     number,
-    linkGoogleMaps,
+    googleMapsLink,
     status
   })
 }
