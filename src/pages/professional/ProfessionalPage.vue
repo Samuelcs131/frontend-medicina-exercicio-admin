@@ -349,11 +349,8 @@
                 </div>
 
                 <div class="col-12 col-md-6">
-                  <q-input
-                    label="Contato"
+                  <input-telephone
                     v-model="getInfoLocalService(local.id).number"
-                    class="q-mb-md"
-                    v-bind="$vInput"
                   />
                 </div>
 
@@ -543,6 +540,7 @@ import ChipSelect from 'src/components/select/ChipSelect.vue'
 import { maxArrayRule } from 'src/validations/form-rules/arrayRules.util'
 import { filterFn } from 'src/utils/filter.util'
 import { truncateText } from 'src/utils/text.util'
+import InputTelephone from 'src/components/input-telephone/InputTelephone.vue'
 
 const citiesOptions = computed(() => {
   return state.value.optionsData.cities.filter((city) =>

@@ -61,7 +61,7 @@
       </template>
       <template #body-cell-name="props">
         <q-td :props="props" :title="props.row.name">
-          {{ truncateText(props.row.name, 30) }}
+          {{ truncateText(props.row.name, 50) }}
         </q-td>
       </template>
     </q-table>

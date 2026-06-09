@@ -23,6 +23,13 @@ export const localServiceTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
+    label: 'Número',
+    field: 'number',
+    name: 'number',
+    sortable: true,
+    align: 'left',
+  },
+  {
     label: 'Status',
     field: 'status',
     name: 'status',
