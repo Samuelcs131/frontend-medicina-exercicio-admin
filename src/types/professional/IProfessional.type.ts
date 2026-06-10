@@ -37,7 +37,7 @@ export interface IProfessional {
     informativeContentIds: string[]
     otherSpecialtyIds: string[]
   } | null
-  infoLocalService?: IProfessionalLocalServiceInfo[]
+  serviceLocations?: IProfessionalLocalServiceInfo[]
   clicks: number
   createdAt?: string | null
   updatedAt?: string | null

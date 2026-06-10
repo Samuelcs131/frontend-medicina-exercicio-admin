@@ -571,7 +571,7 @@ const selectedLocalServices = computed(() => {
 })
 
 function getInfoLocalService(localServiceId: string) {
-  let info = state.value.form.infoLocalService.find(
+  let info = state.value.form.serviceLocations.find(
     (entry) => entry.localServiceId === localServiceId,
   )
   if (!info) {
@@ -581,7 +581,7 @@ function getInfoLocalService(localServiceId: string) {
       hasWhatsapp: false,
       complement: '',
     }
-    state.value.form.infoLocalService.push(info)
+    state.value.form.serviceLocations.push(info)
   }
   return info
 }

@@ -51,7 +51,7 @@ interface IState {
     subspecialtyIds: string[]
     aboutMy: string
     locationService: string[]
-    infoLocalService: IProfessionalLocalServiceInfo[]
+    serviceLocations: IProfessionalLocalServiceInfo[]
     instagram: string
     site: string
     teleconsultation: boolean
@@ -103,7 +103,7 @@ export function useProfessional() {
       subspecialtyIds: [],
       aboutMy: '',
       locationService: [],
-      infoLocalService: [],
+      serviceLocations: [],
       instagram: '',
       site: '',
       curriculumLattes: '',
@@ -248,7 +248,7 @@ export function useProfessional() {
             state.value.form.subspecialtyIds,
             state.value.form.aboutMy,
             state.value.form.locationService,
-            state.value.form.infoLocalService,
+            state.value.form.serviceLocations,
             state.value.form.instagram,
             state.value.form.site,
             state.value.form.teleconsultation,
@@ -269,7 +269,7 @@ export function useProfessional() {
             state.value.form.subspecialtyIds,
             state.value.form.aboutMy,
             state.value.form.locationService,
-            state.value.form.infoLocalService,
+            state.value.form.serviceLocations,
             state.value.form.instagram,
             state.value.form.site,
             state.value.form.teleconsultation,
@@ -331,7 +331,7 @@ export function useProfessional() {
       specialtyIds: item.specialtyIds ?? [],
       subspecialtyIds: item.subspecialtyIds ?? [],
       locationService: item.locationService ?? [],
-      infoLocalService: item.infoLocalService ?? [],
+      serviceLocations: item.serviceLocations ?? [],
       imageFile: null,
       states: toIdList(item.states),
       cities: toIdList(item.cities),
@@ -417,9 +417,9 @@ export function useProfessional() {
 
   function syncInfoLocalService() {
     const selectedLocalIds = state.value.form.locationService
-    const existingInfo = state.value.form.infoLocalService ?? []
+    const existingInfo = state.value.form.serviceLocations ?? []
 
-    state.value.form.infoLocalService = selectedLocalIds.map((localServiceId) => {
+    state.value.form.serviceLocations = selectedLocalIds.map((localServiceId) => {
       const current = existingInfo.find(
         (entry) => entry.localServiceId === localServiceId,
       )
