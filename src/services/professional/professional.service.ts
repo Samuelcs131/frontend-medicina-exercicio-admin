@@ -39,8 +39,8 @@ export async function create(
   specialtyIds: string[],
   subspecialtyIds: string[],
   aboutMy: string,
-  locationService: string[],
-  serviceLocations: { localServiceId: string; number: string; hasWhatsapp: boolean; complement: string }[],
+  localServiceIds: string[],
+  serviceLocations: { localServiceId: string; contact: string; hasWhatsapp: boolean; complement: string }[],
   instagram: string,
   site: string,
   teleconsultation: boolean,
@@ -62,11 +62,11 @@ export async function create(
   formData.append('speakEnglish', `${speakEnglish}`)
   if (image) formData.append('image', image)
   formData.append('curriculumLattes', curriculumLattes)
-  formData.append('serviceLocations', JSON.stringify(serviceLocations))
 
+  serviceLocations.forEach((location) => formData.append('serviceLocations', JSON.stringify(location)))
   specialtyIds.forEach((id) => formData.append('specialtyIds', id))
   subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
-  locationService.forEach((id) => formData.append('locationService', id))
+  localServiceIds.forEach((id) => formData.append('localServiceIds', id))
   cities.forEach((id) => formData.append('cities', id))
   states.forEach((id) => formData.append('states', id))
 
@@ -85,8 +85,8 @@ export async function save(
   specialtyIds: string[],
   subspecialtyIds: string[],
   aboutMy: string,
-  locationService: string[],
-  serviceLocations: { localServiceId: string; number: string; hasWhatsapp: boolean; complement: string }[],
+  localServiceIds: string[],
+  serviceLocations: { localServiceId: string; contact: string; hasWhatsapp: boolean; complement: string }[],
   instagram: string,
   site: string,
   teleconsultation: boolean,
@@ -115,12 +115,12 @@ export async function save(
   formData.append('speakEnglish', `${speakEnglish}`)
   formData.append('status', status)
   formData.append('recomendations', JSON.stringify(recomendations))
-  formData.append('serviceLocations', JSON.stringify(serviceLocations))
   if (image) formData.append('image', image)
 
+  serviceLocations.forEach((location) => formData.append('serviceLocations', JSON.stringify(location)))
   specialtyIds.forEach((id) => formData.append('specialtyIds', id))
   subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
-  locationService.forEach((id) => formData.append('locationService', id))
+  localServiceIds.forEach((id) => formData.append('localServiceIds', id))
   cities.forEach((id) => formData.append('cities', id))
   states.forEach((id) => formData.append('states', id))
 

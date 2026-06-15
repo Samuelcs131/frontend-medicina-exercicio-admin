@@ -350,7 +350,7 @@
 
                 <div class="col-12 col-md-6">
                   <input-telephone
-                    v-model="getInfoLocalService(local.id).number"
+                    v-model="getInfoLocalService(local.id).contact"
                   />
                 </div>
 
@@ -577,7 +577,7 @@ function getInfoLocalService(localServiceId: string) {
   if (!info) {
     info = {
       localServiceId,
-      number: '',
+      contact: '',
       hasWhatsapp: false,
       complement: '',
     }

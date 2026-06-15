@@ -426,7 +426,7 @@ export function useProfessional() {
       return (
         current ?? {
           localServiceId,
-          number: '',
+          contact: '',
           hasWhatsapp: false,
           complement: '',
         }

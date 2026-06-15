@@ -2,7 +2,7 @@ import type { Status } from 'src/enums/Status.enum'
 
 export interface IProfessionalLocalServiceInfo {
   localServiceId: string
-  number: string
+  contact: string
   hasWhatsapp: boolean
   complement: string
 }
