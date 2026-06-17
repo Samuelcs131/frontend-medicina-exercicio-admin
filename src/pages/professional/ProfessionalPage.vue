@@ -306,7 +306,7 @@
                 <template v-slot:option="props">
                   <q-item v-bind="props.itemProps">
                     <q-item-section>
-                      {{ props.opt.name }}
+                      {{ props.opt.name }} [N°{{ props.opt.number }}]
                       <div class="text-caption">
                         {{ props.opt.city }} - {{ props.opt.state }}
                       </div>
