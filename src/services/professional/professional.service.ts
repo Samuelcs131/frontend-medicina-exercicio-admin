@@ -63,10 +63,16 @@ export async function create(
   if (image) formData.append('image', image)
   formData.append('curriculumLattes', curriculumLattes)
 
-  serviceLocations.forEach((location) => formData.append('serviceLocations', JSON.stringify(location)))
+  if (serviceLocations.length > 0) formData.append('serviceLocations', '')
+  else serviceLocations.forEach((location) => formData.append('serviceLocations', JSON.stringify(location)))
+
+  if (localServiceIds.length > 0) formData.append('localServiceIds', '')
+  else localServiceIds.forEach((id) => formData.append('localServiceIds', id))
+
   specialtyIds.forEach((id) => formData.append('specialtyIds', id))
   subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
-  localServiceIds.forEach((id) => formData.append('localServiceIds', id))
+
+
   cities.forEach((id) => formData.append('cities', id))
   states.forEach((id) => formData.append('states', id))
 
@@ -117,10 +123,14 @@ export async function save(
   formData.append('recomendations', JSON.stringify(recomendations))
   if (image) formData.append('image', image)
 
-  serviceLocations.forEach((location) => formData.append('serviceLocations', JSON.stringify(location)))
+  if (serviceLocations.length == 0) formData.append('serviceLocations', '')
+  else serviceLocations.forEach((location) => formData.append('serviceLocations', JSON.stringify(location)))
+
+  if (localServiceIds.length == 0) formData.append('localServiceIds', '')
+  else localServiceIds.forEach((id) => formData.append('localServiceIds', id))
+
   specialtyIds.forEach((id) => formData.append('specialtyIds', id))
   subspecialtyIds.forEach((id) => formData.append('subspecialtyIds', id))
-  localServiceIds.forEach((id) => formData.append('localServiceIds', id))
   cities.forEach((id) => formData.append('cities', id))
   states.forEach((id) => formData.append('states', id))
 
