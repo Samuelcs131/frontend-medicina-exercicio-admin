@@ -354,7 +354,7 @@
                   @end="updatePostOrder"
                 >
                   <template #item="{ element }">
-                    <q-item class="post-order-item" bordered>
+                    <q-item class="post-order-item bg-primary" bordered>
                       <q-item-section avatar>
                         <q-icon name="drag_indicator" class="draggable-move" />
                       </q-item-section>
@@ -571,7 +571,7 @@ onMounted(async () => {
 .posts-order-list {
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 4px;
-  background-color: white;
+  overflow: hidden;
 }
 
 .post-order-item {
