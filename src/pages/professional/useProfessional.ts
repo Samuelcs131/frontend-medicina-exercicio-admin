@@ -365,7 +365,7 @@ export function useProfessional() {
 
     state.value.options.videos = state.value.optionsData.videos.filter(
       (video) =>
-        !video.guests.length
+        video.guests.length
           ? video.guests.includes(item.id)
           : video.author == item.id,
     )
