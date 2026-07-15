@@ -15,14 +15,14 @@
         :icon="isTelephone ? 'call' : 'smartphone'"
         @click="isTelephone = !isTelephone"
       >
-        <q-tooltip>{{ 'Formato contato' }}</q-tooltip>
+        <q-tooltip>Formato contato</q-tooltip>
       </q-btn>
     </template>
   </q-input>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps<{
@@ -34,18 +34,20 @@ const isTelephone = ref(false)
 
 function validateTelephone(telephone: string) {
   return isTelephone.value
-    ? telephone.length === 10 || 'Número de telefone inválido'
-    : telephone.length === 11 || 'Número de celular inválido'
+    ? telephone.length === 10 || 'Numero de telefone invalido'
+    : telephone.length === 11 || 'Numero de celular invalido'
 }
 
 function onInput(v: string | number | null) {
-  emit('update:modelValue', v)
+  emit('update:modelValue', v == null ? '' : String(v))
 }
 
-onMounted(() => {
-  if (props.modelValue) {
-    display.value = props.modelValue
-    isTelephone.value = props.modelValue.length === 10
-  }
-})
+watch(
+  () => props.modelValue,
+  (value) => {
+    display.value = value ?? ''
+    isTelephone.value = display.value.length === 10
+  },
+  { immediate: true },
+)
 </script>

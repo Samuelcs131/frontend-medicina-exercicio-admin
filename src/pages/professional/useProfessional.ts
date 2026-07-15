@@ -38,6 +38,21 @@ function toIdList(value: unknown): string[] {
     .filter(Boolean)
 }
 
+function toContactList(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => String(entry ?? '').trim())
+      .filter(Boolean)
+  }
+
+  if (typeof value === 'string') {
+    const contact = value.trim()
+    return contact ? [contact] : []
+  }
+
+  return []
+}
+
 interface IState {
   form: {
     id?: string
@@ -331,7 +346,11 @@ export function useProfessional() {
       specialtyIds: item.specialtyIds ?? [],
       subspecialtyIds: item.subspecialtyIds ?? [],
       locationService: item.locationService ?? [],
-      serviceLocations: item.serviceLocations ?? [],
+      serviceLocations:
+        item.serviceLocations?.map((location) => ({
+          ...location,
+          contact: toContactList(location.contact),
+        })) ?? [],
       imageFile: null,
       states: toIdList(item.states),
       cities: toIdList(item.cities),
@@ -426,7 +445,7 @@ export function useProfessional() {
       return (
         current ?? {
           localServiceId,
-          contact: '',
+          contact: [],
           hasWhatsapp: false,
           complement: '',
         }

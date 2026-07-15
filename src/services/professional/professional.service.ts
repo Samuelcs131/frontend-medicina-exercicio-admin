@@ -40,7 +40,7 @@ export async function create(
   subspecialtyIds: string[],
   aboutMy: string,
   localServiceIds: string[],
-  serviceLocations: { localServiceId: string; contact: string; hasWhatsapp: boolean; complement: string }[],
+  serviceLocations: { localServiceId: string; contact: string[]; hasWhatsapp: boolean; complement: string }[],
   instagram: string,
   site: string,
   teleconsultation: boolean,
@@ -63,10 +63,10 @@ export async function create(
   if (image) formData.append('image', image)
   formData.append('curriculumLattes', curriculumLattes)
 
-  if (serviceLocations.length > 0) formData.append('serviceLocations', '')
+  if (serviceLocations.length == 0) formData.append('serviceLocations', '')
   else serviceLocations.forEach((location) => formData.append('serviceLocations', JSON.stringify(location)))
 
-  if (localServiceIds.length > 0) formData.append('localServiceIds', '')
+  if (localServiceIds.length == 0) formData.append('localServiceIds', '')
   else localServiceIds.forEach((id) => formData.append('localServiceIds', id))
 
   specialtyIds.forEach((id) => formData.append('specialtyIds', id))
@@ -92,7 +92,7 @@ export async function save(
   subspecialtyIds: string[],
   aboutMy: string,
   localServiceIds: string[],
-  serviceLocations: { localServiceId: string; contact: string; hasWhatsapp: boolean; complement: string }[],
+  serviceLocations: { localServiceId: string; contact: string[]; hasWhatsapp: boolean; complement: string }[],
   instagram: string,
   site: string,
   teleconsultation: boolean,

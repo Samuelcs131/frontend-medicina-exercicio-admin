@@ -349,9 +349,39 @@
                 </div>
 
                 <div class="col-12 col-md-6">
-                  <input-telephone
-                    v-model="getInfoLocalService(local.id).contact"
-                  />
+                  <div
+                    v-for="(_, index) in getContactList(local.id)"
+                    :key="`${local.id}-contact-${index}`"
+                    class="row q-col-gutter-sm q-mb-sm"
+                  >
+                    <div class="col">
+                      <input-telephone
+                        :model-value="getContactValue(local.id, index)"
+                        @update:model-value="
+                          setContactValue(local.id, index, $event)
+                        "
+                      />
+                    </div>
+                    <div class="col-auto">
+                      <div class="q-mt-xs">
+                        <q-btn
+                          dense
+                          flat
+                          color="primary"
+                          icon="add"
+                          @click="addContactField(local.id)"
+                        />
+                        <q-btn
+                          dense
+                          flat
+                          color="negative"
+                          icon="remove"
+                          :disable="getContactList(local.id).length === 1"
+                          @click="removeContactField(local.id, index)"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -577,13 +607,46 @@ function getInfoLocalService(localServiceId: string) {
   if (!info) {
     info = {
       localServiceId,
-      contact: '',
+      contact: [],
       hasWhatsapp: false,
       complement: '',
     }
     state.value.form.serviceLocations.push(info)
   }
   return info
+}
+
+function getContactList(localServiceId: string) {
+  const info = getInfoLocalService(localServiceId)
+  if (!Array.isArray(info.contact)) {
+    info.contact = []
+  }
+  if (!info.contact.length) {
+    info.contact.push('')
+  }
+  return info.contact
+}
+
+function addContactField(localServiceId: string) {
+  getInfoLocalService(localServiceId).contact.push('')
+}
+
+function removeContactField(localServiceId: string, index: number) {
+  const contact = getContactList(localServiceId)
+  if (contact.length <= 1) return
+  contact.splice(index, 1)
+}
+
+function getContactValue(localServiceId: string, index: number) {
+  return getContactList(localServiceId)[index] ?? ''
+}
+
+function setContactValue(
+  localServiceId: string,
+  index: number,
+  value: string | null,
+) {
+  getContactList(localServiceId)[index] = value ?? ''
 }
 
 function resetCityIds() {
