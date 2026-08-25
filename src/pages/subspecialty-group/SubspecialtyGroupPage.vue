@@ -243,7 +243,6 @@
               <q-input
                 type="textarea"
                 label="Descrição"
-                :rules="[requiredRule]"
                 v-model="state.form.description"
                 v-bind="$vInput"
               />
