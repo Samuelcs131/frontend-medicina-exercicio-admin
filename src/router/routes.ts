@@ -11,6 +11,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('pages/login/LoginPage.vue'),
   },
   {
+    path: '/booking',
+    name: 'booking',
+    component: () => import('pages/booking/BookingPage.vue'),
+  },
+  {
     path: '/app',
     redirect: '/app/home',
     component: () => import('layouts/main/MainLayout.vue'),
@@ -93,6 +98,20 @@ const routes: RouteRecordRaw[] = [
         path: 'supporter',
         name: 'supporter',
         component: () => import('pages/supporter/SupporterPage.vue'),
+        meta: { requiresAuth: true, roles: [] },
+      },
+      {
+        path: 'bookingManagement',
+        name: 'bookingManagement',
+        component: () =>
+          import('pages/booking-management/BookingManagementPage.vue'),
+        meta: { requiresAuth: true, roles: [] },
+      },
+      {
+        path: 'professionalAvailability',
+        name: 'professionalAvailability',
+        component: () =>
+          import('pages/professional-availability/ProfessionalAvailabilityPage.vue'),
         meta: { requiresAuth: true, roles: [] },
       },
     ],

@@ -48,6 +48,7 @@ export function useProfissionalArea() {
     list: 'list-h54j4f14j5',
     edit: 'edit-5hg2q3fh43',
     action: 'action-h54hgf326h45',
+    saveOrder: 'save-order-h54j4f14j5',
   }
 
   const state = ref<IState>(cloneDeep(initState))
@@ -95,9 +96,8 @@ export function useProfissionalArea() {
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
-      errorMessage: `Não foi possível ${
-        state.value.form.id ? 'editar' : 'salvar'
-      }`,
+      errorMessage: `Não foi possível ${state.value.form.id ? 'editar' : 'salvar'
+        }`,
       loaders: [loader.edit],
     })
   }
@@ -146,6 +146,31 @@ export function useProfissionalArea() {
     toggleDialog(dialog.action)
   }
 
+  async function fetchAreasForOrderDialog(): Promise<IProfissionalArea[]> {
+    const data = await ProfessionalAreaService.getAll()
+    return [...data].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+  }
+
+  async function saveOrder(orderedList: IProfissionalArea[]) {
+    const areas = orderedList.map((item, index) => ({
+      id: item.id,
+      order: index + 1,
+    }))
+
+    await requester.dispatch({
+      callback: async () => {
+        await ProfessionalAreaService.updateOrders(areas)
+      },
+      successCallback: async () => {
+        await refreshCurrentPage()
+      },
+      successMessageTitle: 'Ordem salva com sucesso',
+      errorMessageTitle: 'Houve um erro',
+      errorMessage: 'Não foi possível salvar a ordem',
+      loaders: [loader.saveOrder],
+    })
+  }
+
   async function toggleActiveOnly(activeOnly: boolean) {
     state.value.activeOnly = activeOnly
     pagination.value.page = 1
@@ -181,5 +206,7 @@ export function useProfissionalArea() {
     clearEditDialog,
     openActionDialog,
     toggleActiveOnly,
+    saveOrder,
+    fetchAreasForOrderDialog,
   }
 }

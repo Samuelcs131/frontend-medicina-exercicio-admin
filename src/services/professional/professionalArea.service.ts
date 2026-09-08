@@ -93,3 +93,9 @@ export async function disable(ids: string[]) {
     ids,
   })
 }
+
+export async function updateOrders(areas: Array<{ id: string; order: number }>) {
+  await api.put('/professional-area/update-orders', {
+    areas,
+  })
+}

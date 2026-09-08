@@ -7,15 +7,15 @@ export interface IListQuery {
   search?: string
   orderby: OrderBy
   ordertype: string
-  [key: string]: string | number | boolean | undefined
+  [key: string]: string | number | boolean | string[] | undefined
 }
 
 /** Parâmetros extras (ex.: specialtyId) enviados na query string. */
 export function buildListParams(
   base: IListQuery,
-  extra?: Record<string, string | number | boolean | null | undefined>,
-): Record<string, string | number | boolean> {
-  const p: Record<string, string | number | boolean> = {
+  extra?: Record<string, string | number | boolean | string[] | null | undefined>,
+): Record<string, string | number | boolean | string[]> {
+  const p: Record<string, string | number | boolean | string[]> = {
     all: base.all ?? true,
     page: base.page,
     limit: base.limit,
@@ -36,11 +36,19 @@ export function buildListParams(
 
   for (const [key, value] of Object.entries(base)) {
     if (standardKeys.has(key)) continue
+    if (Array.isArray(value)) {
+      if (value.length) p[key] = value
+      continue
+    }
     if (value !== undefined && value !== null && value !== '') p[key] = value
   }
 
   if (extra) {
     for (const [k, v] of Object.entries(extra)) {
+      if (Array.isArray(v)) {
+        if (v.length) p[k] = v
+        continue
+      }
       if (v !== undefined && v !== null && v !== '') p[k] = v
     }
   }

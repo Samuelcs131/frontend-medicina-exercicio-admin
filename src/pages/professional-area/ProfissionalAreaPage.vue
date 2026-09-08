@@ -15,6 +15,13 @@
           <q-icon name="search" />
         </template>
       </q-input>
+      <q-btn
+        color="primary"
+        icon="sort"
+        label="Ordenar"
+        unelevated
+        @click="openOrderDialog"
+      />
     </div>
     <q-table
       ref="tableRef"
@@ -69,6 +76,82 @@
         </q-td>
       </template>
     </q-table>
+
+    <!-- Dialog de Ordenação -->
+    <q-dialog
+      v-model="orderDialogOpen"
+      persistent
+      transition-show="scale"
+      transition-hide="scale"
+    >
+      <q-card class="order-dialog-card">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Ordenar Áreas Profissionais</div>
+          <q-space />
+          <q-btn
+            icon="close"
+            flat
+            round
+            dense
+            @click="closeOrderDialog"
+            :disable="loaderStatus(loader.saveOrder)"
+          />
+        </q-card-section>
+
+        <q-card-section>
+          <div class="text-body2 text-grey-7 q-mb-md">
+            Arraste os itens para reordená-los.
+          </div>
+          <draggable
+            v-model="orderDialogList"
+            item-key="id"
+            handle=".drag-handle-item"
+            :animation="200"
+            class="order-list"
+          >
+            <template #item="{ element, index }">
+              <q-item class="order-item" bordered :key="element.id">
+                <q-item-section avatar>
+                  <q-icon
+                    name="drag_indicator"
+                    class="drag-handle-item"
+                    size="md"
+                  />
+                </q-item-section>
+                <q-item-section avatar v-if="element.imageURL">
+                  <q-avatar rounded>
+                    <img :src="element.imageURL" :alt="element.name" />
+                  </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ element.name }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-badge color="primary" :label="`#${index + 1}`" />
+                </q-item-section>
+              </q-item>
+            </template>
+          </draggable>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn
+            flat
+            label="Cancelar"
+            color="default"
+            @click="closeOrderDialog"
+            :disable="loaderStatus(loader.saveOrder)"
+          />
+          <q-btn
+            label="Salvar Ordem"
+            color="primary"
+            unelevated
+            :loading="loaderStatus(loader.saveOrder)"
+            @click="saveOrderFromDialog"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <action-dialog
       :action-type="state.actionType"
@@ -169,6 +252,8 @@ import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import ImageRow from 'src/components/table/ImageRow.vue'
 import { truncateText } from 'src/utils/text.util'
+import draggable from 'vuedraggable'
+import type { IProfissionalArea } from 'src/types/specialty/IProfissionalArea.type'
 
 const {
   state,
@@ -188,13 +273,33 @@ const {
   clearEditDialog,
   openActionDialog,
   toggleActiveOnly,
+  saveOrder,
+  fetchAreasForOrderDialog,
 } = useProfissionalArea()
 
 const tableRef = ref<QTable | null>(null)
 
+const orderDialogOpen = ref(false)
+const orderDialogList = ref<IProfissionalArea[]>([])
+
 onMounted(() => {
   tableRef.value?.requestServerInteraction()
 })
+
+async function openOrderDialog() {
+  orderDialogList.value = await fetchAreasForOrderDialog()
+  orderDialogOpen.value = true
+}
+
+function closeOrderDialog() {
+  orderDialogOpen.value = false
+  orderDialogList.value = []
+}
+
+async function saveOrderFromDialog() {
+  await saveOrder(orderDialogList.value)
+  closeOrderDialog()
+}
 
 async function handleActiveOnlyChange(value: boolean) {
   await toggleActiveOnly(value)
@@ -214,5 +319,43 @@ async function handleActiveOnlyChange(value: boolean) {
 .professional-area-table--transition :deep(.q-table__bottom .q-btn) {
   pointer-events: none;
   opacity: 0.55;
+}
+
+.order-dialog-card {
+  max-width: 700px;
+  width: 100%;
+  min-width: 500px;
+}
+
+.order-list {
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.order-item {
+  cursor: move;
+  user-select: none;
+  transition: background-color 0.2s;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.order-item:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.drag-handle-item {
+  cursor: grab;
+  color: rgba(0, 0, 0, 0.54);
+  transition: color 0.2s;
+}
+
+.drag-handle-item:hover {
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.drag-handle-item:active {
+  cursor: grabbing;
 }
 </style>

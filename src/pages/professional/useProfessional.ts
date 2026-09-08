@@ -375,6 +375,10 @@ export function useProfessional() {
     state.value.options.subspecialty = state.value.optionsData.subspecialty.filter(
       (sub) => {
         if (subIds.includes(sub.id)) return true
+        if (sub.specialties?.length)
+          return sub.specialties.some((specialty) =>
+            specIds.includes(specialty.id),
+          )
         const specId =
           sub.specialty?.id ??
           (sub as ISubspecialty & { specialtyId?: string }).specialtyId

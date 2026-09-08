@@ -85,10 +85,10 @@
         </q-td>
       </template>
       <template #body-cell-specialty="props">
-        <q-td :props="props" :title="props.row.specialty?.name ?? ''">
+        <q-td :props="props" :title="specialtyNames(props.row)">
           {{
-            props.row.specialty?.name
-              ? truncateText(props.row.specialty.name, 30)
+            specialtyNames(props.row)
+              ? truncateText(specialtyNames(props.row), 30)
               : '-'
           }}
         </q-td>
@@ -132,52 +132,20 @@
               />
             </div>
 
-            <div class="col-12" v-if="!state.form.id">
+            <div class="col-12">
               <q-select
-                outlined
-                dense
-                label="Especialidade"
-                :rules="[requiredRule]"
-                v-model="selectedSpecialty"
-                :options="specialtyOptions"
-                option-value="id"
-                option-label="name"
-                use-input
-                @filter="
-                  (v, update) =>
-                    update(
-                      () =>
-                        (filteredSpecialties = filterFn(
-                          v,
-                          'name',
-                          state.optionsData.specialty,
-                        )),
-                    )
-                "
-                @update:model-value="handleSpecialtyChange"
-              >
-                <template v-slot:no-option>
-                  <q-item>
-                    <q-item-section class="text-grey">
-                      Nenhum resultado
-                    </q-item-section>
-                  </q-item>
-                </template>
-              </q-select>
-            </div>
-            <div class="col-12" v-else>
-              <q-select
-                label="Especialidade"
+                label="Especialidades"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
-                v-model="state.form.specialtyId"
-                :options="state.options.specialty"
+                v-model="state.form.specialtyIds"
+                multiple
+                use-chips
+                use-input
+                emit-value
+                map-options
                 option-value="id"
                 option-label="name"
-                use-input
-                fill-input
-                hide-selected
-                input-debounce="0"
+                :options="state.options.specialty"
                 @filter="
                   (v, update) =>
                     update(
@@ -228,7 +196,7 @@
 import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref } from 'vue'
 import type { QTable } from 'quasar'
 import { useSubspecialty } from './useSubspecialty'
 import { subspecialtyTableColumns } from './specialty.const'
@@ -237,7 +205,6 @@ import { statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import { truncateText } from 'src/utils/text.util'
 import { filterFn } from 'src/utils/filter.util'
-import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
 import type { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 
 const {
@@ -262,40 +229,23 @@ const {
 
 const tableRef = ref<QTable | null>(null)
 
-const filteredSpecialties = ref<ISpecialty[]>([])
-const selectedSpecialty = ref<{ id: string | null; name: string } | null>(null)
-
-const specialtyOptions = computed(() => {
-  return filteredSpecialties.value
-})
-
-function handleSpecialtyChange(
-  value: { id: string | null; name: string } | null,
-) {
-  selectedSpecialty.value = value
-  if (value?.id) {
-    state.value.form.specialtyId = value.id
-  } else {
-    state.value.form.specialtyId = ''
-  }
+function specialtyNames(row: ISubspecialty): string {
+  if (row.specialties?.length)
+    return row.specialties.map((specialty) => specialty.name).join(', ')
+  return row.specialty?.name ?? ''
 }
 
-// Resetar o campo de especialidade quando fechar o modal
+// Resetar o formulário e as opções quando fechar o modal
 function handleDialogBeforeHide() {
   clearEditDialog()
-  selectedSpecialty.value = null
   if (state.value.optionsData.specialty.length) {
-    filteredSpecialties.value = [...state.value.optionsData.specialty]
+    state.value.options.specialty = [...state.value.optionsData.specialty]
   }
 }
 
-// Wrapper para openEditDialog que inicializa o campo de especialidade
+// Wrapper para openEditDialog
 async function handleOpenEditDialog(item?: ISubspecialty) {
   await openEditDialog(item)
-  // Garantir que as opções estejam disponíveis quando abrir o modal de criar
-  if (!item && state.value.optionsData.specialty.length) {
-    filteredSpecialties.value = [...state.value.optionsData.specialty]
-  }
 }
 
 async function handleActiveOnlyChange(value: boolean) {
@@ -310,7 +260,6 @@ async function handleSpecialtyFilterChange(value: string) {
 
 onMounted(async () => {
   await fetchOptions()
-  filteredSpecialties.value = state.value.optionsData.specialty
   tableRef.value?.requestServerInteraction()
 })
 </script>

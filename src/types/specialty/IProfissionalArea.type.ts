@@ -5,6 +5,7 @@ export interface IProfissionalArea {
   name: string
   imageURL: string
   status: Status
+  order?: number
   createdAt?: string | null
   updatedAt?: string | null
 }

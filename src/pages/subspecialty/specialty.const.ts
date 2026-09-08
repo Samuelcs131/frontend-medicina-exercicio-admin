@@ -1,4 +1,5 @@
 import type { QTableColumn } from 'quasar'
+import type { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 
 export const subspecialtyTableColumns: QTableColumn[] = [
   {
@@ -9,12 +10,19 @@ export const subspecialtyTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
-    label: 'Especialidade',
-    field: 'specialty',
+    label: 'Especialidades',
+    field: 'specialties',
     name: 'specialty',
     sortable: false,
     align: 'left',
-    format: (v) => (v?.name ? v.name : '-'),
+    format: (_val, row) => {
+      const subspecialty = row as ISubspecialty
+      if (subspecialty.specialties?.length)
+        return subspecialty.specialties
+          .map((specialty) => specialty.name)
+          .join(', ')
+      return subspecialty.specialty?.name ?? '-'
+    },
   },
   {
     label: 'Status',

@@ -209,7 +209,7 @@
                   map-options
                   use-input
                   use-chips
-                  :rules="[(v) => maxArrayRule(v, 4)]"
+                  :rules="[(v) => maxArrayRule(v, 8)]"
                   @filter="
                     (v, update) =>
                       update(

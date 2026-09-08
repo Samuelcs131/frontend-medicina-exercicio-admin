@@ -17,6 +17,13 @@ export const postTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
+    label: 'Clicks',
+    field: 'clicks',
+    name: 'clicks',
+    sortable: true,
+    align: 'left',
+  },
+  {
     label: 'Data',
     field: 'createdAt',
     name: 'createdAt',

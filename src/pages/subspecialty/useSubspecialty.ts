@@ -17,7 +17,7 @@ interface IState {
   form: {
     id?: string
     name: string
-    specialtyId: string
+    specialtyIds: string[]
     status: Status
   }
   options: {
@@ -38,7 +38,7 @@ export function useSubspecialty() {
     form: {
       status: Status.active,
       name: '',
-      specialtyId: '',
+      specialtyIds: [],
     },
     options: {
       specialty: [],
@@ -112,13 +112,13 @@ export function useSubspecialty() {
           await SubspecialtyService.save(
             id,
             state.value.form.name,
-            state.value.form.specialtyId,
+            state.value.form.specialtyIds,
             state.value.form.status,
           )
         else
           await SubspecialtyService.create(
             state.value.form.name,
-            state.value.form.specialtyId,
+            state.value.form.specialtyIds,
           )
       },
       successCallback: async () => {
@@ -169,7 +169,9 @@ export function useSubspecialty() {
     if (item)
       state.value.form = {
         ...item,
-        specialtyId: item.specialty?.id ?? '',
+        specialtyIds: item.specialtyIds?.length
+          ? item.specialtyIds
+          : []
       }
     else clearEditDialog()
 

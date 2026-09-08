@@ -65,7 +65,7 @@
             :rules="[requiredRule]"
           />
 
-          <q-input
+          <!-- <q-input
             v-if="!hiddenSize"
             class="full-width"
             v-model="state.imagePostDialog.width"
@@ -89,7 +89,7 @@
             min="50"
             dense
             readonly
-          />
+          /> -->
         </q-card-section>
         <q-separator />
 
@@ -114,7 +114,7 @@
   </q-dialog>
 </template>
 <script setup lang="ts">
-import { maxWidthContent } from 'src/pages/post-edit/editor.const'
+// import { maxWidthContent } from 'src/pages/post-edit/editor.const'
 import { usePostEditPage } from '../../../usePostEditPage'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { ref } from 'vue'

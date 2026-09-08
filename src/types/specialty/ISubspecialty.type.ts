@@ -6,6 +6,8 @@ export interface ISubspecialty {
   id: string
   name: string
   specialty: ISpecialty | null
+  specialties?: ISpecialty[]
+  specialtyIds?: string[]
   subspecialtyGroup: ISubspecialtyGroup
   status: Status
   createdAt?: string | null

@@ -93,6 +93,22 @@ export const menuOptions: IMenuOptions[] = [
     children: [],
   },
   {
+    icon: 'event',
+    name: 'Agendamentos',
+    separator: false,
+    to: { name: 'bookingManagement' },
+    roles: [],
+    children: [],
+  },
+  {
+    icon: 'event_available',
+    name: 'Disponibilidade',
+    separator: false,
+    to: { name: 'professionalAvailability' },
+    roles: [],
+    children: [],
+  },
+  {
     icon: 'people',
     name: 'Usuários',
     separator: false,
