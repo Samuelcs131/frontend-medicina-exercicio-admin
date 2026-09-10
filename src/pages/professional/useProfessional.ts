@@ -19,8 +19,10 @@ import { IVideo } from 'src/types/video/IVideo.type'
 import { ICity } from 'src/types/city/ICity.type'
 import { ILocalService } from 'src/types/local-service/ILocalService.type'
 import { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
+import { QUploader } from 'quasar'
 
 const DEFAULT_SORT = 'name'
+const uploadInput = ref<QUploader | null>(null)
 
 /** API pode enviar `string[]` ou `{ id: string }[]` (ex.: estados com `sigla`). */
 function toIdList(value: unknown): string[] {
@@ -464,7 +466,18 @@ export function useProfessional() {
 
   function addFile(files: readonly File[]) {
     const [file] = files
-    state.value.form.imageFile = file as File
+
+    const maxSizeInBytes = 1 * 1024 * 1024
+
+    if (!file) return
+
+  if (file.size > maxSizeInBytes) {
+    state.value.form.imageFile = null
+    uploadInput.value?.reset()
+    window.alert('O arquivo possui mais que 1 mega')
+  } else {
+    state.value.form.imageFile = file
+  }
   }
 
   function removeFile() {
@@ -479,6 +492,7 @@ export function useProfessional() {
     tableLoading,
     dialog,
     loader,
+    uploadInput,
     save,
     addFile,
     loadFormCatalog,

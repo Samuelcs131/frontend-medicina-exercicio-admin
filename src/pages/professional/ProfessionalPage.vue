@@ -450,6 +450,7 @@
 
             <div class="col-12">
               <q-uploader
+                ref="uploadInput"
                 class="shadow-0 q-my-md full-width"
                 bordered
                 label="Foto do profissional"
@@ -672,6 +673,7 @@ const {
   tableLoading,
   dialog,
   loader,
+  uploadInput,
   save,
   addFile,
   loadFormCatalog,
