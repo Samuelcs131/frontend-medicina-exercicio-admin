@@ -546,7 +546,9 @@
               unelevated
               type="submit"
               :loading="loaderStatus(loader.edit)"
-              :disable="editFormLoading"
+              :disable="
+                editFormLoading || (!state.form.id && !state.form.imageFile)
+              "
             />
           </q-card-actions>
         </q-form>
