@@ -143,7 +143,7 @@
           <q-card-section class="row q-col-gutter-md">
             <div class="col-12">
               <q-select
-                label="Profissional"
+                label="Profissional *"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.professionalId"
@@ -154,7 +154,7 @@
             </div>
             <div class="col-12">
               <q-input
-                label="Nome completo"
+                label="Nome completo *"
                 :rules="[requiredRule]"
                 v-model="state.form.fullName"
                 v-bind="$vInput"
@@ -162,7 +162,7 @@
             </div>
             <div class="col-12">
               <q-input
-                label="E-mail"
+                label="E-mail *"
                 :rules="[requiredRule, emailRule]"
                 v-model="state.form.email"
                 v-bind="$vInput"
@@ -173,7 +173,7 @@
             </div>
             <div class="col-6">
               <q-input
-                label="Data"
+                label="Data *"
                 type="date"
                 :rules="[requiredRule]"
                 v-model="state.form.date"
@@ -182,7 +182,7 @@
             </div>
             <div class="col-6">
               <q-input
-                label="Horário"
+                label="Horário *"
                 type="time"
                 :rules="[requiredRule]"
                 v-model="state.form.time"
@@ -199,7 +199,7 @@
             </div>
             <div class="col-12" v-if="state.form.id">
               <q-select
-                label="Status"
+                label="Status *"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.status"

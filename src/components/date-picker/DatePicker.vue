@@ -2,6 +2,7 @@
   <q-input
     v-model="dateValue"
     outlined
+    :label="ruleActive ? `${props.label || ''} *` : props.label"
     @update:model-value="emitDateValue"
     :mask="propsCurrent.maskInput"
     :rules="
@@ -66,6 +67,7 @@ import { requiredDate } from 'src/validations/form-rules/dateRules.util'
 
 interface IProps {
   modelValue?: string | null
+  label?: string
   maskInput?: string
   maskDate?: string
   ruleActive?: boolean

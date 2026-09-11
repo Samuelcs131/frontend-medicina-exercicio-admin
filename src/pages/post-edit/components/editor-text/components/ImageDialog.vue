@@ -60,7 +60,7 @@
             class="full-width"
             v-model="state.imagePostDialog.alt"
             outlined
-            label="Descrição"
+            label="Descrição *"
             dense
             :rules="[requiredRule]"
           />

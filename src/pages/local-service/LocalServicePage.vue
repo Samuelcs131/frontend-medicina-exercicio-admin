@@ -106,7 +106,7 @@
           <q-card-section class="row q-col-gutter-md">
             <div class="col-12">
               <q-input
-                label="Nome da clínica ou hospital"
+                label="Nome da clínica ou hospital *"
                 :rules="[requiredRule]"
                 v-model="state.form.name"
                 v-bind="$vInput"
@@ -114,7 +114,7 @@
             </div>
             <div class="col-12" v-if="state.form.id">
               <q-select
-                label="Status"
+                label="Status *"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.status"
@@ -124,7 +124,7 @@
 
             <div class="col-12 col-md-6">
               <q-input
-                label="CEP"
+                label="CEP *"
                 :rules="[requiredRule]"
                 v-model="state.form.zipCode"
                 v-bind="$vInput"
@@ -136,7 +136,7 @@
 
             <div class="col-12 col-md-6">
               <q-input
-                label="Número"
+                label="Número *"
                 :rules="[requiredRule]"
                 v-model="state.form.number"
                 v-bind="$vInput"
@@ -145,7 +145,7 @@
 
             <div class="col-12 col-md-6">
               <q-input
-                label="Estado"
+                label="Estado *"
                 v-bind="$vInput"
                 :rules="[requiredRule]"
                 v-model="state.form.state"
@@ -154,7 +154,7 @@
             </div>
             <div class="col-12 col-md-6">
               <q-input
-                label="Cidade"
+                label="Cidade *"
                 v-bind="$vInput"
                 :rules="[requiredRule]"
                 v-model="state.form.city"
@@ -163,7 +163,7 @@
             </div>
             <div class="col-12">
               <q-input
-                label="Bairro"
+                label="Bairro *"
                 :rules="[requiredRule]"
                 v-model="state.form.neighborhood"
                 v-bind="$vInput"
@@ -172,7 +172,7 @@
             </div>
             <div class="col-12">
               <q-input
-                label="Rua"
+                label="Rua *"
                 :rules="[requiredRule]"
                 v-model="state.form.street"
                 v-bind="$vInput"

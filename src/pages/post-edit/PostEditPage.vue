@@ -21,7 +21,7 @@
                   :options="state.options.specialties"
                   option-value="id"
                   option-label="name"
-                  label="Especialidades"
+                  label="Especialidades *"
                   :rules="[requiredRule]"
                   multiple
                   emit-value
@@ -51,7 +51,7 @@
                   v-model="state.form.title"
                   outlined
                   dense
-                  label="Título da postagem"
+                  label="Título da postagem *"
                   :rules="[requiredRule]"
                   type="text"
                   @update:model-value="handleSlugURL"
@@ -70,7 +70,7 @@
                   v-model="state.form.url"
                   outlined
                   dense
-                  label="URL da publicação"
+                  label="URL da publicação *"
                   readonly
                   :rules="[requiredRule]"
                 />
@@ -80,7 +80,7 @@
                   v-bind="$vSelect"
                   v-model="state.form.status"
                   :options="statusOptions"
-                  label="Status"
+                  label="Status *"
                   :rules="[requiredRule]"
                 />
               </div>
@@ -95,8 +95,15 @@
                   @added="handleSetFile"
                   @removed="handleRemoveFile"
                   label="Thumbnail"
+                  :class="{ 'required-upload': !state.form.id }"
                   accept=".jpeg, .png, .jpg , .webp"
                 />
+                <p
+                  v-if="!state.form.id"
+                  class="text-caption text-negative q-mb-none"
+                >
+                  * Thumbnail obrigatória no cadastro.
+                </p>
                 <p>
                   O arquivo não pode ultrapassar 1 mega, formatos aceitos .jpeg,
                   .png, .jpg, .webp
@@ -242,7 +249,7 @@
                   map-options
                   use-input
                   use-chips
-                  :rules="[(v) => maxArrayRule(v, 4)]"
+                  :rules="[(v) => maxArrayRule(v, 8)]"
                   @filter="
                     (v, update) =>
                       update(
@@ -275,7 +282,7 @@
                   map-options
                   use-input
                   use-chips
-                  :rules="[(v) => maxArrayRule(v, 4)]"
+                  :rules="[(v) => maxArrayRule(v, 8)]"
                   @filter="
                     (v, update) =>
                       update(

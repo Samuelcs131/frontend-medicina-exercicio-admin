@@ -174,7 +174,7 @@
           <q-card-section class="row q-col-gutter-md">
             <div class="col-12">
               <q-input
-                label="Nome"
+                label="Nome *"
                 :rules="[requiredRule]"
                 v-model="state.form.name"
                 v-bind="$vInput"
@@ -183,7 +183,7 @@
 
             <div class="col-12" v-if="state.form.id">
               <q-select
-                label="Status"
+                label="Status *"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.status"
@@ -195,12 +195,19 @@
                 class="shadow-0 q-my-md full-width"
                 bordered
                 label="Imagem"
+                :class="{ 'required-upload': !state.form.id }"
                 max-files="1"
                 hide-upload-btn
                 @added="addFile"
                 @removed="removeFile"
                 accept="image/*"
               />
+              <p
+                v-if="!state.form.id"
+                class="text-caption text-negative q-mb-none"
+              >
+                * Imagem obrigatória no cadastro.
+              </p>
             </div>
 
             <div class="col-12">

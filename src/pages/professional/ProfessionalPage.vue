@@ -119,7 +119,7 @@
           <q-card-section class="row q-col-gutter-md">
             <div class="col-12" v-if="state.form.id">
               <q-select
-                label="Status"
+                label="Status *"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.status"
@@ -129,7 +129,7 @@
 
             <div class="col-12">
               <q-input
-                label="Nome"
+                label="Nome *"
                 :rules="[requiredRule]"
                 v-model="state.form.name"
                 v-bind="$vInput"
@@ -138,7 +138,8 @@
 
             <div class="col-12 col-md-6">
               <q-select
-                label="Especialidades"
+                label="Especialidades *"
+                :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.specialtyIds"
                 multiple
@@ -454,12 +455,19 @@
                 class="shadow-0 q-my-md full-width"
                 bordered
                 label="Foto do profissional"
+                :class="{ 'required-upload': !state.form.id }"
                 max-files="1"
                 hide-upload-btn
                 @added="addFile"
                 @removed="removeFile"
                 accept="image/*"
               />
+              <p
+                v-if="!state.form.id"
+                class="text-caption text-negative q-mb-none"
+              >
+                * Foto obrigatória no cadastro.
+              </p>
             </div>
 
             <div class="col-12">

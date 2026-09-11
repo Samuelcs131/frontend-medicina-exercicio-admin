@@ -116,7 +116,7 @@
           <q-card-section class="row q-col-gutter-md">
             <div class="col-12">
               <q-input
-                label="Nome"
+                label="Nome *"
                 :rules="[requiredRule]"
                 v-model="state.form.name"
                 v-bind="$vInput"
@@ -124,7 +124,7 @@
             </div>
             <div class="col-12" v-if="state.form.id">
               <q-select
-                label="Status"
+                label="Status *"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.status"
@@ -134,7 +134,7 @@
 
             <div class="col-12">
               <q-select
-                label="Especialidades"
+                label="Especialidades *"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.specialtyIds"

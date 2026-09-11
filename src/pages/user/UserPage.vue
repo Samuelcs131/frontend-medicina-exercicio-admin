@@ -87,7 +87,7 @@
         <q-card-section class="row q-col-gutter-md">
           <div class="col-12 col-md-6">
             <q-input
-              label="Nome"
+              label="Nome *"
               :rules="[requiredRule]"
               v-model="state.form.name"
               v-bind="$vInput"
@@ -95,7 +95,7 @@
           </div>
           <div class="col-12 col-md-6">
             <q-input
-              label="Email"
+              label="Email *"
               :rules="[requiredRule, emailRule]"
               v-bind="$vInput"
               v-model="state.form.email"
@@ -103,7 +103,7 @@
           </div>
           <div class="col-12" v-if="state.form.id">
             <q-select
-              label="Status"
+              label="Status *"
               :rules="[requiredRule]"
               v-bind="$vSelect"
               v-model="state.form.status"
@@ -112,7 +112,7 @@
           </div>
           <div class="col-12">
             <q-select
-              label="Tipo de usuário"
+              label="Tipo de usuário *"
               v-model="state.form.roles"
               :rules="[requiredRule]"
               :options="rolesOptions"
@@ -138,7 +138,7 @@
           <template v-if="!state.form.id || state.alterPassword">
             <div class="col-12 col-md-6">
               <q-input
-                label="Senha"
+                label="Senha *"
                 :rules="[requiredRule, strongPasswordRule]"
                 :type="state.visiblePassword ? 'text' : 'password'"
                 v-bind="$vInput"
@@ -157,7 +157,7 @@
             </div>
             <div class="col-12 col-md-6">
               <q-input
-                label="Confirmar senha"
+                label="Confirmar senha *"
                 :type="state.visiblePassword ? 'text' : 'password'"
                 :rules="[
                   requiredRule,

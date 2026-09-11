@@ -23,7 +23,7 @@
           dense
           outlined
           type="password"
-          label="Senha"
+          label="Senha *"
           :disable="loaderStatus(Loader.login)"
           :rules="[requiredRule]"
         ></q-input>

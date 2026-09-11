@@ -124,7 +124,7 @@
           <q-card-section class="row q-col-gutter-md">
             <div class="col-12">
               <q-input
-                label="Nome"
+                label="Nome *"
                 :rules="[requiredRule]"
                 v-model="state.form.name"
                 v-bind="$vInput"
@@ -132,7 +132,7 @@
             </div>
             <div class="col-12">
               <q-input
-                label="Descrição"
+                label="Descrição *"
                 :rules="[requiredRule]"
                 v-model="state.form.description"
                 v-bind="$vInput"
@@ -141,7 +141,7 @@
             </div>
             <div class="col-12">
               <q-input
-                label="URL Youtube"
+                label="URL Youtube *"
                 :rules="[requiredRule]"
                 v-model="state.form.url"
                 v-bind="$vInput"
@@ -149,7 +149,7 @@
             </div>
             <div class="col-12" v-if="state.form.id">
               <q-select
-                label="Status"
+                label="Status *"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.status"
@@ -159,7 +159,7 @@
 
             <div class="col-12">
               <q-select
-                label="Autor"
+                label="Autor *"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.author"
@@ -206,7 +206,7 @@
 
             <div class="col-12 col-md-6">
               <q-select
-                label="Especialidade"
+                label="Especialidade *"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.specialtyIds"
