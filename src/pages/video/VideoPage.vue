@@ -280,7 +280,7 @@
             <div class="col-12">
               <q-select
                 label="Outros vídeos com os convidados"
-                :rules="[(v) => maxArrayRule(v, 2)]"
+                :rules="[(v) => maxArrayRule(v, 8)]"
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.outherVideosIds"
                 multiple
@@ -290,7 +290,24 @@
                   )
                 "
                 option-value="id"
+                option-label="name"
                 use-chips
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.videos = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.videos.filter((video) =>
+                            state.form.guests.some((guest) =>
+                              video.guests.includes(guest),
+                            ),
+                          ),
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />
@@ -301,13 +318,26 @@
             <div class="col-12">
               <q-select
                 label="Mais vídeos"
-                :rules="[(v) => maxArrayRule(v, 2)]"
+                :rules="[(v) => maxArrayRule(v, 8)]"
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.moreVideosIds"
                 multiple
-                :options="state.optionsData.videos"
+                :options="state.options.moreVideos"
                 option-value="id"
+                option-label="name"
                 use-chips
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.moreVideos = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.videos,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />
@@ -318,13 +348,26 @@
             <div class="col-12">
               <q-select
                 label="Encontre especialista"
-                :rules="[(v) => maxArrayRule(v, 2)]"
+                :rules="[(v) => maxArrayRule(v, 8)]"
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.specialtyIds"
                 multiple
                 :options="state.options.specialtyProfessionals"
                 option-value="id"
+                option-label="name"
                 use-chips
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.specialtyProfessionals = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.specialtyProfessionals,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />
@@ -335,7 +378,7 @@
             <div class="col-12">
               <q-select
                 label="Conteúdos informativos"
-                :rules="[(v) => maxArrayRule(v, 4)]"
+                :rules="[(v) => maxArrayRule(v, 8)]"
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.postIds"
                 multiple
@@ -343,6 +386,18 @@
                 option-value="id"
                 option-label="title"
                 use-chips
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.posts = filterFn(
+                          v,
+                          'title',
+                          state.optionsData.posts,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" label="title" />
@@ -353,13 +408,26 @@
             <div class="col-12">
               <q-select
                 label="Vídeos relacionados"
-                :rules="[(v) => maxArrayRule(v, 7)]"
+                :rules="[(v) => maxArrayRule(v, 8)]"
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.relatedVideoIds"
                 multiple
                 :options="state.options.relatedVideos"
                 option-value="id"
+                option-label="name"
                 use-chips
+                use-input
+                @filter="
+                  (v, update) =>
+                    update(
+                      () =>
+                        (state.options.relatedVideos = filterFn(
+                          v,
+                          'name',
+                          state.optionsData.relatedVideos,
+                        )),
+                    )
+                "
               >
                 <template v-slot:selected-item="scope">
                   <chip-select :scope="scope" />

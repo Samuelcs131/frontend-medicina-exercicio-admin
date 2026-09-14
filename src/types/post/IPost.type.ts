@@ -9,6 +9,7 @@ export interface IPost {
   url: string
   professionalId: string
   specialtyIds: string[]
+  subspecialtyIds: string[]
   tagTitle: string
   tagDescription: string
   tagKeywords: string

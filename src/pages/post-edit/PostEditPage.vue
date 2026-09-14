@@ -46,6 +46,38 @@
                 </q-select>
               </div>
 
+              <div class="col-12 q-mb-md">
+                <q-select
+                  v-bind="$vSelect"
+                  v-model="state.form.subspecialtyIds"
+                  :options="subspecialtyOptions"
+                  option-value="id"
+                  option-label="name"
+                  label="Subespecialidades"
+                  clearable
+                  multiple
+                  emit-value
+                  map-options
+                  use-input
+                  use-chips
+                  @filter="
+                    (v, update) =>
+                      update(
+                        () =>
+                          (state.options.subspecialties = filterFn(
+                            v,
+                            'name',
+                            state.optionsData.subspecialties,
+                          )),
+                      )
+                  "
+                >
+                  <template v-slot:selected-item="scope">
+                    <chip-select :scope="scope" />
+                  </template>
+                </q-select>
+              </div>
+
               <div class="col-12">
                 <q-input
                   v-model="state.form.title"
@@ -395,7 +427,7 @@ import DatePicker from 'src/components/date-picker/DatePicker.vue'
 import draggable from 'vuedraggable'
 import EditText from './components/editor-text/EditorText.vue'
 import { usePostEditPage } from './usePostEditPage'
-import { onMounted, onBeforeMount, ref } from 'vue'
+import { computed, onMounted, onBeforeMount, ref } from 'vue'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { useRoute, useRouter } from 'vue-router'
 import { rangeRule } from 'src/validations/form-rules/stringRules.util'
@@ -427,6 +459,20 @@ const {
 } = usePostEditPage()
 
 const uploadInput = ref<QUploader | null>(null)
+
+const subspecialtyOptions = computed(() => {
+  const specialtyIds = state.value.form.specialtyIds
+
+  return state.value.options.subspecialties.filter((subspecialty) => {
+    const relatedSpecialtyIds = [
+      ...(subspecialty.specialty ? [subspecialty.specialty.id] : []),
+      ...(subspecialty.specialtyIds || []),
+      ...(subspecialty.specialties?.map((specialty) => specialty.id) || []),
+    ]
+
+    return specialtyIds.some((id) => relatedSpecialtyIds.includes(id))
+  })
+})
 
 function handleSetFile(files: readonly File[]) {
   const [file] = files

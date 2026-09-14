@@ -6,6 +6,7 @@ import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
 import * as PostService from 'src/services/post.service'
 import * as SpecialityService from 'src/services/speciality/specialty.service'
+import * as SubspecialtyService from 'src/services/speciality/subspecialty.service'
 import * as ProfessionalService from 'src/services/professional/professional.service'
 import { useRouter } from 'vue-router'
 import { IPost, IPostItem } from 'src/types/post/IPost.type'
@@ -17,6 +18,7 @@ import { Roles } from 'src/enums/Roles.enum'
 import { Status } from 'src/enums/Status.enum'
 
 import type { IBasicEntity } from 'src/types/IBasicEntity.type'
+import type { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
 
 interface IForm extends IPost {
   thumbnailFile: File | null
@@ -37,11 +39,13 @@ interface IState {
   }
   options: {
     specialties: IBasicEntity<string>[]
+    subspecialties: ISubspecialty[]
     professional: IBasicEntity<string>[]
     posts: IBasicEntity<string>[]
   }
   optionsData: {
     specialties: IBasicEntity<string>[]
+    subspecialties: ISubspecialty[]
     professional: IBasicEntity<string>[]
     posts: IBasicEntity<string>[]
   }
@@ -55,6 +59,7 @@ const initializeState: IState = {
     professionalId: '',
     schedulingDate: new Date().toISOString(),
     specialtyIds: [],
+    subspecialtyIds: [],
     tagDescription: '',
     tagKeywords: '',
     tagTitle: '',
@@ -86,11 +91,13 @@ const initializeState: IState = {
   },
   options: {
     specialties: [],
+    subspecialties: [],
     professional: [],
     posts: [],
   },
   optionsData: {
     specialties: [],
+    subspecialties: [],
     professional: [],
     posts: [],
   },
@@ -233,12 +240,14 @@ export function usePostEditPage() {
 
     state.value.options = {
       specialties,
+      subspecialties: state.value.optionsData.subspecialties,
       professional: professionals,
       posts,
     }
 
     state.value.optionsData = {
       specialties,
+      subspecialties: state.value.optionsData.subspecialties,
       professional: professionals,
       posts,
     }
@@ -249,6 +258,7 @@ export function usePostEditPage() {
       ...state.value.form,
       professionalId: state.value.form.professionalId || '',
       specialtyIds: [...(state.value.form.specialtyIds || [])],
+      subspecialtyIds: [...(state.value.form.subspecialtyIds || [])],
       recomendations: {
         ...state.value.form.recomendations,
         specialtyIds: [...(state.value.form.recomendations.specialtyIds || [])],
@@ -293,6 +303,7 @@ export function usePostEditPage() {
         : postWithLegacy.specialtyId
           ? [postWithLegacy.specialtyId]
           : [],
+      subspecialtyIds: post.subspecialtyIds || [],
       recomendations: {
         specialtyIds: recomendations.specialtyIds || [],
         readMorePostIds: recomendations.readMorePostIds || [],
@@ -324,23 +335,27 @@ export function usePostEditPage() {
   async function fetchOptionsData() {
     if (state.value.options.professional.length > 0) return
 
-    const [specialties, professionals, posts] = await Promise.all([
-      SpecialityService.getAllNames(),
-      ProfessionalService.getAllNames(),
-      PostService.getAllPostNames(),
-    ])
+    const [specialties, subspecialties, professionals, posts] =
+      await Promise.all([
+        SpecialityService.getAllNames(),
+        SubspecialtyService.getAll(),
+        ProfessionalService.getAllNames(),
+        PostService.getAllPostNames(),
+      ])
 
     const professionalsFilter = professionals
     const postsFilter = posts.filter((post) => post.id !== state.value.form.id)
 
     state.value.options = {
       specialties,
+      subspecialties,
       professional: professionalsFilter,
       posts: postsFilter,
     }
 
     state.value.optionsData = {
       specialties,
+      subspecialties,
       professional: professionalsFilter,
       posts: postsFilter,
     }

@@ -490,7 +490,7 @@
               <q-select
                 label="Videos com o profissional"
                 :disable="!state.form.id"
-                :rules="[(v) => maxArrayRule(v, 4)]"
+                :rules="[(v) => maxArrayRule(v, 8)]"
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.professionalVideoIds"
                 multiple
@@ -507,7 +507,7 @@
             <div class="col-12">
               <q-select
                 label="Conteúdos informativos"
-                :rules="[(v) => maxArrayRule(v, 4)]"
+                :rules="[(v) => maxArrayRule(v, 8)]"
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.informativeContentIds"
                 multiple
@@ -524,7 +524,7 @@
             <div class="col-12">
               <q-select
                 label="Outros especialistas"
-                :rules="[(v) => maxArrayRule(v, 4)]"
+                :rules="[(v) => maxArrayRule(v, 8)]"
                 v-bind="$vSelect"
                 v-model="state.form.recomendations.otherSpecialtyIds"
                 multiple

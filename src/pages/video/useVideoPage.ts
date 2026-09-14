@@ -40,6 +40,7 @@ interface IState {
     specialties: IBasicEntity<string>[]
     subspecialties: ISubspecialty[]
     videos: IVideo[]
+    moreVideos: IVideo[]
     relatedVideos: IVideo[]
     posts: IPostResume[]
     specialtyProfessionals: IBasicEntity<string>[]
@@ -49,6 +50,9 @@ interface IState {
     specialties: IBasicEntity<string>[]
     subspecialties: ISubspecialty[]
     videos: IVideo[]
+    relatedVideos: IVideo[]
+    posts: IPostResume[]
+    specialtyProfessionals: IBasicEntity<string>[]
   }
   filter: string
   filterSpecialtyId: string
@@ -86,12 +90,16 @@ export function useVideoPage() {
       relatedVideos: [],
       posts: [],
       specialtyProfessionals: [],
+      moreVideos: [],
     },
     optionsData: {
       professionals: [],
       specialties: [],
       subspecialties: [],
       videos: [],
+      relatedVideos: [],
+      posts: [],
+      specialtyProfessionals: [],
     },
     actionsData: [],
     actionType: ActionDialogOptions.delete,
@@ -124,6 +132,7 @@ export function useVideoPage() {
         state.value.optionsData.videos = cloneDeep(data)
         state.value.optionsData.videos = cloneDeep(data)
         state.value.list = cloneDeep(data)
+        state.value.options.moreVideos = cloneDeep(data)
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
@@ -174,6 +183,7 @@ export function useVideoPage() {
           ])
 
           state.value.options.posts = posts
+          state.value.optionsData.posts = cloneDeep(posts)
         }
 
         state.value.options.videos = state.value.optionsData.videos.filter(
@@ -191,11 +201,17 @@ export function useVideoPage() {
           state.value.optionsData.videos.filter((video) => {
             return video.specialtyIds.some((s) => guestSpecialties.has(s))
           })
+        state.value.optionsData.relatedVideos = cloneDeep(
+          state.value.options.relatedVideos,
+        )
 
         state.value.options.specialtyProfessionals =
           state.value.optionsData.specialties.filter((specialty) =>
             guestSpecialties.has(specialty.id),
           )
+        state.value.optionsData.specialtyProfessionals = cloneDeep(
+          state.value.options.specialtyProfessionals,
+        )
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
