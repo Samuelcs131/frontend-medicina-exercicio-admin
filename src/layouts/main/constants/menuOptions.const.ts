@@ -16,14 +16,14 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Especialidades',
     separator: false,
     to: { name: '' },
-    roles: [],
+    roles: [Roles.admin],
     children: [
       {
         icon: '',
         name: 'Áreas profissionais',
         separator: false,
         to: { name: 'profissionalArea' },
-        roles: [],
+        roles: [Roles.admin],
         children: [],
       },
       {
@@ -31,7 +31,7 @@ export const menuOptions: IMenuOptions[] = [
         name: 'Especialidades',
         separator: false,
         to: { name: 'specialty' },
-        roles: [],
+        roles: [Roles.admin],
         children: [],
       },
       {
@@ -39,7 +39,7 @@ export const menuOptions: IMenuOptions[] = [
         name: 'Grupo de artigos',
         separator: false,
         to: { name: 'subspecialtyGroup' },
-        roles: [],
+        roles: [Roles.admin],
         children: [],
       },
       {
@@ -47,7 +47,7 @@ export const menuOptions: IMenuOptions[] = [
         name: 'Subespecialidades',
         separator: false,
         to: { name: 'subspecialty' },
-        roles: [],
+        roles: [Roles.admin],
         children: [],
       },
     ],
@@ -57,7 +57,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Locais de atendimento',
     separator: false,
     to: { name: 'localService' },
-    roles: [],
+    roles: [Roles.admin],
     children: [],
   },
   {
@@ -65,7 +65,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Profissionais',
     separator: false,
     to: { name: 'professional' },
-    roles: [],
+    roles: [Roles.admin, Roles.medico],
     children: [],
   },
   {
@@ -73,7 +73,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Postagens',
     separator: false,
     to: { name: 'post' },
-    roles: [],
+    roles: [Roles.admin, Roles.editor, Roles.colaborador],
     children: [],
   },
   {
@@ -81,7 +81,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Vídeos',
     separator: false,
     to: { name: 'video' },
-    roles: [],
+    roles: [Roles.admin],
     children: [],
   },
   {
@@ -89,7 +89,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Apoiadores',
     separator: false,
     to: { name: 'supporter' },
-    roles: [],
+    roles: [Roles.admin],
     children: [],
   },
   {
@@ -97,7 +97,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Agendamentos',
     separator: false,
     to: { name: 'bookingManagement' },
-    roles: [],
+    roles: [Roles.admin, Roles.medico],
     children: [],
   },
   {
@@ -105,7 +105,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Disponibilidade',
     separator: false,
     to: { name: 'professionalAvailability' },
-    roles: [],
+    roles: [Roles.admin, Roles.medico],
     children: [],
   },
   {
@@ -113,7 +113,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Usuários',
     separator: false,
     to: { name: 'user' },
-    roles: [],
+    roles: [Roles.admin],
     children: [],
   },
   {

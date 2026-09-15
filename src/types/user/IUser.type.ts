@@ -6,7 +6,8 @@ export interface IUser {
   name: string
   email: string
   status: Status
-  roles: Roles[]
+  role: Roles
+  professionalId?: string | null
   createdAt?: string | null
   updatedAt?: string | null
 }

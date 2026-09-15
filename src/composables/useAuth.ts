@@ -43,7 +43,8 @@ export function useAuth() {
       JSON.stringify({
         name: userData.name,
         email: userData.email,
-        roles: userData.roles
+        role: userData.role,
+        professionalId: userData.professionalId,
       }),
     )
 

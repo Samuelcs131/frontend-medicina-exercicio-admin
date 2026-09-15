@@ -1,15 +1,6 @@
 import type { QTableColumn } from 'quasar'
 import { rolesDictionary } from 'src/constants/roles.const'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatPermissions<T>(value: Array<T>, dictionary: any) {
-  const roles = value
-    .map((role: T) => dictionary[role].name)
-    .slice(0, 3)
-    .join(', ')
-  return `${roles}${value.length > 4 ? ` (+${value.length - 3})` : ''}`
-}
-
 export const userTableColumns: QTableColumn[] = [
   {
     label: 'Nome',
@@ -27,11 +18,11 @@ export const userTableColumns: QTableColumn[] = [
   },
   {
     label: 'Tipo de usuário',
-    field: 'roles',
-    name: 'roles',
+    field: 'role',
+    name: 'role',
     sortable: true,
     align: 'left',
-    format: (v) => formatPermissions(v, rolesDictionary),
+    format: (v: unknown) => v ? rolesDictionary[v as keyof typeof rolesDictionary].name : '',
   },
   {
     label: 'Status',

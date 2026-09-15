@@ -1,13 +1,15 @@
 import { useDialog } from 'src/composables/useDialog'
 import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
-import type { Roles } from 'src/enums/Roles.enum'
+import { Roles } from 'src/enums/Roles.enum'
 import type { Status } from 'src/enums/Status.enum'
+import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import type { IUser } from 'src/types/user/IUser.type'
 import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
 import * as UserService from 'src/services/user/user.service'
+import * as ProfessionalService from 'src/services/professional/professional.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 
 const DEFAULT_SORT = 'name'
@@ -20,11 +22,13 @@ interface IState {
     name: string
     email: string
     status: Status
-    roles: Roles[]
+    role: Roles
+    professionalId: string | null
     password: string
     confirmPassword: string
   }
   list: IUser[]
+  professionals: IBasicEntity<string>[]
   actionType: ActionDialogOptions
   actionsData: IUser[]
   activeOnly: boolean
@@ -33,9 +37,7 @@ interface IState {
 export function useUser() {
   const initState: IState = {
     form: {
-      roles: [],
-      shippingType: [],
-      shootingPermissions: [],
+      professionalId: null,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any,
     visiblePassword: false,
@@ -43,6 +45,7 @@ export function useUser() {
     actionsData: [],
     actionType: ActionDialogOptions.delete,
     list: [],
+    professionals: [],
     activeOnly: true,
   }
 
@@ -77,11 +80,27 @@ export function useUser() {
       },
     })
 
+  async function fetchProfessionals() {
+    await requester.dispatch({
+      callback: async () => {
+        state.value.professionals = await ProfessionalService.getAllNames()
+      },
+      errorMessageTitle: 'Houve um erro',
+      errorMessage: 'Não foi possível buscar os profissionais',
+      loaders: [loader.list],
+    })
+  }
+
   async function save() {
     const id = state.value.form.id
 
     await requester.dispatch({
       callback: async () => {
+        const professionalId =
+          state.value.form.role === Roles.medico
+            ? state.value.form.professionalId
+            : null
+
         if (id)
           await UserService.save(
             id,
@@ -89,14 +108,16 @@ export function useUser() {
             state.value.form.name,
             state.value.form.password,
             state.value.form.status,
-            state.value.form.roles,
+            state.value.form.role,
+            professionalId,
           )
         else
           await UserService.create(
             state.value.form.email,
             state.value.form.name,
-            state.value.form.roles,
+            state.value.form.role,
             state.value.form.password,
+            professionalId,
           )
       },
       successCallback: async () => {
@@ -105,9 +126,8 @@ export function useUser() {
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
-      errorMessage: `Não foi possível ${
-        state.value.form.id ? 'editar' : 'salvar'
-      }`,
+      errorMessage: `Não foi possível ${state.value.form.id ? 'editar' : 'salvar'
+        }`,
       loaders: [loader.edit],
     })
   }
@@ -140,6 +160,7 @@ export function useUser() {
     if (item)
       state.value.form = {
         ...item,
+        professionalId: item.professionalId ?? null,
         confirmPassword: '',
         password: '',
       }
@@ -181,5 +202,6 @@ export function useUser() {
     clearEditDialog,
     openActionDialog,
     toggleActiveOnly,
+    fetchProfessionals,
   }
 }

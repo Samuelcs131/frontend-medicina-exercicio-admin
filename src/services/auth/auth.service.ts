@@ -20,7 +20,10 @@ export async function login(
 
   return {
     token,
-    ...user,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    professionalId: user.professionalId ?? null,
   }
 }
 

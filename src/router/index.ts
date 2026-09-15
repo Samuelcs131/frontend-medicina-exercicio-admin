@@ -12,6 +12,8 @@ import { CookieKey } from 'src/enums/CookieKey.enum'
 import { useCookies } from 'src/composables/useCookies'
 import { useLocalStorage } from 'src/composables/useLocalStorage'
 import { clearAuthStorage } from 'src/helpers/auth/authSession'
+import { Roles } from 'src/enums/Roles.enum';
+import { handleRoles } from 'src/utils/roles.util';
 
 /*
  * If not building with SSR mode, you can
@@ -55,6 +57,12 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     }
 
     try {
+
+      if (to.meta?.roles) {
+        const roles = to.meta?.roles as Roles[]
+        if (!handleRoles(roles)) return next({ name: '/app/home' })
+      }
+
       await AuthService.validateSession(token)
       return next()
     } catch {

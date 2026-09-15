@@ -113,17 +113,23 @@
           <div class="col-12">
             <q-select
               label="Tipo de usuário *"
-              v-model="state.form.roles"
+              v-model="state.form.role"
               :rules="[requiredRule]"
               :options="rolesOptions"
               v-bind="$vSelect"
-              multiple
-              use-chips
-            >
-              <template v-slot:selected-item="scope">
-                <chip-select :scope="scope" />
-              </template>
-            </q-select>
+            />
+          </div>
+
+          <div class="col-12" v-if="state.form.role === Roles.medico">
+            <q-select
+              v-bind="$vSelect"
+              label="Profissional *"
+              v-model="state.form.professionalId"
+              :rules="[requiredRule]"
+              :options="state.professionals"
+              option-value="id"
+              option-label="name"
+            />
           </div>
 
           <div class="col-12" v-if="state.form.id">
@@ -189,7 +195,6 @@ import ActionDialog from 'src/components/dialog/ActionDialog.vue'
 import ActionHeader from 'src/components/action-header/ActionHeader.vue'
 import StatusRow from 'src/components/table/StatusRow.vue'
 import EditDialog from 'src/components/dialog/EditDialog.vue'
-import ChipSelect from 'src/components/select/ChipSelect.vue'
 import { onMounted, ref } from 'vue'
 import type { QTable } from 'quasar'
 import { useUser } from './useUser'
@@ -202,6 +207,7 @@ import {
 import { rolesOptions } from 'src/constants/roles.const'
 import { statusOptions } from 'src/constants/status.const'
 import { emailRule } from 'src/validations/form-rules/stringRules.util'
+import { Roles } from 'src/enums/Roles.enum'
 
 const {
   state,
@@ -218,6 +224,7 @@ const {
   clearEditDialog,
   openActionDialog,
   toggleActiveOnly,
+  fetchProfessionals,
 } = useUser()
 
 const tableRef = ref<QTable | null>(null)
@@ -225,6 +232,7 @@ const tableRef = ref<QTable | null>(null)
 onMounted(() => {
   createDialog([dialog.edit])
   tableRef.value?.requestServerInteraction()
+  void fetchProfessionals()
 })
 
 async function handleActiveOnlyChange(value: boolean) {

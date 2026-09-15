@@ -17,42 +17,21 @@ export async function getListPaginated(
 export async function getAll(): Promise<IUser[]> {
   const { data } = await api.get('/users')
   return data.users
-  /* return [
-    {
-      id: '1',
-      name: 'Nome 1',
-      email: 'mail.com',
-      roles: [Roles.admin],
-      status: Status.active,
-    },
-    {
-      id: '2',
-      name: 'Nome 2',
-      email: 'mail.com',
-      roles: [Roles.admin],
-      status: Status.active,
-    },
-    {
-      id: '3',
-      name: 'Nome 3',
-      email: 'mail.com',
-      roles: [Roles.admin],
-      status: Status.active,
-    },
-  ] */
 }
 
 export async function create(
   email: string,
   name: string,
-  roles: Roles[],
+  role: Roles,
   password: string,
+  professionalId?: string | null,
 ) {
   await api.post('/users', {
     email,
     name,
-    roles,
+    role,
     password,
+    ...(role === Roles.medico ? { professionalId } : {}),
   })
 }
 
@@ -62,14 +41,16 @@ export async function save(
   name: string,
   password: string,
   status: Status,
-  roles: Roles[],
+  role: Roles,
+  professionalId?: string | null,
 ) {
   await api.put(`/users/${id}`, {
     email,
     name,
-    password,
     status,
-    roles,
+    role,
+    ...(password ? { password } : {}),
+    ...(role === Roles.medico ? { professionalId } : {}),
   })
 }
 

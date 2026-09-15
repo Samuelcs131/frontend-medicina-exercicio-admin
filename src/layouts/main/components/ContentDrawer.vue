@@ -49,27 +49,13 @@
 import logo from 'assets/img/logo/logo.webp'
 import logoSimple from 'assets/img/logo/logo-simple.png'
 import { menuOptions } from '../constants/menuOptions.const'
-import { Roles } from 'src/enums/Roles.enum'
-import { useLocalStorage } from 'src/composables/useLocalStorage'
-import { LocalStorageKey } from 'src/enums/LocalStorageKey.enum'
+import { handleRoles } from 'src/utils/roles.util'
 
 interface IProps {
   mini?: boolean
 }
 
 defineProps<IProps>()
-
-function handleRoles(roles: Roles[]) {
-  if (roles.length == 0) return true
-
-  const { getLocalStorage } = useLocalStorage()
-
-  const userRoles: Roles[] =
-    JSON.parse(getLocalStorage(LocalStorageKey.user))?.roles || []
-
-  if (userRoles.includes(Roles.admin)) return true
-  return roles.some((role) => userRoles.includes(role))
-}
 </script>
 <style lang="scss">
 #menu-content-drawer {
