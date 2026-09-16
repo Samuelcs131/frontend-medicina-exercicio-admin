@@ -204,7 +204,7 @@
               </p>
             </div>
 
-            <div class="col-12 col-md-6">
+            <div class="col-12">
               <q-select
                 label="Especialidade *"
                 :rules="[requiredRule]"
@@ -233,7 +233,7 @@
                 </template>
               </q-select>
             </div>
-            <div class="col-12 col-md-6">
+            <div class="col-12 q-mb-md">
               <q-select
                 label="Subespecialidade"
                 v-bind="$vSelect"

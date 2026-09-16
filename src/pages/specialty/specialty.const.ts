@@ -9,7 +9,7 @@ export const specialtyTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
-    label: 'Área médica',
+    label: 'Área profissional',
     field: 'professionalArea',
     name: 'professionalArea',
     sortable: false,

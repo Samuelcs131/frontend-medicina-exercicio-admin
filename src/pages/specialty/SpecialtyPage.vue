@@ -19,7 +19,7 @@
         outlined
         dense
         clearable
-        label="Área médica"
+        label="Área profissional"
         v-model="state.filterProfessionalAreaId"
         :options="state.options.professionalAreas"
         option-value="id"
@@ -129,7 +129,7 @@
 
             <div class="col-12">
               <q-select
-                label="Área médica *"
+                label="Área profissional *"
                 :rules="[requiredRule]"
                 v-bind="$vSelect"
                 v-model="state.form.professionalAreaId"

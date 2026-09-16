@@ -127,15 +127,8 @@
                   @added="handleSetFile"
                   @removed="handleRemoveFile"
                   label="Thumbnail"
-                  :class="{ 'required-upload': !state.form.id }"
                   accept=".jpeg, .png, .jpg , .webp"
                 />
-                <p
-                  v-if="!state.form.id"
-                  class="text-caption text-negative q-mb-none"
-                >
-                  * Thumbnail obrigatória no cadastro.
-                </p>
                 <p>
                   O arquivo não pode ultrapassar 1 mega, formatos aceitos .jpeg,
                   .png, .jpg, .webp
