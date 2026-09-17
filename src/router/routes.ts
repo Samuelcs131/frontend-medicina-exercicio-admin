@@ -75,7 +75,7 @@ const routes: RouteRecordRaw[] = [
         path: 'professional',
         name: 'professional',
         component: () => import('pages/professional/ProfessionalPage.vue'),
-        meta: { requiresAuth: true, roles: [Roles.admin] },
+        meta: { requiresAuth: true, roles: [Roles.admin, Roles.medico] },
       },
       {
         path: 'video',
