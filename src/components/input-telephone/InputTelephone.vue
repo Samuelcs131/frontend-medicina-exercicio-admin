@@ -7,6 +7,7 @@
     type="text"
     :rules="[validateTelephone]"
     @update:model-value="onInput"
+    style="min-width: 200px;"
   >
     <template v-slot:after>
       <q-btn

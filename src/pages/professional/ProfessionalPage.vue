@@ -2,7 +2,7 @@
   <q-page class="container q-layout-padding">
     <h1 class="text-h5">Profissionais</h1>
 
-    <div class="flex gap-md q-mb-lg">
+    <div v-if="hasRoles([Roles.admin])" class="flex gap-md q-mb-lg">
       <q-input
         outlined
         dense
@@ -36,7 +36,7 @@
       dense
       bordered
       :class="{ 'professional-table--transition': tableLoading }"
-      selection="multiple"
+      :selection="hasRoles([Roles.admin]) ? 'multiple' : undefined"
       v-model:selected="state.actionsData"
       v-model:pagination="pagination"
       :rows="state.list"
@@ -50,12 +50,14 @@
       <template #top-right>
         <div class="row items-center q-gutter-md">
           <q-checkbox
+            v-if="hasRoles([Roles.admin])"
             :model-value="state.activeOnly"
             label="Apenas ativos"
             :disable="tableLoading"
             @update:model-value="handleActiveOnlyChange"
           />
           <action-header
+            v-if="hasRoles([Roles.admin])"
             label-new-entity="Novo profissional"
             :has-active="!state.actionsData.length"
             :loader-id="loader.list"
@@ -136,7 +138,7 @@
               />
             </div>
 
-            <div class="col-12 col-md-6">
+            <div class="col-12">
               <q-select
                 label="Especialidades *"
                 :rules="[requiredRule]"
@@ -166,7 +168,7 @@
                 </template>
               </q-select>
             </div>
-            <div class="col-12 col-md-6">
+            <div class="col-12">
               <q-select
                 label="Subespecialidades"
                 v-bind="$vSelect"
@@ -349,13 +351,13 @@
                   </div>
                 </div>
 
-                <div class="col-12 col-md-6">
+                <div class="col-12">
                   <div
                     v-for="(_, index) in getContactList(local.id)"
                     :key="`${local.id}-contact-${index}`"
-                    class="row q-col-gutter-sm q-mb-sm"
+                    class="row q-col-gutter-sm q-mb-sm items-center"
                   >
-                    <div class="col">
+                    <div class="col-12 col-md">
                       <input-telephone
                         :model-value="getContactValue(local.id, index)"
                         @update:model-value="
@@ -363,8 +365,8 @@
                         "
                       />
                     </div>
-                    <div class="col-auto">
-                      <div class="q-mt-xs">
+                    <div class="col-12 col-md-auto">
+                      <div class="row items-center justify-end q-gutter-xs">
                         <q-btn
                           dense
                           flat
@@ -380,18 +382,18 @@
                           :disable="getContactList(local.id).length === 1"
                           @click="removeContactField(local.id, index)"
                         />
+                        <q-toggle
+                          :model-value="getContactWhatsapp(local.id, index)"
+                          label="WhatsApp?"
+                          color="primary"
+                          class="q-ml-sm"
+                          @update:model-value="
+                            setContactWhatsapp(local.id, index, $event)
+                          "
+                        />
                       </div>
                     </div>
                   </div>
-                </div>
-
-                <div class="col-12 col-md-6">
-                  <q-toggle
-                    v-model="getInfoLocalService(local.id).hasWhatsapp"
-                    label="WhatsApp?"
-                    class="q-mb-md"
-                    color="primary"
-                  />
                 </div>
 
                 <div class="col-12">
@@ -582,6 +584,10 @@ import { maxArrayRule } from 'src/validations/form-rules/arrayRules.util'
 import { filterFn } from 'src/utils/filter.util'
 import { truncateText } from 'src/utils/text.util'
 import InputTelephone from 'src/components/input-telephone/InputTelephone.vue'
+import { useRoles } from 'src/composables/useRoles'
+import { Roles } from 'src/enums/Roles.enum'
+
+const { hasRoles } = useRoles()
 
 const citiesOptions = computed(() => {
   return state.value.optionsData.cities.filter((city) =>
@@ -618,8 +624,7 @@ function getInfoLocalService(localServiceId: string) {
   if (!info) {
     info = {
       localServiceId,
-      contact: [],
-      hasWhatsapp: false,
+      contacts: [],
       complement: '',
     }
     state.value.form.serviceLocations.push(info)
@@ -629,17 +634,20 @@ function getInfoLocalService(localServiceId: string) {
 
 function getContactList(localServiceId: string) {
   const info = getInfoLocalService(localServiceId)
-  if (!Array.isArray(info.contact)) {
-    info.contact = []
+  if (!Array.isArray(info.contacts)) {
+    info.contacts = []
   }
-  if (!info.contact.length) {
-    info.contact.push('')
+  if (!info.contacts.length) {
+    info.contacts.push({ number: '', hasWhatsapp: false })
   }
-  return info.contact
+  return info.contacts
 }
 
 function addContactField(localServiceId: string) {
-  getInfoLocalService(localServiceId).contact.push('')
+  getInfoLocalService(localServiceId).contacts.push({
+    number: '',
+    hasWhatsapp: false,
+  })
 }
 
 function removeContactField(localServiceId: string, index: number) {
@@ -649,7 +657,7 @@ function removeContactField(localServiceId: string, index: number) {
 }
 
 function getContactValue(localServiceId: string, index: number) {
-  return getContactList(localServiceId)[index] ?? ''
+  return getContactList(localServiceId)[index]?.number ?? ''
 }
 
 function setContactValue(
@@ -657,7 +665,21 @@ function setContactValue(
   index: number,
   value: string | null,
 ) {
-  getContactList(localServiceId)[index] = value ?? ''
+  const contact = getContactList(localServiceId)[index]
+  if (contact) contact.number = value ?? ''
+}
+
+function getContactWhatsapp(localServiceId: string, index: number) {
+  return getContactList(localServiceId)[index]?.hasWhatsapp ?? false
+}
+
+function setContactWhatsapp(
+  localServiceId: string,
+  index: number,
+  value: boolean,
+) {
+  const contact = getContactList(localServiceId)[index]
+  if (contact) contact.hasWhatsapp = value
 }
 
 function resetCityIds() {

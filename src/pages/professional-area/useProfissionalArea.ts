@@ -65,7 +65,7 @@ export function useProfissionalArea() {
       fetchPage: (q) =>
         ProfessionalAreaService.getListPaginated({
           ...q,
-          all: !state.value.activeOnly,
+          status: state.value.activeOnly ? Status.active : undefined
         }),
       applyResponse: (res) => {
         state.value.list = res.data

@@ -40,16 +40,44 @@ function toIdList(value: unknown): string[] {
     .filter(Boolean)
 }
 
-function toContactList(value: unknown): string[] {
+interface IContact {
+  number: string
+  hasWhatsapp: boolean
+}
+
+function toContactList(value: unknown, legacyHasWhatsapp = false): IContact[] {
   if (Array.isArray(value)) {
     return value
-      .map((entry) => String(entry ?? '').trim())
-      .filter(Boolean)
+      .map((entry) => {
+        if (typeof entry === 'string' || typeof entry === 'number') {
+          return {
+            number: String(entry).trim(),
+            hasWhatsapp: legacyHasWhatsapp,
+          }
+        }
+
+        if (entry && typeof entry === 'object' && 'number' in entry) {
+          const contact = entry as { number: unknown; hasWhatsapp?: unknown }
+          const number =
+            typeof contact.number === 'string' || typeof contact.number === 'number'
+              ? String(contact.number).trim()
+              : ''
+          return {
+            number,
+            hasWhatsapp: Boolean(contact.hasWhatsapp),
+          }
+        }
+
+        return null
+      })
+      .filter((contact): contact is IContact => contact != null && Boolean(contact.number))
   }
 
   if (typeof value === 'string') {
     const contact = value.trim()
-    return contact ? [contact] : []
+    return contact
+      ? [{ number: contact, hasWhatsapp: legacyHasWhatsapp }]
+      : []
   }
 
   return []
@@ -349,10 +377,20 @@ export function useProfessional() {
       subspecialtyIds: item.subspecialtyIds ?? [],
       locationService: item.locationService ?? [],
       serviceLocations:
-        item.serviceLocations?.map((location) => ({
-          ...location,
-          contact: toContactList(location.contact),
-        })) ?? [],
+        item.serviceLocations?.map((location) => {
+          const legacyLocation = location as IProfessionalLocalServiceInfo & {
+            contact?: unknown
+            hasWhatsapp?: unknown
+          }
+
+          return {
+            ...location,
+            contacts: toContactList(
+              location.contacts ?? legacyLocation.contact,
+              Boolean(legacyLocation.hasWhatsapp),
+            ),
+          }
+        }) ?? [],
       imageFile: null,
       states: toIdList(item.states),
       cities: toIdList(item.cities),
@@ -451,8 +489,7 @@ export function useProfessional() {
       return (
         current ?? {
           localServiceId,
-          contact: [],
-          hasWhatsapp: false,
+          contacts: [],
           complement: '',
         }
       )
@@ -471,13 +508,13 @@ export function useProfessional() {
 
     if (!file) return
 
-  if (file.size > maxSizeInBytes) {
-    state.value.form.imageFile = null
-    uploadInput.value?.reset()
-    window.alert('O arquivo possui mais que 1 mega')
-  } else {
-    state.value.form.imageFile = file
-  }
+    if (file.size > maxSizeInBytes) {
+      state.value.form.imageFile = null
+      uploadInput.value?.reset()
+      window.alert('O arquivo possui mais que 1 mega')
+    } else {
+      state.value.form.imageFile = file
+    }
   }
 
   function removeFile() {

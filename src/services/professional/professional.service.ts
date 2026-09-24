@@ -2,7 +2,10 @@ import { api } from 'src/boot/axios'
 import { Status } from 'src/enums/Status.enum'
 import type { IListResponse } from 'src/types/api/IListResponse.type'
 import type { IBasicEntity } from 'src/types/IBasicEntity.type'
-import type { IProfessional } from 'src/types/professional/IProfessional.type'
+import type {
+  IProfessional,
+  IProfessionalLocalServiceInfo,
+} from 'src/types/professional/IProfessional.type'
 import { buildListParams, type IListQuery } from 'src/utils/listQuery.util'
 
 export async function getListPaginated(
@@ -40,7 +43,7 @@ export async function create(
   subspecialtyIds: string[],
   aboutMy: string,
   localServiceIds: string[],
-  serviceLocations: { localServiceId: string; contact: string[]; hasWhatsapp: boolean; complement: string }[],
+  serviceLocations: IProfessionalLocalServiceInfo[],
   instagram: string,
   site: string,
   teleconsultation: boolean,
@@ -92,7 +95,7 @@ export async function save(
   subspecialtyIds: string[],
   aboutMy: string,
   localServiceIds: string[],
-  serviceLocations: { localServiceId: string; contact: string[]; hasWhatsapp: boolean; complement: string }[],
+  serviceLocations: IProfessionalLocalServiceInfo[],
   instagram: string,
   site: string,
   teleconsultation: boolean,
