@@ -53,7 +53,7 @@
             </div>
             <div class="col-12 col-md-6">
               <q-input
-                label="Email *"
+                label="Confirmar senha *"
                 :type="state.visiblePassword ? 'text' : 'password'"
                 :rules="[
                   requiredRule,

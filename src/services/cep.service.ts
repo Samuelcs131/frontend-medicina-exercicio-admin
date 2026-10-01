@@ -1,13 +1,5 @@
 import axios from "axios"
 
-interface ICepResponse {
-  cep: string
-  estado: string
-  localidade: string
-  bairro: string
-  logradouro: string
-}
-
 interface ILocation {
   state: string
   city: string
@@ -16,9 +8,13 @@ interface ILocation {
 }
 
 export async function getLocationByCEP(cep: string): Promise<ILocation> {
-  const { data } = await axios.get<ICepResponse>(`/ws/${cep}/json/`, {
+  const { data } = await axios.get(`/ws/${cep}/json/`, {
     baseURL: 'https://viacep.com.br',
   })
+
+  if (data && data.erro) {
+    throw new Error('CEP not found')
+  }
 
   return {
     state: data.estado,

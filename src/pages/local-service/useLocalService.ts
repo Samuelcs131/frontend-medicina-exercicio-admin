@@ -115,8 +115,8 @@ export function useLocalService() {
         state.value.form.street = location.street
         state.value.form.neighborhood = location.neighborhood
       },
-      errorMessageTitle: 'Houve um erro',
-      errorMessage: 'Não foi possível buscar os dados',
+      errorMessageTitle: 'CEP inválido',
+      errorMessage: 'Não foi possível buscar os dados do CEP',
     })
   }
 

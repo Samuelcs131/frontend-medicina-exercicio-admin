@@ -70,12 +70,12 @@ export function useProfile() {
 
         const { setLocalStorage, getLocalStorage } = useLocalStorage()
 
-        const user = getLocalStorage(LocalStorageKey.user) || {}
+        const user = getLocalStorage<string>(LocalStorageKey.user)
 
         setLocalStorage(
           LocalStorageKey.user,
           JSON.stringify({
-            ...user,
+            ...JSON.parse(user),
             email: state.value.form.email,
             name: state.value.form.name,
           }),

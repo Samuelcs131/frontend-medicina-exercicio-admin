@@ -57,6 +57,7 @@
             @update:model-value="handleActiveOnlyChange"
           />
           <action-header
+            v-if="isAdmin()"
             label-new-entity="Nova postagem"
             :has-active="!state.actionsData.length"
             :loader-id="loader.list"
@@ -163,6 +164,9 @@ import type { QTable } from 'quasar'
 import { usePost } from './usePost'
 import { postTableColumns } from './post.const'
 import { truncateText } from 'src/utils/text.util'
+import { useRoles } from 'src/composables/useRoles'
+
+const { isAdmin } = useRoles()
 
 const {
   state,
