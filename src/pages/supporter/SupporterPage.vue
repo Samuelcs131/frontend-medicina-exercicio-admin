@@ -35,11 +35,17 @@
     >
       <template #top-right>
         <div class="row items-center q-gutter-md">
-          <q-checkbox
-            :model-value="state.activeOnly"
-            label="Apenas ativos"
+          <q-select
+            outlined
+            dense
+            :model-value="state.statusFilter"
+            :options="listStatusOptions"
+            label="Status"
+            emit-value
+            map-options
+            style="min-width: 140px"
             :disable="tableLoading"
-            @update:model-value="handleActiveOnlyChange"
+            @update:model-value="changeStatusFilter"
           />
           <action-header
             label-new-entity="Novo apoiador"
@@ -174,7 +180,7 @@ import type { QTable } from 'quasar'
 import { useSupporter } from './useSupporter'
 import { supporterTableColumns } from './supporter.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
-import { statusOptions } from 'src/constants/status.const'
+import { listStatusOptions, statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import ImageRow from 'src/components/table/ImageRow.vue'
 
@@ -195,7 +201,7 @@ const {
   openEditDialog,
   clearEditDialog,
   openActionDialog,
-  toggleActiveOnly,
+  changeStatusFilter,
 } = useSupporter()
 
 const tableRef = ref<QTable | null>(null)
@@ -203,10 +209,6 @@ const tableRef = ref<QTable | null>(null)
 onMounted(() => {
   tableRef.value?.requestServerInteraction()
 })
-
-async function handleActiveOnlyChange(value: boolean) {
-  await toggleActiveOnly(value)
-}
 </script>
 
 <style scoped>

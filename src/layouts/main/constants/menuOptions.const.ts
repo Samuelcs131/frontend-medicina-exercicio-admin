@@ -65,7 +65,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Profissionais',
     separator: false,
     to: { name: 'professional' },
-    roles: [Roles.admin, Roles.medico],
+    roles: [Roles.admin, Roles.professional],
     children: [],
   },
   {
@@ -97,7 +97,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Agendamentos',
     separator: false,
     to: { name: 'bookingManagement' },
-    roles: [Roles.admin, Roles.medico],
+    roles: [Roles.admin, Roles.professional],
     children: [],
   },
   {
@@ -105,7 +105,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Disponibilidade',
     separator: false,
     to: { name: 'professionalAvailability' },
-    roles: [Roles.admin, Roles.medico],
+    roles: [Roles.admin, Roles.professional],
     children: [],
   },
   {

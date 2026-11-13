@@ -34,11 +34,17 @@
     >
       <template #top-right>
         <div class="row items-center q-gutter-md">
-          <q-checkbox
-            :model-value="state.activeOnly"
-            label="Apenas ativos"
+          <q-select
+            outlined
+            dense
+            :model-value="state.statusFilter"
+            :options="listStatusOptions"
+            label="Status"
+            emit-value
+            map-options
+            style="min-width: 140px"
             :disable="tableLoading"
-            @update:model-value="handleActiveOnlyChange"
+            @update:model-value="changeStatusFilter"
           />
           <action-header
             label-new-entity="Novo local"
@@ -143,6 +149,16 @@
               />
             </div>
 
+            <p class="cursor-pointer">
+              Como obter o CEP? Acesse o site dos
+              <a
+                href="https://buscacepinter.correios.com.br/app/endereco/index.php"
+                target="_blank"
+                class="text-primary"
+                >Correios</a
+              >.
+            </p>
+
             <div class="col-12 col-md-6">
               <q-input
                 label="Estado *"
@@ -245,7 +261,7 @@ import type { QTable } from 'quasar'
 import { useLocalService } from './useLocalService'
 import { localServiceTableColumns } from './localService.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
-import { statusOptions } from 'src/constants/status.const'
+import { listStatusOptions, statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import exampleCoordinates from 'src/assets/placeholder/example-coordinates.png'
 import { truncateText } from 'src/utils/text.util'
@@ -266,15 +282,11 @@ const {
   openGoogleMaps,
   clearEditDialog,
   openActionDialog,
-  toggleActiveOnly,
+  changeStatusFilter,
   getLocationByCEP,
 } = useLocalService()
 
 const tableRef = ref<QTable | null>(null)
-
-async function handleActiveOnlyChange(value: boolean) {
-  await toggleActiveOnly(value)
-}
 
 onMounted(() => {
   tableRef.value?.requestServerInteraction()

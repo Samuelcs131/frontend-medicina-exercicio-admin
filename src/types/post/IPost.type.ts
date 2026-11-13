@@ -30,6 +30,7 @@ export interface IPostNameListItem {
   title: string
   createdAt?: string | null
   specialtyIds: string[]
+  status: Status
 }
 
 export type IPostListResponse = IListResponse<IPostNameListItem>

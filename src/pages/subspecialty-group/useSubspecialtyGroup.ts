@@ -1,7 +1,7 @@
 import { useDialog } from 'src/composables/useDialog'
 import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
-import { Status } from 'src/enums/Status.enum'
+import { ListStatus, Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
@@ -46,7 +46,7 @@ interface IState {
   selectedSpecialtyId: string | null
   actionType: ActionDialogOptions
   actionsData: ISubspecialtyGroup[]
-  activeOnly: boolean
+  statusFilter: ListStatus
 }
 
 export function useSubspecialtyGroup() {
@@ -75,7 +75,7 @@ export function useSubspecialtyGroup() {
     actionType: ActionDialogOptions.delete,
     list: [],
     selectedSpecialtyId: null,
-    activeOnly: true,
+    statusFilter: ListStatus.all,
   }
 
   const dialog = {
@@ -104,7 +104,7 @@ export function useSubspecialtyGroup() {
         SubspecialtyGroupService.getListPaginated(
           {
             ...q,
-            all: !state.value.activeOnly,
+            status: state.value.statusFilter,
           },
           state.value.selectedSpecialtyId,
         ),
@@ -126,22 +126,27 @@ export function useSubspecialtyGroup() {
     return [...data].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   }
 
-  async function saveOrder(orderedList: ISubspecialtyGroup[]) {
-    if (!state.value.selectedSpecialtyId) return
+  async function saveOrder(
+    orderedList: ISubspecialtyGroup[],
+  ): Promise<boolean> {
+    const specialtyId = state.value.selectedSpecialtyId
+    if (!specialtyId) return false
 
     const groups = orderedList.map((item, index) => ({
       id: item.id,
       order: index + 1,
     }))
+    let saved = false
 
     await requester.dispatch({
       callback: async () => {
         await SubspecialtyGroupService.updateOrdersBySpecialty(
-          state.value.selectedSpecialtyId!,
+          specialtyId,
           groups,
         )
       },
       successCallback: async () => {
+        saved = true
         await refreshCurrentPage()
       },
       successMessageTitle: 'Ordem salva com sucesso',
@@ -149,6 +154,8 @@ export function useSubspecialtyGroup() {
       errorMessage: 'N?o foi poss?vel salvar a ordem',
       loaders: [loader.saveOrder],
     })
+
+    return saved
   }
 
   async function fetchOptions() {
@@ -290,7 +297,7 @@ export function useSubspecialtyGroup() {
 
       const videoIds: string[] =
         (item.videoIds?.length ?? 0) > 0
-          ? item.videoIds ?? []
+          ? (item.videoIds ?? [])
           : (item.videos ?? []).map((v) => v.id)
 
       const specialtyId = item.specialty?.id || ''
@@ -343,8 +350,8 @@ export function useSubspecialtyGroup() {
     // reservado
   }
 
-  async function toggleActiveOnly(activeOnly: boolean) {
-    state.value.activeOnly = activeOnly
+  async function changeStatusFilter(statusFilter: ListStatus) {
+    state.value.statusFilter = statusFilter
     pagination.value.page = 1
     await refreshCurrentPage()
   }
@@ -373,7 +380,7 @@ export function useSubspecialtyGroup() {
     openActionDialog,
     updatePostOrder,
     onSpecialtyChange,
-    toggleActiveOnly,
+    changeStatusFilter,
     saveOrder,
     fetchGroupsForOrderDialog,
   }

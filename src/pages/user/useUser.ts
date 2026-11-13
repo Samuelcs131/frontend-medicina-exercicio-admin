@@ -2,7 +2,7 @@ import { useDialog } from 'src/composables/useDialog'
 import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
 import { Roles } from 'src/enums/Roles.enum'
-import type { Status } from 'src/enums/Status.enum'
+import { ListStatus, type Status } from 'src/enums/Status.enum'
 import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import type { IUser } from 'src/types/user/IUser.type'
 import { cloneDeep } from 'src/utils/clone.util'
@@ -31,7 +31,7 @@ interface IState {
   professionals: IBasicEntity<string>[]
   actionType: ActionDialogOptions
   actionsData: IUser[]
-  activeOnly: boolean
+  statusFilter: ListStatus
 }
 
 export function useUser() {
@@ -46,7 +46,7 @@ export function useUser() {
     actionType: ActionDialogOptions.delete,
     list: [],
     professionals: [],
-    activeOnly: true,
+    statusFilter: ListStatus.all,
   }
 
   const dialog = {
@@ -73,7 +73,7 @@ export function useUser() {
       fetchPage: (q) =>
         UserService.getListPaginated({
           ...q,
-          all: !state.value.activeOnly,
+          status: state.value.statusFilter,
         }),
       applyResponse: (res) => {
         state.value.list = res.data
@@ -97,7 +97,7 @@ export function useUser() {
     await requester.dispatch({
       callback: async () => {
         const professionalId =
-          state.value.form.role === Roles.medico
+          state.value.form.role === Roles.professional
             ? state.value.form.professionalId
             : null
 
@@ -126,8 +126,9 @@ export function useUser() {
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
-      errorMessage: `Não foi possível ${state.value.form.id ? 'editar' : 'salvar'
-        }`,
+      errorMessage: `Não foi possível ${
+        state.value.form.id ? 'editar' : 'salvar'
+      }`,
       loaders: [loader.edit],
     })
   }
@@ -178,8 +179,8 @@ export function useUser() {
     toggleDialog(dialog.action)
   }
 
-  async function toggleActiveOnly(activeOnly: boolean) {
-    state.value.activeOnly = activeOnly
+  async function changeStatusFilter(statusFilter: ListStatus) {
+    state.value.statusFilter = statusFilter
     pagination.value.page = 1
     await refreshCurrentPage()
   }
@@ -201,7 +202,7 @@ export function useUser() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
-    toggleActiveOnly,
+    changeStatusFilter,
     fetchProfessionals,
   }
 }

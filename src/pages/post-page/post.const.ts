@@ -32,6 +32,13 @@ export const postTableColumns: QTableColumn[] = [
     format: (v) => formatDate(v as string | null | undefined),
   },
   {
+    label: 'Status',
+    field: 'status',
+    name: 'status',
+    sortable: true,
+    align: 'left',
+  },
+  {
     label: 'Ações',
     field: 'actions',
     name: 'actions',

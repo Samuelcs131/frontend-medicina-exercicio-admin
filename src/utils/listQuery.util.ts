@@ -13,15 +13,18 @@ export interface IListQuery {
 /** Parâmetros extras (ex.: specialtyId) enviados na query string. */
 export function buildListParams(
   base: IListQuery,
-  extra?: Record<string, string | number | boolean | string[] | null | undefined>,
+  extra?: Record<
+    string,
+    string | number | boolean | string[] | null | undefined
+  >,
 ): Record<string, string | number | boolean | string[]> {
   const p: Record<string, string | number | boolean | string[]> = {
-    all: base.all ?? true,
     page: base.page,
     limit: base.limit,
     orderby: base.orderby,
     ordertype: base.ordertype,
   }
+  if (base.all !== undefined) p.all = base.all
   const s = base.search?.trim()
   if (s) p.search = s
 

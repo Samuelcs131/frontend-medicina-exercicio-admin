@@ -50,11 +50,17 @@
     >
       <template #top-right>
         <div class="row items-center q-gutter-md">
-          <q-checkbox
-            :model-value="state.activeOnly"
-            label="Apenas ativos"
+          <q-select
+            outlined
+            dense
+            :model-value="state.statusFilter"
+            :options="listStatusOptions"
+            label="Status"
+            emit-value
+            map-options
+            style="min-width: 140px"
             :disable="tableLoading"
-            @update:model-value="handleActiveOnlyChange"
+            @update:model-value="changeStatusFilter"
           />
           <action-header
             v-if="isAdmin()"
@@ -84,6 +90,9 @@
           </div>
           <span v-else>-</span>
         </q-td>
+      </template>
+      <template #body-cell-status="props">
+        <status-row :props="props" />
       </template>
       <template #body-cell-actions="props">
         <q-td :props="props">
@@ -165,6 +174,8 @@ import { usePost } from './usePost'
 import { postTableColumns } from './post.const'
 import { truncateText } from 'src/utils/text.util'
 import { useRoles } from 'src/composables/useRoles'
+import { listStatusOptions } from 'src/constants/status.const'
+import StatusRow from 'src/components/table/StatusRow.vue'
 
 const { isAdmin } = useRoles()
 
@@ -181,7 +192,7 @@ const {
   openEditDialog,
   openActionDialog,
   openSpecialtiesDialog,
-  toggleActiveOnly,
+  changeStatusFilter,
   toggleDialog,
   dialogIsOpen,
 } = usePost()
@@ -195,10 +206,6 @@ onMounted(() => {
 function getSpecialtyName(specialtyId: string): string {
   const specialty = state.value.specialties.find((s) => s.id === specialtyId)
   return specialty?.name || '-'
-}
-
-async function handleActiveOnlyChange(value: boolean) {
-  await toggleActiveOnly(value)
 }
 
 async function handleSpecialtyFilterChange(value: string) {

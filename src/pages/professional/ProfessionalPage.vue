@@ -49,12 +49,18 @@
     >
       <template #top-right>
         <div class="row items-center q-gutter-md">
-          <q-checkbox
+          <q-select
             v-if="hasRoles([Roles.admin])"
-            :model-value="state.activeOnly"
-            label="Apenas ativos"
+            outlined
+            dense
+            :model-value="state.statusFilter"
+            :options="listStatusOptions"
+            label="Status"
+            emit-value
+            map-options
+            style="min-width: 140px"
             :disable="tableLoading"
-            @update:model-value="handleActiveOnlyChange"
+            @update:model-value="changeStatusFilter"
           />
           <action-header
             v-if="hasRoles([Roles.admin])"
@@ -309,10 +315,7 @@
                 <template v-slot:option="props">
                   <q-item v-bind="props.itemProps">
                     <q-item-section>
-                      {{ props.opt.name }} [N°{{ props.opt.number }}]
-                      <div class="text-caption">
-                        {{ props.opt.city }} - {{ props.opt.state }}
-                      </div>
+                      {{ formatLocalServiceOption(props.opt) }}
                     </q-item-section>
                   </q-item>
                 </template>
@@ -576,7 +579,7 @@ import type { QTable } from 'quasar'
 import { useProfessional } from './useProfessional'
 import { professionalTableColumns } from './professional.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
-import { statusOptions } from 'src/constants/status.const'
+import { listStatusOptions, statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import ImageRow from 'src/components/table/ImageRow.vue'
 import ChipSelect from 'src/components/select/ChipSelect.vue'
@@ -586,8 +589,33 @@ import { truncateText } from 'src/utils/text.util'
 import InputTelephone from 'src/components/input-telephone/InputTelephone.vue'
 import { useRoles } from 'src/composables/useRoles'
 import { Roles } from 'src/enums/Roles.enum'
+import type { ILocalService } from 'src/types/local-service/ILocalService.type'
 
 const { hasRoles } = useRoles()
+
+function formatZipCode(zipCode: string) {
+  const digits = zipCode.replace(/\D/g, '')
+  if (digits.length !== 8) return zipCode
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`
+}
+
+function formatLocalServiceOption(local: ILocalService) {
+  const streetAndNumber = [local.street, local.number]
+    .filter((value) => value !== null && value !== undefined && value !== '')
+    .join(', ')
+  const cityAndState = [local.city, local.state].filter(Boolean).join('/')
+  const zipCode = local.zipCode ? `CEP ${formatZipCode(local.zipCode)}` : ''
+
+  return [
+    local.name,
+    streetAndNumber,
+    local.neighborhood,
+    cityAndState,
+    zipCode,
+  ]
+    .filter(Boolean)
+    .join(' – ')
+}
 
 const citiesOptions = computed(() => {
   return state.value.optionsData.cities.filter((city) =>
@@ -716,7 +744,7 @@ const {
   openEditDialog,
   clearEditDialog,
   openActionDialog,
-  toggleActiveOnly,
+  changeStatusFilter,
   syncInfoLocalService,
 } = useProfessional()
 
@@ -726,10 +754,6 @@ onMounted(() => {
   tableRef.value?.requestServerInteraction()
   void loadFormCatalog()
 })
-
-async function handleActiveOnlyChange(value: boolean) {
-  await toggleActiveOnly(value)
-}
 
 async function handleSpecialtyFilterChange(value: string) {
   state.value.filterSpecialtyId = value

@@ -75,7 +75,7 @@ const routes: RouteRecordRaw[] = [
         path: 'professional',
         name: 'professional',
         component: () => import('pages/professional/ProfessionalPage.vue'),
-        meta: { requiresAuth: true, roles: [Roles.admin, Roles.medico] },
+        meta: { requiresAuth: true, roles: [Roles.admin, Roles.professional] },
       },
       {
         path: 'video',
@@ -106,14 +106,14 @@ const routes: RouteRecordRaw[] = [
         name: 'bookingManagement',
         component: () =>
           import('pages/booking-management/BookingManagementPage.vue'),
-        meta: { requiresAuth: true, roles: [Roles.admin, Roles.medico] },
+        meta: { requiresAuth: true, roles: [Roles.admin, Roles.professional] },
       },
       {
         path: 'professionalAvailability',
         name: 'professionalAvailability',
         component: () =>
           import('pages/professional-availability/ProfessionalAvailabilityPage.vue'),
-        meta: { requiresAuth: true, roles: [Roles.admin, Roles.medico] },
+        meta: { requiresAuth: true, roles: [Roles.admin, Roles.professional] },
       },
     ],
   },

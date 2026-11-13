@@ -1,4 +1,19 @@
-import { Status } from 'src/enums/Status.enum'
+import { ListStatus, Status } from 'src/enums/Status.enum'
+
+export const listStatusOptions = [
+  {
+    label: 'Todos',
+    value: ListStatus.all,
+  },
+  {
+    label: 'Ativos',
+    value: ListStatus.active,
+  },
+  {
+    label: 'Inativos',
+    value: ListStatus.inactive,
+  },
+]
 
 export const statusOptions = [
   {

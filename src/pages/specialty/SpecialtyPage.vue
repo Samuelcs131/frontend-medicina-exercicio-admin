@@ -49,11 +49,17 @@
     >
       <template #top-right>
         <div class="row items-center q-gutter-md">
-          <q-checkbox
-            :model-value="state.activeOnly"
-            label="Apenas ativos"
+          <q-select
+            outlined
+            dense
+            :model-value="state.statusFilter"
+            :options="listStatusOptions"
+            label="Status"
+            emit-value
+            map-options
+            style="min-width: 140px"
             :disable="tableLoading"
-            @update:model-value="handleActiveOnlyChange"
+            @update:model-value="changeStatusFilter"
           />
           <action-header
             label-new-entity="Nova especialidade"
@@ -171,7 +177,7 @@ import type { QTable } from 'quasar'
 import { useSpecialty } from './useSpecialty'
 import { specialtyTableColumns } from './specialty.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
-import { statusOptions } from 'src/constants/status.const'
+import { listStatusOptions, statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import { truncateText } from 'src/utils/text.util'
 
@@ -192,7 +198,7 @@ const {
   openEditDialog,
   clearEditDialog,
   openActionDialog,
-  toggleActiveOnly,
+  changeStatusFilter,
 } = useSpecialty()
 
 const tableRef = ref<QTable | null>(null)
@@ -201,10 +207,6 @@ onMounted(async () => {
   await fetchOptions()
   tableRef.value?.requestServerInteraction()
 })
-
-async function handleActiveOnlyChange(value: boolean) {
-  await toggleActiveOnly(value)
-}
 
 async function handleProfessionalAreaChange(value: string) {
   state.value.filterProfessionalAreaId = value

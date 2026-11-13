@@ -9,9 +9,16 @@ export const localServiceTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
-    label: 'Estado',
-    field: 'state',
-    name: 'state',
+    label: 'Rua',
+    field: 'street',
+    name: 'street',
+    sortable: true,
+    align: 'left',
+  },
+  {
+    label: 'Número',
+    field: 'number',
+    name: 'number',
     sortable: true,
     align: 'left',
   },
@@ -23,11 +30,25 @@ export const localServiceTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
-    label: 'Número',
-    field: 'number',
-    name: 'number',
+    label: 'Estado',
+    field: 'state',
+    name: 'state',
     sortable: true,
     align: 'left',
+  },
+  {
+    label: 'CEP',
+    field: 'zipCode',
+    name: 'zipCode',
+    sortable: true,
+    align: 'left',
+    format: (value) => {
+      const zipCode = String(value ?? '')
+      const digits = zipCode.replace(/\D/g, '')
+      return digits.length === 8
+        ? `${digits.slice(0, 5)}-${digits.slice(5)}`
+        : zipCode
+    },
   },
   {
     label: 'Status',

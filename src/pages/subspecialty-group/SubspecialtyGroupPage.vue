@@ -82,11 +82,17 @@
     >
       <template #top-right>
         <div class="row items-center q-gutter-md">
-          <q-checkbox
-            :model-value="state.activeOnly"
-            label="Apenas ativos"
+          <q-select
+            outlined
+            dense
+            :model-value="state.statusFilter"
+            :options="listStatusOptions"
+            label="Status"
+            emit-value
+            map-options
+            style="min-width: 140px"
             :disable="tableLoading"
-            @update:model-value="handleActiveOnlyChange"
+            @update:model-value="changeStatusFilter"
           />
           <action-header
             label-new-entity="Novo grupo de artigos"
@@ -408,7 +414,7 @@ import { useSubspecialtyGroup } from './useSubspecialtyGroup'
 import { subspecialtyGroupTableColumns } from './subspecialtyGroup.const'
 import type { QTableColumn } from 'quasar'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
-import { statusOptions } from 'src/constants/status.const'
+import { listStatusOptions, statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import ImageRow from 'src/components/table/ImageRow.vue'
 import { truncateText } from 'src/utils/text.util'
@@ -442,7 +448,7 @@ const {
   openActionDialog,
   updatePostOrder,
   onSpecialtyChange,
-  toggleActiveOnly,
+  changeStatusFilter,
   saveOrder,
   fetchGroupsForOrderDialog,
 } = useSubspecialtyGroup()
@@ -517,8 +523,8 @@ function closeOrderDialog() {
 }
 
 async function saveOrderFromDialog() {
-  await saveOrder(orderDialogList.value)
-  closeOrderDialog()
+  const saved = await saveOrder(orderDialogList.value)
+  if (saved) closeOrderDialog()
 }
 
 async function handleSpecialtyChange(
@@ -526,10 +532,6 @@ async function handleSpecialtyChange(
 ) {
   selectedSpecialty.value = value
   await onSpecialtyChange(value?.id ?? null)
-}
-
-async function handleActiveOnlyChange(value: boolean) {
-  await toggleActiveOnly(value)
 }
 
 const selectedPosts = computed({

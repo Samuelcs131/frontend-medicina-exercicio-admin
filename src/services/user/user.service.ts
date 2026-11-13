@@ -31,7 +31,7 @@ export async function create(
     name,
     role,
     password,
-    ...(role === Roles.medico ? { professionalId } : {}),
+    ...(role === Roles.professional ? { professionalId } : {}),
   })
 }
 
@@ -50,7 +50,7 @@ export async function save(
     status,
     role,
     ...(password ? { password } : {}),
-    ...(role === Roles.medico ? { professionalId } : {}),
+    ...(role === Roles.professional ? { professionalId } : {}),
   })
 }
 

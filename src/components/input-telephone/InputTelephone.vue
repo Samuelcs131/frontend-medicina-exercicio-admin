@@ -7,7 +7,7 @@
     type="text"
     :rules="[validateTelephone]"
     @update:model-value="onInput"
-    style="min-width: 200px;"
+    style="min-width: 200px"
   >
     <template v-slot:after>
       <q-btn
@@ -46,8 +46,15 @@ function onInput(v: string | number | null) {
 watch(
   () => props.modelValue,
   (value) => {
-    display.value = value ?? ''
-    isTelephone.value = display.value.length === 10
+    const normalizedValue = value ?? ''
+
+    // O q-input atualiza `display` antes de emitir o valor para o componente
+    // pai. Nesse caso, preserva o tipo atual para que o 10º dígito de um
+    // celular não altere a máscara antes da entrada do 11º dígito.
+    if (normalizedValue === display.value) return
+
+    display.value = normalizedValue
+    isTelephone.value = normalizedValue.length === 10
   },
   { immediate: true },
 )

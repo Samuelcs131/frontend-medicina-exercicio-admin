@@ -1,7 +1,7 @@
 import { useDialog } from 'src/composables/useDialog'
 import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
-import { Status } from 'src/enums/Status.enum'
+import { ListStatus, Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
@@ -39,7 +39,7 @@ interface IState {
   list: ILocalService[]
   actionType: ActionDialogOptions
   actionsData: ILocalService[]
-  activeOnly: boolean
+  statusFilter: ListStatus
 }
 
 export function useLocalService() {
@@ -67,7 +67,7 @@ export function useLocalService() {
     actionsData: [],
     actionType: ActionDialogOptions.delete,
     list: [],
-    activeOnly: true,
+    statusFilter: ListStatus.all,
   }
 
   const dialog = {
@@ -95,7 +95,7 @@ export function useLocalService() {
       fetchPage: (q) =>
         LocalServiceService.getListPaginated({
           ...q,
-          all: !state.value.activeOnly,
+          status: state.value.statusFilter,
         }),
       applyResponse: (res) => {
         state.value.list = res.data
@@ -103,20 +103,22 @@ export function useLocalService() {
     })
 
   async function getLocationByCEP() {
-
     if (state.value.form.zipCode.length !== 8) return
 
     await requester.dispatch({
       callback: async () => {
-        const location = await CEPService.getLocationByCEP(state.value.form.zipCode)
+        const location = await CEPService.getLocationByCEP(
+          state.value.form.zipCode,
+        )
 
         state.value.form.state = location.state
         state.value.form.city = location.city
         state.value.form.street = location.street
         state.value.form.neighborhood = location.neighborhood
       },
-      errorMessageTitle: 'CEP inválido',
-      errorMessage: 'Não foi possível buscar os dados do CEP',
+      errorMessageTitle: 'CEP não encontrado',
+      errorMessage:
+        'O CEP informado não foi encontrado na base de dados dos Correios.',
     })
   }
 
@@ -159,8 +161,9 @@ export function useLocalService() {
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
-      errorMessage: `Não foi possível ${state.value.form.id ? 'editar' : 'salvar'
-        }`,
+      errorMessage: `Não foi possível ${
+        state.value.form.id ? 'editar' : 'salvar'
+      }`,
       loaders: [loader.edit],
     })
   }
@@ -190,8 +193,7 @@ export function useLocalService() {
   }
 
   function openEditDialog(item?: ILocalService) {
-    if (item)
-      state.value.form = { ...item }
+    if (item) state.value.form = { ...item }
     else clearEditDialog()
 
     toggleDialog(dialog.edit)
@@ -211,8 +213,8 @@ export function useLocalService() {
     window.open(url, '_blank')
   }
 
-  async function toggleActiveOnly(activeOnly: boolean) {
-    state.value.activeOnly = activeOnly
+  async function changeStatusFilter(statusFilter: ListStatus) {
+    state.value.statusFilter = statusFilter
     pagination.value.page = 1
     await refreshCurrentPage()
   }
@@ -235,7 +237,7 @@ export function useLocalService() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
-    toggleActiveOnly,
+    changeStatusFilter,
     getLocationByCEP,
   }
 }

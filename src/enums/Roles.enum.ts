@@ -1,6 +1,6 @@
 export enum Roles {
   admin = 'ADMIN',
   editor = 'EDITOR',
-  medico = 'MEDICO',
+  professional = 'PROFISSIONAL',
   colaborador = 'COLABORADOR'
 }

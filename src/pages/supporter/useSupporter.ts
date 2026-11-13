@@ -1,7 +1,7 @@
 import { useDialog } from 'src/composables/useDialog'
 import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
-import { Status } from 'src/enums/Status.enum'
+import { ListStatus, Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
@@ -23,7 +23,7 @@ interface IState {
   list: ISupporter[]
   actionType: ActionDialogOptions
   actionsData: ISupporter[]
-  activeOnly: boolean
+  statusFilter: ListStatus
 }
 
 export function useSupporter() {
@@ -38,7 +38,7 @@ export function useSupporter() {
     actionsData: [],
     actionType: ActionDialogOptions.delete,
     list: [],
-    activeOnly: true,
+    statusFilter: ListStatus.all,
   }
 
   const dialog = {
@@ -65,7 +65,7 @@ export function useSupporter() {
       fetchPage: (q) =>
         SupporterService.getListPaginated({
           ...q,
-          all: !state.value.activeOnly,
+          status: state.value.statusFilter,
         }),
       applyResponse: (res) => {
         state.value.list = res.data
@@ -162,8 +162,8 @@ export function useSupporter() {
     state.value.form.imageFile = null
   }
 
-  async function toggleActiveOnly(activeOnly: boolean) {
-    state.value.activeOnly = activeOnly
+  async function changeStatusFilter(statusFilter: ListStatus) {
+    state.value.statusFilter = statusFilter
     pagination.value.page = 1
     await refreshCurrentPage()
   }
@@ -187,6 +187,6 @@ export function useSupporter() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
-    toggleActiveOnly,
+    changeStatusFilter,
   }
 }

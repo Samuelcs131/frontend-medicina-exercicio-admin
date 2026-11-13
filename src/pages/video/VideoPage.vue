@@ -46,9 +46,15 @@
     >
       <template #top-right>
         <div class="row items-center q-gutter-md">
-          <q-checkbox
-            v-model="state.activeOnly"
-            label="Apenas ativos"
+          <q-select
+            outlined
+            dense
+            v-model="state.statusFilter"
+            :options="listStatusOptions"
+            label="Status"
+            emit-value
+            map-options
+            style="min-width: 140px"
             :disable="loaderStatus(loader.list)"
           />
           <action-header
@@ -467,7 +473,7 @@ import { computed, onMounted, watch } from 'vue'
 import { useVideoPage } from './useVideoPage'
 import { videoPageTableColumns } from './videoPage.const'
 import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
-import { statusOptions } from 'src/constants/status.const'
+import { listStatusOptions, statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import { thumbnailYoutube } from 'src/utils/youtube.util'
 import ChipSelect from 'src/components/select/ChipSelect.vue'
@@ -476,7 +482,7 @@ import { filterFn } from 'src/utils/filter.util'
 import { truncateText } from 'src/utils/text.util'
 import { useDialog } from 'src/composables/useDialog'
 import { formatDate } from 'src/utils/date.util'
-import { Status } from 'src/enums/Status.enum'
+import { ListStatus, Status } from 'src/enums/Status.enum'
 
 const {
   state,
@@ -507,15 +513,18 @@ const subspecialtyOptions = computed(() => {
 
 const currentList = computed(() => {
   return state.value.list.filter((video) => {
-    const matchesActiveOnly = state.value.activeOnly
-      ? video.status === Status.active
-      : true
+    const matchesStatus =
+      state.value.statusFilter === ListStatus.all ||
+      video.status ===
+        (state.value.statusFilter === ListStatus.active
+          ? Status.active
+          : Status.inactive)
 
     const matchesSpecialtyFilter = state.value.filterSpecialtyId
       ? video.specialtyIds.includes(state.value.filterSpecialtyId)
       : true
 
-    return matchesActiveOnly && matchesSpecialtyFilter
+    return matchesStatus && matchesSpecialtyFilter
   })
 })
 

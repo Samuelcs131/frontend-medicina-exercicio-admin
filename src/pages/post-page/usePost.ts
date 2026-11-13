@@ -10,6 +10,7 @@ import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
 import type { IPostNameListItem } from 'src/types/post/IPost.type'
 import type { ISpecialty } from 'src/types/specialty/ISpecialty.type'
 import { useRouter } from 'vue-router'
+import { ListStatus } from 'src/enums/Status.enum'
 
 const DEFAULT_POST_SORT = 'createdAt'
 
@@ -19,7 +20,7 @@ interface IState {
   actionsData: IPostNameListItem[]
   specialties: ISpecialty[]
   selectedSpecialties: ISpecialty[]
-  activeOnly: boolean
+  statusFilter: ListStatus
   filterSpecialtyId: string
 }
 
@@ -30,7 +31,7 @@ export function usePost() {
     list: [],
     specialties: [],
     selectedSpecialties: [],
-    activeOnly: true,
+    statusFilter: ListStatus.all,
     filterSpecialtyId: '',
   }
 
@@ -67,7 +68,7 @@ export function usePost() {
         const [postsRes, specialties] = await Promise.all([
           PostService.getListPaginated({
             ...q,
-            all: !state.value.activeOnly,
+            status: state.value.statusFilter,
             specialtyId: state.value.filterSpecialtyId,
           }),
           specialtiesPromise,
@@ -119,8 +120,8 @@ export function usePost() {
     })
   }
 
-  async function toggleActiveOnly(activeOnly: boolean) {
-    state.value.activeOnly = activeOnly
+  async function changeStatusFilter(statusFilter: ListStatus) {
+    state.value.statusFilter = statusFilter
     pagination.value.page = 1
     await refreshCurrentPage()
   }
@@ -153,7 +154,7 @@ export function usePost() {
     confirmAction,
     openEditDialog,
     openActionDialog,
-    toggleActiveOnly,
+    changeStatusFilter,
     getSpecialtiesByIds,
     openSpecialtiesDialog,
   }

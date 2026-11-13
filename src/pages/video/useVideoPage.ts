@@ -1,6 +1,6 @@
 import { useDialog } from 'src/composables/useDialog'
 import { useLoader } from 'src/composables/useLoader'
-import { Status } from 'src/enums/Status.enum'
+import { ListStatus, Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
@@ -59,7 +59,7 @@ interface IState {
   list: IVideo[]
   actionType: ActionDialogOptions
   actionsData: IVideo[]
-  activeOnly: boolean
+  statusFilter: ListStatus
 }
 
 export function useVideoPage() {
@@ -106,7 +106,7 @@ export function useVideoPage() {
     list: [],
     filterSpecialtyId: '',
     filter: '',
-    activeOnly: true,
+    statusFilter: ListStatus.all,
   }
 
   const dialog = {
@@ -156,11 +156,10 @@ export function useVideoPage() {
   async function fetchOptions() {
     await requester.dispatch({
       callback: async () => {
-        const [specialties, subspecialties] =
-          await Promise.all([
-            SpecialtyService.getAll(),
-            SubspecialtyService.getAll(),
-          ])
+        const [specialties, subspecialties] = await Promise.all([
+          SpecialtyService.getAll(),
+          SubspecialtyService.getAll(),
+        ])
 
         state.value.options.specialties = cloneDeep(specialties)
         state.value.options.subspecialties = cloneDeep(subspecialties)
@@ -255,8 +254,9 @@ export function useVideoPage() {
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
-      errorMessage: `Não foi possível ${state.value.form.id ? 'editar' : 'salvar'
-        }`,
+      errorMessage: `Não foi possível ${
+        state.value.form.id ? 'editar' : 'salvar'
+      }`,
       loaders: [loader.edit],
     })
   }

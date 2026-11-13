@@ -36,11 +36,17 @@
     >
       <template #top-right>
         <div class="row items-center q-gutter-md">
-          <q-checkbox
-            :model-value="state.activeOnly"
-            label="Apenas ativos"
+          <q-select
+            outlined
+            dense
+            :model-value="state.statusFilter"
+            :options="listStatusOptions"
+            label="Status"
+            emit-value
+            map-options
+            style="min-width: 140px"
             :disable="tableLoading"
-            @update:model-value="handleActiveOnlyChange"
+            @update:model-value="changeStatusFilter"
           />
           <action-header
             label-new-entity="Novo usuário"
@@ -120,7 +126,7 @@
             />
           </div>
 
-          <div class="col-12" v-if="state.form.role === Roles.medico">
+          <div class="col-12" v-if="state.form.role === Roles.professional">
             <q-select
               v-bind="$vSelect"
               label="Profissional *"
@@ -205,7 +211,7 @@ import {
   strongPasswordRule,
 } from 'src/validations/form-rules/mixedRules.util'
 import { rolesOptions } from 'src/constants/roles.const'
-import { statusOptions } from 'src/constants/status.const'
+import { listStatusOptions, statusOptions } from 'src/constants/status.const'
 import { emailRule } from 'src/validations/form-rules/stringRules.util'
 import { Roles } from 'src/enums/Roles.enum'
 
@@ -223,7 +229,7 @@ const {
   openEditDialog,
   clearEditDialog,
   openActionDialog,
-  toggleActiveOnly,
+  changeStatusFilter,
   fetchProfessionals,
 } = useUser()
 
@@ -234,10 +240,6 @@ onMounted(() => {
   tableRef.value?.requestServerInteraction()
   void fetchProfessionals()
 })
-
-async function handleActiveOnlyChange(value: boolean) {
-  await toggleActiveOnly(value)
-}
 </script>
 
 <style scoped>

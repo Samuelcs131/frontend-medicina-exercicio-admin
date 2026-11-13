@@ -1,7 +1,7 @@
 import { useDialog } from 'src/composables/useDialog'
 import { useListTableRequest } from 'src/composables/useListTableRequest'
 import { useLoader } from 'src/composables/useLoader'
-import { Status } from 'src/enums/Status.enum'
+import { ListStatus, Status } from 'src/enums/Status.enum'
 import { cloneDeep } from 'src/utils/clone.util'
 import { ref } from 'vue'
 import requester from 'src/helpers/requester/Requester.helper'
@@ -13,7 +13,10 @@ import * as StateService from 'src/services/location/state.service'
 import * as CityService from 'src/services/location/city.service'
 import * as VideoService from 'src/services/video/video.service'
 import { ActionDialogOptions } from 'src/enums/ActionDialogOptions.enum'
-import type { IProfessional, IProfessionalLocalServiceInfo } from 'src/types/professional/IProfessional.type'
+import type {
+  IProfessional,
+  IProfessionalLocalServiceInfo,
+} from 'src/types/professional/IProfessional.type'
 import type { IBasicEntity } from 'src/types/IBasicEntity.type'
 import { IVideo } from 'src/types/video/IVideo.type'
 import { ICity } from 'src/types/city/ICity.type'
@@ -59,7 +62,8 @@ function toContactList(value: unknown, legacyHasWhatsapp = false): IContact[] {
         if (entry && typeof entry === 'object' && 'number' in entry) {
           const contact = entry as { number: unknown; hasWhatsapp?: unknown }
           const number =
-            typeof contact.number === 'string' || typeof contact.number === 'number'
+            typeof contact.number === 'string' ||
+            typeof contact.number === 'number'
               ? String(contact.number).trim()
               : ''
           return {
@@ -70,14 +74,15 @@ function toContactList(value: unknown, legacyHasWhatsapp = false): IContact[] {
 
         return null
       })
-      .filter((contact): contact is IContact => contact != null && Boolean(contact.number))
+      .filter(
+        (contact): contact is IContact =>
+          contact != null && Boolean(contact.number),
+      )
   }
 
   if (typeof value === 'string') {
     const contact = value.trim()
-    return contact
-      ? [{ number: contact, hasWhatsapp: legacyHasWhatsapp }]
-      : []
+    return contact ? [{ number: contact, hasWhatsapp: legacyHasWhatsapp }] : []
   }
 
   return []
@@ -131,7 +136,7 @@ interface IState {
   list: IProfessional[]
   actionType: ActionDialogOptions
   actionsData: IProfessional[]
-  activeOnly: boolean
+  statusFilter: ListStatus
   filterSpecialtyId: string
 }
 
@@ -165,7 +170,7 @@ export function useProfessional() {
     actionsData: [],
     actionType: ActionDialogOptions.delete,
     list: [],
-    activeOnly: true,
+    statusFilter: ListStatus.all,
     filterSpecialtyId: '',
     options: {
       specialty: [],
@@ -213,7 +218,7 @@ export function useProfessional() {
       fetchPage: (q) =>
         ProfessionalService.getListPaginated({
           ...q,
-          all: !state.value.activeOnly,
+          status: state.value.statusFilter,
           specialtyId: state.value.filterSpecialtyId,
         }),
       applyResponse: (res) => {
@@ -223,9 +228,9 @@ export function useProfessional() {
           // Em profissional, status é obrigatório; normaliza payload inconsistente.
           status: validStatuses.has(item.status)
             ? item.status
-            : state.value.activeOnly
-              ? Status.active
-              : Status.inactive,
+            : state.value.statusFilter === ListStatus.inactive
+              ? Status.inactive
+              : Status.active,
         }))
       },
     })
@@ -332,8 +337,9 @@ export function useProfessional() {
       },
       successMessageTitle: `${id ? 'Editado' : 'Cadastrado'} com sucesso`,
       errorMessageTitle: 'Houve um erro',
-      errorMessage: `Não foi possível ${state.value.form.id ? 'editar' : 'salvar'
-        }`,
+      errorMessage: `Não foi possível ${
+        state.value.form.id ? 'editar' : 'salvar'
+      }`,
       loaders: [loader.edit],
     })
   }
@@ -363,8 +369,8 @@ export function useProfessional() {
     })
   }
 
-  async function toggleActiveOnly(activeOnly: boolean) {
-    state.value.activeOnly = activeOnly
+  async function changeStatusFilter(statusFilter: ListStatus) {
+    state.value.statusFilter = statusFilter
     pagination.value.page = 1
     await refreshCurrentPage()
   }
@@ -412,8 +418,8 @@ export function useProfessional() {
 
     const specIds = state.value.form.specialtyIds
     const subIds = state.value.form.subspecialtyIds
-    state.value.options.subspecialty = state.value.optionsData.subspecialty.filter(
-      (sub) => {
+    state.value.options.subspecialty =
+      state.value.optionsData.subspecialty.filter((sub) => {
         if (subIds.includes(sub.id)) return true
         if (sub.specialties?.length)
           return sub.specialties.some((specialty) =>
@@ -423,8 +429,7 @@ export function useProfessional() {
           sub.specialty?.id ??
           (sub as ISubspecialty & { specialtyId?: string }).specialtyId
         return specId != null && specIds.includes(specId)
-      },
-    )
+      })
 
     state.value.options.videos = state.value.optionsData.videos.filter(
       (video) =>
@@ -482,18 +487,20 @@ export function useProfessional() {
     const selectedLocalIds = state.value.form.locationService
     const existingInfo = state.value.form.serviceLocations ?? []
 
-    state.value.form.serviceLocations = selectedLocalIds.map((localServiceId) => {
-      const current = existingInfo.find(
-        (entry) => entry.localServiceId === localServiceId,
-      )
-      return (
-        current ?? {
-          localServiceId,
-          contacts: [],
-          complement: '',
-        }
-      )
-    })
+    state.value.form.serviceLocations = selectedLocalIds.map(
+      (localServiceId) => {
+        const current = existingInfo.find(
+          (entry) => entry.localServiceId === localServiceId,
+        )
+        return (
+          current ?? {
+            localServiceId,
+            contacts: [],
+            complement: '',
+          }
+        )
+      },
+    )
   }
 
   function openActionDialog(action: ActionDialogOptions) {
@@ -544,7 +551,7 @@ export function useProfessional() {
     openEditDialog,
     clearEditDialog,
     openActionDialog,
-    toggleActiveOnly,
+    changeStatusFilter,
     syncInfoLocalService,
   }
 }
