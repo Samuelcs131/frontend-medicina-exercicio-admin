@@ -6,6 +6,10 @@ export interface ISpecialty {
   name: string
   professionalArea: IProfissionalArea | null
   status: Status
+  isUnlinked: boolean
+  professionalCount: number
+  videoCount: number
+  informativeContentCount: number
   createdAt?: string | null
   updatedAt?: string | null
 }

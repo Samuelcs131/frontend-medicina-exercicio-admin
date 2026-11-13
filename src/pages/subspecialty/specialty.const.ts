@@ -25,6 +25,13 @@ export const subspecialtyTableColumns: QTableColumn[] = [
     },
   },
   {
+    label: 'Sem vínculo',
+    field: 'isUnlinked',
+    name: 'isUnlinked',
+    sortable: true,
+    align: 'left',
+  },
+  {
     label: 'Status',
     field: 'status',
     name: 'status',

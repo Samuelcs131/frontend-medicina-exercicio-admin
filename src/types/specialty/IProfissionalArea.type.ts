@@ -5,6 +5,8 @@ export interface IProfissionalArea {
   name: string
   imageURL: string
   status: Status
+  isUnlinked: boolean
+  specialtyCount: number
   order?: number
   createdAt?: string | null
   updatedAt?: string | null

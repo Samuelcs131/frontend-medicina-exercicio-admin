@@ -73,6 +73,22 @@
       <template #body-cell-status="props">
         <status-row :props="props" />
       </template>
+      <template #body-cell-isUnlinked="props">
+        <unlinked-row
+          :props="props"
+          :is-unlinked="props.row.isUnlinked"
+          :links="[
+            {
+              label: 'Profissionais',
+              value: props.row.professionalCount ?? 0,
+            },
+            {
+              label: 'Conteúdos informativos',
+              value: props.row.informativeContentCount ?? 0,
+            },
+          ]"
+        />
+      </template>
       <template #body-cell-actions="props">
         <q-td :props="props">
           <q-btn
@@ -212,6 +228,7 @@ import VDialog from 'src/components/dialog/VDialog.vue'
 import { truncateText } from 'src/utils/text.util'
 import { filterFn } from 'src/utils/filter.util'
 import type { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
+import UnlinkedRow from 'src/components/table/UnlinkedRow.vue'
 
 const {
   state,

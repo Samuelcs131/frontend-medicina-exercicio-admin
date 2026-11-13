@@ -69,6 +69,18 @@
       <template #body-cell-imageURL="props">
         <image-row :props="props" label="imageURL" />
       </template>
+      <template #body-cell-isUnlinked="props">
+        <unlinked-row
+          :props="props"
+          :is-unlinked="props.row.isUnlinked"
+          :links="[
+            {
+              label: 'Especialidades',
+              value: props.row.specialtyCount ?? 0,
+            },
+          ]"
+        />
+      </template>
       <template #body-cell-actions="props">
         <q-td :props="props">
           <q-btn icon="edit" flat round @click="openEditDialog(props.row)">
@@ -267,6 +279,7 @@ import ImageRow from 'src/components/table/ImageRow.vue'
 import { truncateText } from 'src/utils/text.util'
 import draggable from 'vuedraggable'
 import type { IProfissionalArea } from 'src/types/specialty/IProfissionalArea.type'
+import UnlinkedRow from 'src/components/table/UnlinkedRow.vue'
 
 const {
   state,

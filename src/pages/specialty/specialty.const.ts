@@ -17,6 +17,13 @@ export const specialtyTableColumns: QTableColumn[] = [
     format: (v) => (v?.name ? v.name : '-'),
   },
   {
+    label: 'Sem vínculo',
+    field: 'isUnlinked',
+    name: 'isUnlinked',
+    sortable: true,
+    align: 'left',
+  },
+  {
     label: 'Status',
     field: 'status',
     name: 'status',

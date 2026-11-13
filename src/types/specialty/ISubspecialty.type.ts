@@ -10,6 +10,9 @@ export interface ISubspecialty {
   specialtyIds?: string[]
   subspecialtyGroup: ISubspecialtyGroup
   status: Status
+  isUnlinked: boolean
+  professionalCount: number
+  informativeContentCount: number
   createdAt?: string | null
   updatedAt?: string | null
 }

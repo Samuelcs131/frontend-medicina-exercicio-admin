@@ -16,6 +16,13 @@ export const profissionalAreaTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
+    label: 'Sem vínculo',
+    field: 'isUnlinked',
+    name: 'isUnlinked',
+    sortable: true,
+    align: 'left',
+  },
+  {
     label: 'Status',
     field: 'status',
     name: 'status',
