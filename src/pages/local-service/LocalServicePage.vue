@@ -82,6 +82,36 @@
       @confirm-action="confirmAction"
     />
 
+    <q-dialog v-model="duplicateDialogOpen" persistent>
+      <q-card style="width: 500px; max-width: 90vw">
+        <q-card-section>
+          <div class="text-h6">Local de atendimento já cadastrado</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Já existe um local de atendimento com este CEP e número cadastrados.
+          Deseja continuar mesmo assim?
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            label="Não"
+            color="default"
+            :disable="loaderStatus(loader.edit)"
+            @click="cancelDuplicateCreate"
+          />
+          <q-btn
+            unelevated
+            label="Sim"
+            color="primary"
+            :loading="loaderStatus(loader.edit)"
+            @click="confirmDuplicateCreate"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <v-dialog :dialog-id="dialog.example">
       <q-card v-bind="$vCard" style="max-width: 600px">
         <q-card-section>
@@ -268,12 +298,15 @@ import { truncateText } from 'src/utils/text.util'
 
 const {
   state,
+  duplicateDialogOpen,
   filter,
   pagination,
   tableLoading,
   dialog,
   loader,
   save,
+  confirmDuplicateCreate,
+  cancelDuplicateCreate,
   onRequest,
   loaderStatus,
   toggleDialog,

@@ -83,6 +83,7 @@ export function useLocalService() {
   }
 
   const state = ref<IState>(cloneDeep(initState))
+  const duplicateDialogOpen = ref(false)
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
@@ -122,7 +123,7 @@ export function useLocalService() {
     })
   }
 
-  async function save() {
+  async function persist(forceDuplicate = false) {
     const id = state.value.form.id
 
     await requester.dispatch({
@@ -153,6 +154,7 @@ export function useLocalService() {
             state.value.form.number,
             state.value.form.googleMapsLink,
             state.value.form.status,
+            forceDuplicate,
           )
       },
       successCallback: async () => {
@@ -164,8 +166,29 @@ export function useLocalService() {
       errorMessage: `Não foi possível ${
         state.value.form.id ? 'editar' : 'salvar'
       }`,
+      errorMessageStatus: {
+        409: 'Já existe um local de atendimento com este CEP e número.',
+      },
+      errorCallback: (error) => {
+        const status = error?.response?.status
+        if (!id && status === 409) duplicateDialogOpen.value = true
+      },
       loaders: [loader.edit],
     })
+  }
+
+  async function save() {
+    await persist()
+  }
+
+  async function confirmDuplicateCreate() {
+    duplicateDialogOpen.value = false
+    await persist(true)
+  }
+
+  function cancelDuplicateCreate() {
+    duplicateDialogOpen.value = false
+    clearEditDialog()
   }
 
   async function confirmAction() {
@@ -221,12 +244,15 @@ export function useLocalService() {
 
   return {
     state,
+    duplicateDialogOpen,
     filter,
     pagination,
     tableLoading,
     dialog,
     loader,
     save,
+    confirmDuplicateCreate,
+    cancelDuplicateCreate,
     onRequest,
     toggleDialog,
     dialogIsOpen,

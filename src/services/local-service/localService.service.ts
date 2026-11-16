@@ -22,13 +22,14 @@ export async function create(
   name: string,
   state: string,
   city: string,
-  street: string,
   neighborhood: string,
+  street: string,
   coordinates: string,
   zipCode: string,
   number: number,
   googleMapsLink: string,
   status: Status,
+  force = false,
 ) {
   await api.post('/local-service', {
     name,
@@ -40,7 +41,8 @@ export async function create(
     coordinates,
     number,
     googleMapsLink,
-    status
+    status,
+    ...(force ? { force: true } : {}),
   })
 }
 
