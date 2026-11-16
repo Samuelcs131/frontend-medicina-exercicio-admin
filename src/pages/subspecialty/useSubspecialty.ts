@@ -71,16 +71,22 @@ export function useSubspecialty() {
   const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
     useListTableRequest<ISubspecialty>({
       defaultOrdertype: DEFAULT_SORT,
-      allowedOrdertypes: ['name', 'status'],
+      allowedOrdertypes: ['name', 'status', 'onlyUnlinked'],
       defaultDescending: true,
       initialRowsPerPage: 40,
       loaderListId: loader.list,
-      fetchPage: (q) =>
-        SubspecialtyService.getListPaginated({
+      fetchPage: (q) => {
+        const sortingByUnlinked = q.ordertype === 'onlyUnlinked'
+        return SubspecialtyService.getListPaginated({
           ...q,
+          ordertype: sortingByUnlinked ? DEFAULT_SORT : q.ordertype,
           status: state.value.statusFilter,
           specialtyId: state.value.filterSpecialtyId,
-        }),
+          onlyUnlinked: sortingByUnlinked
+            ? q.orderby === 'desc'
+            : undefined,
+        })
+      },
       applyResponse: (res) => {
         state.value.list = res.data
       },

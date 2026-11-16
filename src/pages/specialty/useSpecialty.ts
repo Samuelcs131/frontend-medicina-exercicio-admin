@@ -65,16 +65,22 @@ export function useSpecialty() {
   const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
     useListTableRequest<ISpecialty>({
       defaultOrdertype: DEFAULT_SORT,
-      allowedOrdertypes: ['name', 'status'],
+      allowedOrdertypes: ['name', 'status', 'onlyUnlinked'],
       defaultDescending: true,
       initialRowsPerPage: 40,
       loaderListId: loader.list,
-      fetchPage: (q) =>
-        SpecialtyService.getListPaginated({
+      fetchPage: (q) => {
+        const sortingByUnlinked = q.ordertype === 'onlyUnlinked'
+        return SpecialtyService.getListPaginated({
           ...q,
+          ordertype: sortingByUnlinked ? DEFAULT_SORT : q.ordertype,
           status: state.value.statusFilter,
           professionalAreaId: state.value.filterProfessionalAreaId,
-        }),
+          onlyUnlinked: sortingByUnlinked
+            ? q.orderby === 'desc'
+            : undefined,
+        })
+      },
       applyResponse: (res) => {
         state.value.list = res.data
       },

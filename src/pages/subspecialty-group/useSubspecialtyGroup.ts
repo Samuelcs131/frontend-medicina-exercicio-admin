@@ -123,7 +123,9 @@ export function useSubspecialtyGroup() {
     const sid = state.value.selectedSpecialtyId
     if (!sid) return []
     const data = await SubspecialtyGroupService.getAll(sid)
-    return [...data].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    return data
+      .filter((group) => group.status === Status.active)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   }
 
   async function saveOrder(
@@ -132,10 +134,12 @@ export function useSubspecialtyGroup() {
     const specialtyId = state.value.selectedSpecialtyId
     if (!specialtyId) return false
 
-    const groups = orderedList.map((item, index) => ({
-      id: item.id,
-      order: index + 1,
-    }))
+    const groups = orderedList
+      .filter((item) => item.status === Status.active)
+      .map((item, index) => ({
+        id: item.id,
+        order: index + 1,
+      }))
     let saved = false
 
     await requester.dispatch({

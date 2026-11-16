@@ -130,9 +130,10 @@ export function useVideoPage() {
       callback: async () => {
         const data = await VideoService.getAll()
         state.value.optionsData.videos = cloneDeep(data)
-        state.value.optionsData.videos = cloneDeep(data)
+        state.value.optionsData.relatedVideos = cloneDeep(data)
         state.value.list = cloneDeep(data)
         state.value.options.moreVideos = cloneDeep(data)
+        state.value.options.relatedVideos = cloneDeep(data)
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
@@ -156,16 +157,21 @@ export function useVideoPage() {
   async function fetchOptions() {
     await requester.dispatch({
       callback: async () => {
-        const [specialties, subspecialties] = await Promise.all([
+        const [specialties, subspecialties, posts] = await Promise.all([
           SpecialtyService.getAll(),
           SubspecialtyService.getAll(),
+          PostService.getAllPostResume(),
         ])
 
         state.value.options.specialties = cloneDeep(specialties)
         state.value.options.subspecialties = cloneDeep(subspecialties)
+        state.value.options.posts = cloneDeep(posts)
+        state.value.options.specialtyProfessionals = cloneDeep(specialties)
 
         state.value.optionsData.specialties = cloneDeep(specialties)
         state.value.optionsData.subspecialties = cloneDeep(subspecialties)
+        state.value.optionsData.posts = cloneDeep(posts)
+        state.value.optionsData.specialtyProfessionals = cloneDeep(specialties)
       },
       errorMessageTitle: 'Houve um erro',
       errorMessage: 'Não foi possível buscar os dados',
@@ -175,41 +181,9 @@ export function useVideoPage() {
 
   async function filterByGuests(guestIds: string[]) {
     await requester.dispatch({
-      callback: async () => {
-        if (guestIds.length > 0) {
-          const [posts] = await Promise.all([
-            PostService.getByProfessionalIds(guestIds),
-          ])
-
-          state.value.options.posts = posts
-          state.value.optionsData.posts = cloneDeep(posts)
-        }
-
+      callback: () => {
         state.value.options.videos = state.value.optionsData.videos.filter(
           (video) => video.guests.some((g) => guestIds.includes(g)),
-        )
-
-        const guestSpecialties = new Set<string>([])
-
-        state.value.optionsData.professionals.forEach((p) => {
-          if (!guestIds.includes(p.id)) return
-          p.specialtyIds.forEach((s) => guestSpecialties.add(s))
-        })
-
-        state.value.options.relatedVideos =
-          state.value.optionsData.videos.filter((video) => {
-            return video.specialtyIds.some((s) => guestSpecialties.has(s))
-          })
-        state.value.optionsData.relatedVideos = cloneDeep(
-          state.value.options.relatedVideos,
-        )
-
-        state.value.options.specialtyProfessionals =
-          state.value.optionsData.specialties.filter((specialty) =>
-            guestSpecialties.has(specialty.id),
-          )
-        state.value.optionsData.specialtyProfessionals = cloneDeep(
-          state.value.options.specialtyProfessionals,
         )
       },
       errorMessageTitle: 'Houve um erro',

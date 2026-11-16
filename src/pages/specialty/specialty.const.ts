@@ -19,7 +19,7 @@ export const specialtyTableColumns: QTableColumn[] = [
   {
     label: 'Sem vínculo',
     field: 'isUnlinked',
-    name: 'isUnlinked',
+    name: 'onlyUnlinked',
     sortable: true,
     align: 'left',
   },

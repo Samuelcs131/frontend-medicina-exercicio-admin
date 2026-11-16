@@ -58,15 +58,21 @@ export function useProfissionalArea() {
   const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
     useListTableRequest<IProfissionalArea>({
       defaultOrdertype: DEFAULT_SORT,
-      allowedOrdertypes: ['name', 'status'],
+      allowedOrdertypes: ['name', 'status', 'onlyUnlinked'],
       defaultDescending: true,
       initialRowsPerPage: 40,
       loaderListId: loader.list,
-      fetchPage: (q) =>
-        ProfessionalAreaService.getListPaginated({
+      fetchPage: (q) => {
+        const sortingByUnlinked = q.ordertype === 'onlyUnlinked'
+        return ProfessionalAreaService.getListPaginated({
           ...q,
+          ordertype: sortingByUnlinked ? DEFAULT_SORT : q.ordertype,
           status: state.value.statusFilter,
-        }),
+          onlyUnlinked: sortingByUnlinked
+            ? q.orderby === 'desc'
+            : undefined,
+        })
+      },
       applyResponse: (res) => {
         state.value.list = res.data
       },

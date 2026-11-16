@@ -69,7 +69,7 @@
       <template #body-cell-imageURL="props">
         <image-row :props="props" label="imageURL" />
       </template>
-      <template #body-cell-isUnlinked="props">
+      <template #body-cell-onlyUnlinked="props">
         <unlinked-row
           :props="props"
           :is-unlinked="props.row.isUnlinked"

@@ -624,10 +624,12 @@ const citiesOptions = computed(() => {
 })
 
 const subspecialtyOptions = computed(() => {
-  return state.value.optionsData.subspecialty.filter(
-    (sub) =>
-      sub.specialty != null &&
-      state.value.form.specialtyIds.includes(sub.specialty.id),
+  const selectedSpecialtyIds = state.value.form.specialtyIds
+
+  return state.value.optionsData.subspecialty.filter((subspecialty) =>
+    subspecialty.specialtyIds?.some((specialtyId) =>
+      selectedSpecialtyIds.includes(specialtyId),
+    ),
   )
 })
 

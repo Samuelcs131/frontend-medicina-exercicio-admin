@@ -73,7 +73,7 @@
       <template #body-cell-status="props">
         <status-row :props="props" />
       </template>
-      <template #body-cell-isUnlinked="props">
+      <template #body-cell-onlyUnlinked="props">
         <unlinked-row
           :props="props"
           :is-unlinked="props.row.isUnlinked"
