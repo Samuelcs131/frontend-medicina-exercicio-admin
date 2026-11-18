@@ -3,18 +3,26 @@
     <h1 class="text-h5">Áreas profissionais</h1>
 
     <div class="flex justify-between gap-md q-mb-lg">
-      <q-input
-        outlined
-        dense
-        debounce="500"
-        placeholder="Pesquisar"
-        v-model="filter"
-        style="min-width: 240px"
-      >
-        <template #append>
-          <q-icon name="search" />
-        </template>
-      </q-input>
+      <div class="row items-center gap-md">
+        <q-input
+          outlined
+          dense
+          debounce="500"
+          placeholder="Pesquisar"
+          v-model="filter"
+          style="min-width: 240px"
+        >
+          <template #append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+        <q-toggle
+          :model-value="state.onlyUnlinked"
+          label="Sem vínculo"
+          :disable="tableLoading"
+          @update:model-value="changeUnlinkedFilter"
+        />
+      </div>
       <q-btn
         color="primary"
         icon="sort"
@@ -68,18 +76,6 @@
       </template>
       <template #body-cell-imageURL="props">
         <image-row :props="props" label="imageURL" />
-      </template>
-      <template #body-cell-onlyUnlinked="props">
-        <unlinked-row
-          :props="props"
-          :is-unlinked="props.row.isUnlinked"
-          :links="[
-            {
-              label: 'Especialidades',
-              value: props.row.specialtyCount ?? 0,
-            },
-          ]"
-        />
       </template>
       <template #body-cell-actions="props">
         <q-td :props="props">
@@ -279,7 +275,6 @@ import ImageRow from 'src/components/table/ImageRow.vue'
 import { truncateText } from 'src/utils/text.util'
 import draggable from 'vuedraggable'
 import type { IProfissionalArea } from 'src/types/specialty/IProfissionalArea.type'
-import UnlinkedRow from 'src/components/table/UnlinkedRow.vue'
 
 const {
   state,
@@ -299,6 +294,7 @@ const {
   clearEditDialog,
   openActionDialog,
   changeStatusFilter,
+  changeUnlinkedFilter,
   saveOrder,
   fetchAreasForOrderDialog,
 } = useProfissionalArea()

@@ -31,6 +31,7 @@ interface IState {
   actionsData: ISubspecialty[]
   statusFilter: ListStatus
   filterSpecialtyId: string
+  onlyUnlinked: boolean
 }
 
 export function useSubspecialty() {
@@ -51,6 +52,7 @@ export function useSubspecialty() {
     list: [],
     statusFilter: ListStatus.all,
     filterSpecialtyId: '',
+    onlyUnlinked: false,
   }
 
   const dialog = {
@@ -71,22 +73,17 @@ export function useSubspecialty() {
   const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
     useListTableRequest<ISubspecialty>({
       defaultOrdertype: DEFAULT_SORT,
-      allowedOrdertypes: ['name', 'status', 'onlyUnlinked'],
+      allowedOrdertypes: ['name', 'status'],
       defaultDescending: true,
       initialRowsPerPage: 40,
       loaderListId: loader.list,
-      fetchPage: (q) => {
-        const sortingByUnlinked = q.ordertype === 'onlyUnlinked'
-        return SubspecialtyService.getListPaginated({
+      fetchPage: (q) =>
+        SubspecialtyService.getListPaginated({
           ...q,
-          ordertype: sortingByUnlinked ? DEFAULT_SORT : q.ordertype,
           status: state.value.statusFilter,
           specialtyId: state.value.filterSpecialtyId,
-          onlyUnlinked: sortingByUnlinked
-            ? q.orderby === 'desc'
-            : undefined,
-        })
-      },
+          onlyUnlinked: state.value.onlyUnlinked || undefined,
+        }),
       applyResponse: (res) => {
         state.value.list = res.data
       },
@@ -198,6 +195,12 @@ export function useSubspecialty() {
     await refreshCurrentPage()
   }
 
+  async function changeUnlinkedFilter(onlyUnlinked: boolean) {
+    state.value.onlyUnlinked = onlyUnlinked
+    pagination.value.page = 1
+    await refreshCurrentPage()
+  }
+
   return {
     state,
     filter,
@@ -218,5 +221,6 @@ export function useSubspecialty() {
     clearEditDialog,
     openActionDialog,
     changeStatusFilter,
+    changeUnlinkedFilter,
   }
 }

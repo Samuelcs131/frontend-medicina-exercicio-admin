@@ -23,6 +23,7 @@ interface IState {
   actionType: ActionDialogOptions
   actionsData: IProfissionalArea[]
   statusFilter: ListStatus
+  onlyUnlinked: boolean
 }
 
 export function useProfissionalArea() {
@@ -37,6 +38,7 @@ export function useProfissionalArea() {
     actionType: ActionDialogOptions.delete,
     list: [],
     statusFilter: ListStatus.all,
+    onlyUnlinked: false,
   }
 
   const dialog = {
@@ -58,21 +60,16 @@ export function useProfissionalArea() {
   const { filter, pagination, tableLoading, onRequest, refreshCurrentPage } =
     useListTableRequest<IProfissionalArea>({
       defaultOrdertype: DEFAULT_SORT,
-      allowedOrdertypes: ['name', 'status', 'onlyUnlinked'],
+      allowedOrdertypes: ['name', 'status'],
       defaultDescending: true,
       initialRowsPerPage: 40,
       loaderListId: loader.list,
-      fetchPage: (q) => {
-        const sortingByUnlinked = q.ordertype === 'onlyUnlinked'
-        return ProfessionalAreaService.getListPaginated({
+      fetchPage: (q) =>
+        ProfessionalAreaService.getListPaginated({
           ...q,
-          ordertype: sortingByUnlinked ? DEFAULT_SORT : q.ordertype,
           status: state.value.statusFilter,
-          onlyUnlinked: sortingByUnlinked
-            ? q.orderby === 'desc'
-            : undefined,
-        })
-      },
+          onlyUnlinked: state.value.onlyUnlinked || undefined,
+        }),
       applyResponse: (res) => {
         state.value.list = res.data
       },
@@ -184,6 +181,12 @@ export function useProfissionalArea() {
     await refreshCurrentPage()
   }
 
+  async function changeUnlinkedFilter(onlyUnlinked: boolean) {
+    state.value.onlyUnlinked = onlyUnlinked
+    pagination.value.page = 1
+    await refreshCurrentPage()
+  }
+
   function addFile(files: readonly File[]) {
     const [file] = files
     state.value.form.imageFile = file as File
@@ -213,6 +216,7 @@ export function useProfissionalArea() {
     clearEditDialog,
     openActionDialog,
     changeStatusFilter,
+    changeUnlinkedFilter,
     saveOrder,
     fetchAreasForOrderDialog,
   }

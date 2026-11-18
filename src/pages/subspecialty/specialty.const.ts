@@ -25,11 +25,18 @@ export const subspecialtyTableColumns: QTableColumn[] = [
     },
   },
   {
-    label: 'Sem vínculo',
-    field: 'isUnlinked',
-    name: 'onlyUnlinked',
-    sortable: true,
+    label: 'Profissionais',
+    field: 'professionalCount',
+    name: 'professionalCount',
     align: 'left',
+    format: (value) => value ?? 0,
+  },
+  {
+    label: 'Conteúdos informativos',
+    field: 'informativeContentCount',
+    name: 'informativeContentCount',
+    align: 'left',
+    format: (value) => value ?? 0,
   },
   {
     label: 'Status',

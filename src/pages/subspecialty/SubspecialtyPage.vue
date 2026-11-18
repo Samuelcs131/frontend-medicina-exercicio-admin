@@ -29,6 +29,12 @@
         style="min-width: 240px"
         @update:model-value="handleSpecialtyFilterChange"
       />
+      <q-toggle
+        :model-value="state.onlyUnlinked"
+        label="Sem vínculo"
+        :disable="tableLoading"
+        @update:model-value="changeUnlinkedFilter"
+      />
     </div>
     <q-table
       ref="tableRef"
@@ -72,22 +78,6 @@
       </template>
       <template #body-cell-status="props">
         <status-row :props="props" />
-      </template>
-      <template #body-cell-onlyUnlinked="props">
-        <unlinked-row
-          :props="props"
-          :is-unlinked="props.row.isUnlinked"
-          :links="[
-            {
-              label: 'Profissionais',
-              value: props.row.professionalCount ?? 0,
-            },
-            {
-              label: 'Conteúdos informativos',
-              value: props.row.informativeContentCount ?? 0,
-            },
-          ]"
-        />
       </template>
       <template #body-cell-actions="props">
         <q-td :props="props">
@@ -228,7 +218,6 @@ import VDialog from 'src/components/dialog/VDialog.vue'
 import { truncateText } from 'src/utils/text.util'
 import { filterFn } from 'src/utils/filter.util'
 import type { ISubspecialty } from 'src/types/specialty/ISubspecialty.type'
-import UnlinkedRow from 'src/components/table/UnlinkedRow.vue'
 
 const {
   state,
@@ -248,6 +237,7 @@ const {
   clearEditDialog,
   openActionDialog,
   changeStatusFilter,
+  changeUnlinkedFilter,
 } = useSubspecialty()
 
 const tableRef = ref<QTable | null>(null)

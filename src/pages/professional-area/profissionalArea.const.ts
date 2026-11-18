@@ -16,11 +16,11 @@ export const profissionalAreaTableColumns: QTableColumn[] = [
     align: 'left',
   },
   {
-    label: 'Sem vínculo',
-    field: 'isUnlinked',
-    name: 'onlyUnlinked',
-    sortable: true,
+    label: 'Especialidades',
+    field: 'specialtyCount',
+    name: 'specialtyCount',
     align: 'left',
+    format: (value) => value ?? 0,
   },
   {
     label: 'Status',

@@ -29,6 +29,12 @@
         style="min-width: 240px"
         @update:model-value="handleProfessionalAreaChange"
       />
+      <q-toggle
+        :model-value="state.onlyUnlinked"
+        label="Sem vínculo"
+        :disable="tableLoading"
+        @update:model-value="changeUnlinkedFilter"
+      />
     </div>
     <q-table
       ref="tableRef"
@@ -72,23 +78,6 @@
       </template>
       <template #body-cell-status="props">
         <status-row :props="props" />
-      </template>
-      <template #body-cell-onlyUnlinked="props">
-        <unlinked-row
-          :props="props"
-          :is-unlinked="props.row.isUnlinked"
-          :links="[
-            {
-              label: 'Profissionais',
-              value: props.row.professionalCount ?? 0,
-            },
-            { label: 'Vídeos', value: props.row.videoCount ?? 0 },
-            {
-              label: 'Conteúdos informativos',
-              value: props.row.informativeContentCount ?? 0,
-            },
-          ]"
-        />
       </template>
       <template #body-cell-actions="props">
         <q-td :props="props">
@@ -197,7 +186,6 @@ import { requiredRule } from 'src/validations/form-rules/mixedRules.util'
 import { listStatusOptions, statusOptions } from 'src/constants/status.const'
 import VDialog from 'src/components/dialog/VDialog.vue'
 import { truncateText } from 'src/utils/text.util'
-import UnlinkedRow from 'src/components/table/UnlinkedRow.vue'
 
 const {
   state,
@@ -217,6 +205,7 @@ const {
   clearEditDialog,
   openActionDialog,
   changeStatusFilter,
+  changeUnlinkedFilter,
 } = useSpecialty()
 
 const tableRef = ref<QTable | null>(null)
