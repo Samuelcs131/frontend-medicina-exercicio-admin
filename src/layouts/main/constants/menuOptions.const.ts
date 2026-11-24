@@ -57,7 +57,7 @@ export const menuOptions: IMenuOptions[] = [
     name: 'Locais de atendimento',
     separator: false,
     to: { name: 'localService' },
-    roles: [Roles.admin],
+    roles: [Roles.admin, Roles.professional],
     children: [],
   },
   {
