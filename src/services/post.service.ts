@@ -6,7 +6,7 @@ import { buildListParams, type IListQuery } from 'src/utils/listQuery.util'
 import { fakePromise } from 'src/utils/fakePromise.util'
 
 export async function getAllPostResume(): Promise<IPostResume[]> {
-  const { data } = await api.get<IPostResume[]>('/post')
+  const { data } = await api.get<IPostResume[]>('/post/names')
   return data
 }
 

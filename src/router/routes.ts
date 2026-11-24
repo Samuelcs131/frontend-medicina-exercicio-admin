@@ -69,7 +69,7 @@ const routes: RouteRecordRaw[] = [
         path: 'localService',
         name: 'localService',
         component: () => import('pages/local-service/LocalServicePage.vue'),
-        meta: { requiresAuth: true, roles: [Roles.admin] },
+        meta: { requiresAuth: true, roles: [Roles.admin, Roles.professional] },
       },
       {
         path: 'professional',

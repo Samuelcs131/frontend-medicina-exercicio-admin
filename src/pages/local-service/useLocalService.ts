@@ -84,6 +84,7 @@ export function useLocalService() {
 
   const state = ref<IState>(cloneDeep(initState))
   const duplicateDialogOpen = ref(false)
+  const duplicateLocalServiceNames = ref<string[]>([])
   const { createDialog, toggleDialog, dialogIsOpen } = useDialog()
   const { loaderStatus } = useLoader()
 
@@ -171,7 +172,13 @@ export function useLocalService() {
       },
       errorCallback: (error) => {
         const status = error?.response?.status
-        if (!id && status === 409) duplicateDialogOpen.value = true
+        if (!id && status === 409) {
+          duplicateLocalServiceNames.value =
+            error?.response?.data?.details?.existingLocalServices?.map(
+              (localService: { name: string }) => localService.name,
+            ) ?? []
+          duplicateDialogOpen.value = true
+        }
       },
       loaders: [loader.edit],
     })
@@ -184,10 +191,12 @@ export function useLocalService() {
   async function confirmDuplicateCreate() {
     duplicateDialogOpen.value = false
     await persist(true)
+    duplicateLocalServiceNames.value = []
   }
 
   function cancelDuplicateCreate() {
     duplicateDialogOpen.value = false
+    duplicateLocalServiceNames.value = []
     clearEditDialog()
   }
 
@@ -245,6 +254,7 @@ export function useLocalService() {
   return {
     state,
     duplicateDialogOpen,
+    duplicateLocalServiceNames,
     filter,
     pagination,
     tableLoading,
